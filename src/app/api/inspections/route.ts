@@ -5,12 +5,14 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
+    const email = searchParams.get('email')
     const where: Record<string, unknown> = {}
     if (status) where.status = status
+    if (email) where.clientEmail = email
 
     const inspections = await prisma.inspection.findMany({
       where,
-      include: { property: { select: { title: true, location: true } } },
+      include: { property: { select: { title: true, location: true, images: true } } },
       orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json(inspections)
