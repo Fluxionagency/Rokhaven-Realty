@@ -2,19 +2,26 @@
 
 export const dynamic = 'force-dynamic';
 
-import { Suspense, useState, useCallback } from 'react';
+import { Suspense, useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 import styles from './page.module.css';
 
-// ── Mock property data
-const MOCK_PROPERTY = {
-  name: 'The Arch Residences',
-  price: '₦850,000,000',
-  location: 'Ikoyi, Lagos',
+interface PropertyInfo {
+  name: string;
+  price: string;
+  location: string;
+  image: string;
+  tags: string[];
+}
+
+const FALLBACK_PROPERTY: PropertyInfo = {
+  name: 'RokHaven Property',
+  price: '',
+  location: 'Lagos, Nigeria',
   image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop',
-  tags: ['4 Bedrooms', 'Penthouse', 'For Sale', 'Ikoyi'],
+  tags: [],
 };
 
 const TOTAL_STEPS = 12;
@@ -47,7 +54,30 @@ function ScheduleInspectionContent() {
   const searchParams = useSearchParams();
   const propertyId = searchParams.get('propertyId');
 
-  const property = MOCK_PROPERTY; // extend later with real fetch by propertyId
+  const [property, setProperty] = useState<PropertyInfo>(FALLBACK_PROPERTY);
+
+  useEffect(() => {
+    if (!propertyId) return;
+    fetch(`/api/properties/${propertyId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data || data.error) return;
+        let image = FALLBACK_PROPERTY.image;
+        try {
+          const imgs = JSON.parse(data.images);
+          if (Array.isArray(imgs) && imgs[0]) image = imgs[0];
+        } catch { /* use fallback */ }
+        const tags: string[] = [];
+        if (data.bedrooms) tags.push(`${data.bedrooms} Bedroom${data.bedrooms !== 1 ? 's' : ''}`);
+        if (data.type) tags.push(data.type);
+        if (data.category === 'SALE') tags.push('For Sale');
+        else if (data.category === 'RENT') tags.push('For Rent');
+        else if (data.category === 'SHORTLET') tags.push('Shortlet');
+        if (data.neighbourhood || data.location) tags.push(data.neighbourhood || data.location.split(',')[0]);
+        setProperty({ name: data.title, price: data.price, location: data.location, image, tags });
+      })
+      .catch(() => { /* keep fallback */ });
+  }, [propertyId]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);

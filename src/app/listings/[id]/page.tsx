@@ -25,6 +25,25 @@ interface DbProperty {
   status: string;
 }
 
+interface SimilarProperty {
+  id: string;
+  title: string;
+  price: string;
+  location: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
+  badge: string | null;
+  images: string;
+}
+
+function firstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr[0] ? arr[0] : '';
+  } catch { return ''; }
+}
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -37,6 +56,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
   const [heroIdx, setHeroIdx] = useState(0);
   const [lbOpen, setLbOpen] = useState(false);
   const [lbIdx, setLbIdx] = useState(0);
+  const [similar, setSimilar] = useState<SimilarProperty[]>([]);
 
   useEffect(() => {
     params.then((p) => setId(p.id));
@@ -54,6 +74,14 @@ export default function PropertyDetailPage({ params }: PageProps) {
         } catch {
           setPhotos([]);
         }
+        // Fetch similar properties (same category, exclude current)
+        fetch(`/api/properties?limit=3`)
+          .then((r) => r.json())
+          .then((res) => {
+            const others = (res.properties || []).filter((p: SimilarProperty) => p.id !== id);
+            setSimilar(others.slice(0, 3));
+          })
+          .catch(() => {});
       })
       .catch(() => setProperty(null))
       .finally(() => setLoading(false));
@@ -277,37 +305,39 @@ export default function PropertyDetailPage({ params }: PageProps) {
       </div>
 
       {/* ── SIMILAR PROPERTIES ── */}
-      <section className={styles.similar}>
-        <div className={styles.similarHdr}>
-          <div>
-            <div className="slbl">More Like This</div>
-            <h2 className="sec-h">You May Also Like</h2>
-          </div>
-          <Link href="/listings" className="link-gold">
-            View All →
-          </Link>
-        </div>
-        <div className={styles.similarGrid}>
-          {SIMILAR.map((p) => (
-            <Link key={p.slug} href={`/listings/${p.slug}`} className="pcard" style={{ textDecoration: 'none' }}>
-              <div className="cimg">
-                <img src={p.img} alt={p.title} loading="lazy" />
-                {p.badge && <div className="badge">{p.badge}</div>}
-              </div>
-              <div className="cbody">
-                <div className="cname">{p.title}</div>
-                <div className="cprice">{p.price}</div>
-                <div className="cloc">{p.location}</div>
-                <div className="cmeta">
-                  <span>{p.beds} Beds</span>
-                  <span>{p.baths} Baths</span>
-                  <span>{p.sqm.toLocaleString()} sqm</span>
-                </div>
-              </div>
+      {similar.length > 0 && (
+        <section className={styles.similar}>
+          <div className={styles.similarHdr}>
+            <div>
+              <div className="slbl">More Like This</div>
+              <h2 className="sec-h">You May Also Like</h2>
+            </div>
+            <Link href="/listings" className="link-gold">
+              View All →
             </Link>
-          ))}
-        </div>
-      </section>
+          </div>
+          <div className={styles.similarGrid}>
+            {similar.map((p) => (
+              <Link key={p.id} href={`/listings/${p.id}`} className="pcard" style={{ textDecoration: 'none' }}>
+                <div className="cimg">
+                  <img src={firstImage(p.images)} alt={p.title} loading="lazy" />
+                  {p.badge && <div className="badge">{p.badge}</div>}
+                </div>
+                <div className="cbody">
+                  <div className="cname">{p.title}</div>
+                  <div className="cprice">{p.price}</div>
+                  <div className="cloc">{p.location}</div>
+                  <div className="cmeta">
+                    <span>{p.bedrooms} Beds</span>
+                    <span>{p.bathrooms} Baths</span>
+                    {p.sqm && <span>{p.sqm.toLocaleString()} sqm</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
     </>
