@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokHaven Realty — Wireframes v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>* { box-sizing: border-box; margin: 0; padding: 0; } body { background: #0A0F18; }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="wireframe-ui.jsx"></script>
+<script type="text/babel">
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 1 · HOMEPAGE
+════════════════════════════════════════════════════════ */
+const S1_Homepage = () => (
+  <div style={{background:WF.bg,display:'flex',flexDirection:'column'}}>
+    <WNav/>
+
+    {/* HERO */}
+    <div style={{position:'relative',height:480}}>
+      <WImg lbl="HERO — Full-width architectural photograph" style={{position:'absolute',inset:0,width:'100%',height:'100%',border:'none'}}/>
+      <div style={{position:'absolute',inset:0,background:'rgba(10,21,32,0.72)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:'0 80px'}}>
+        <WLbl accent>Nigeria's Premier Luxury Real Estate Platform</WLbl>
+        <WH size={44} style={{textAlign:'center',color:'#EEE8DC',maxWidth:640}}>Where Legacy Lives</WH>
+        <WStr size={15} muted style={{textAlign:'center',maxWidth:480}}>Curated luxury properties across Lagos and beyond.</WStr>
+        {/* Search bar */}
+        <div style={{display:'flex',width:'100%',maxWidth:820,marginTop:8,border:`1px solid ${WF.border}`,borderRadius:4,overflow:'hidden',background:WF.surf}}>
+          <WInput placeholder="Enter location or keyword…" style={{flex:1,borderRadius:0,border:'none'}}/>
+          <div style={{width:1,background:WF.border,flexShrink:0}}/>
+          <WDrop label="Property Type" style={{width:180,borderRadius:0,border:'none'}}/>
+          <div style={{width:1,background:WF.border,flexShrink:0}}/>
+          <WDrop label="Category ▾" style={{width:150,borderRadius:0,border:'none'}}/>
+          <WBtn accent style={{borderRadius:0,height:44,width:120}}>Search</WBtn>
+        </div>
+        <Ann>Search bar: location · property type · category</Ann>
+      </div>
+    </div>
+
+    {/* FEATURED PROPERTIES */}
+    <div style={{padding:'60px 48px'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:28}}>
+        <div><WLbl style={{marginBottom:8}}>Curated Selection</WLbl><WH size={28}>Featured Properties</WH></div>
+        <WBtn ghost>View All →</WBtn>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20}}>
+        {['New','Featured','','Featured'].map((b,i)=><WCard key={i} badge={b}/>)}
+      </div>
+    </div>
+
+    {/* CATEGORY TILES */}
+    <div style={{padding:'0 48px 60px'}}>
+      <WLbl style={{textAlign:'center',marginBottom:8}}>Browse By Category</WLbl>
+      <WH size={28} style={{textAlign:'center',marginBottom:32}}>Find What You're Looking For</WH>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>
+        {[['SALES','Acquire a premium property to call your own.'],['RENT','Luxury living, entirely on your terms.'],['SHORTLETS','Premium stays for the discerning traveller.']].map(([label,desc])=>(
+          <WBox key={label} accent style={{height:200,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,background:WF.surf}}>
+            <div style={{width:44,height:44,border:`1px solid ${WF.borderA}`,borderRadius:'50%',opacity:0.5}}/>
+            <WH size={15} style={{letterSpacing:'0.18em'}}>{label}</WH>
+            <WStr size={12} muted style={{textAlign:'center',maxWidth:220}}>{desc}</WStr>
+          </WBox>
+        ))}
+      </div>
+    </div>
+
+    {/* WHY ROKHAVEN */}
+    <div style={{padding:'60px 48px',background:WF.surf,borderTop:`1px solid ${WF.border}`,borderBottom:`1px solid ${WF.border}`}}>
+      <WLbl style={{textAlign:'center',marginBottom:8}}>Our Commitment</WLbl>
+      <WH size={28} style={{textAlign:'center',marginBottom:44}}>The RokHaven Difference</WH>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:48}}>
+        {['Verified Listings','Expert Agents','Seamless Process'].map(p=>(
+          <div key={p} style={{textAlign:'center'}}>
+            <div style={{width:48,height:48,border:`1px solid ${WF.borderA}`,borderRadius:'50%',margin:'0 auto 16px',opacity:0.55}}/>
+            <WH size={16} style={{marginBottom:10}}>{p}</WH>
+            <WStr size={12} muted style={{lineHeight:1.7}}>Short descriptor of this trust pillar — what it means for the client.</WStr>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <WFooter/>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 2 · LISTINGS PAGE
+════════════════════════════════════════════════════════ */
+const S2_Listings = () => (
+  <div style={{background:WF.bg,display:'flex',flexDirection:'column'}}>
+    <WNav/>
+
+    {/* Page header */}
+    <div style={{padding:'36px 48px 24px',borderBottom:`1px solid ${WF.border}`}}>
+      <WLbl style={{marginBottom:6}}>Browse</WLbl>
+      <WH size={32}>Properties for Sale</WH>
+    </div>
+
+    {/* Search bar */}
+    <div style={{padding:'20px 48px',background:WF.surf,borderBottom:`1px solid ${WF.border}`}}>
+      <Ann style={{marginBottom:8}}>Prominent search — sticky on scroll</Ann>
+      <div style={{display:'flex',gap:12}}>
+        <WInput placeholder="Search by location, address, or keyword…" style={{flex:1}}/>
+        <WBtn accent style={{width:120}}>Search</WBtn>
+      </div>
+    </div>
+
+    {/* Filter row */}
+    <div style={{padding:'14px 48px',background:WF.surf,borderBottom:`1px solid ${WF.border}`}}>
+      <Ann style={{marginBottom:10}}>Filter bar — sticky below search bar on scroll</Ann>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <WDrop label="Location" style={{width:168}}/>
+        <WDrop label="Property Type" style={{width:168}}/>
+        <WDrop label="Price Range (₦)" style={{width:180}}/>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <WLbl style={{marginRight:2}}>Beds</WLbl>
+          {['Any','1','2','3','4','5+'].map(v=><WPill key={v} label={v} active={v==='3'}/>)}
+        </div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <WLbl style={{marginRight:2}}>Baths</WLbl>
+          {['Any','1','2','3','4+'].map(v=><WPill key={v} label={v}/>)}
+        </div>
+        <WBtn sm>More Filters ▾</WBtn>
+      </div>
+    </div>
+
+    {/* Active filters + results bar */}
+    <div style={{padding:'12px 48px',display:'flex',alignItems:'center',gap:10,borderBottom:`1px solid ${WF.border}`,flexWrap:'wrap'}}>
+      <WTag>Lekki Phase 1 ×</WTag>
+      <WTag>3 Beds ×</WTag>
+      <WStr size={11} muted style={{cursor:'default',marginLeft:4}}>Clear All</WStr>
+      <div style={{flex:1}}/>
+      <WStr size={12} muted>Showing 12 of 34 properties</WStr>
+      <WDrop label="Sort: Newest" style={{width:190,height:36}}/>
+      {/* View toggle */}
+      <div style={{display:'flex',gap:6}}>
+        <div style={{width:34,height:34,border:`1px solid ${WF.borderA}`,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <svg width="14" height="14" fill={WF.accent}><rect x="0" y="0" width="6" height="6"/><rect x="8" y="0" width="6" height="6"/><rect x="0" y="8" width="6" height="6"/><rect x="8" y="8" width="6" height="6"/></svg>
+        </div>
+        <div style={{width:34,height:34,border:`1px solid ${WF.border}`,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <svg width="14" height="10" fill={WF.muted}><rect x="0" y="0" width="14" height="2"/><rect x="0" y="4" width="14" height="2"/><rect x="0" y="8" width="14" height="2"/></svg>
+        </div>
+      </div>
+    </div>
+
+    {/* Grid */}
+    <div style={{padding:'32px 48px 40px'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}}>
+        {['New','Featured','','New','','Featured','Sold','',''].map((b,i)=><WCard key={i} badge={b}/>)}
+      </div>
+    </div>
+
+    {/* Pagination */}
+    <div style={{padding:'0 48px 48px',display:'flex',justifyContent:'center',gap:8}}>
+      {['←','1','2','3','…','8','→'].map(p=>(
+        <div key={p+Math.random()} style={{width:36,height:36,border:`1px solid ${p==='1'?WF.borderA:WF.border}`,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',background:p==='1'?'rgba(192,168,112,0.08)':'transparent'}}>
+          <WStr size={12} accent={p==='1'} muted={p!=='1'}>{p}</WStr>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 3 · PROPERTY DETAIL PAGE
+════════════════════════════════════════════════════════ */
+const S3_PropertyDetail = () => (
+  <div style={{background:WF.bg}}>
+    <WNav/>
+
+    {/* Gallery */}
+    <div style={{display:'grid',gridTemplateColumns:'1fr 280px',gap:3,height:440}}>
+      <WImg lbl="MAIN PHOTO — Primary hero image" style={{height:'100%'}}/>
+      <div style={{display:'flex',flexDirection:'column',gap:3}}>
+        {['PHOTO 2','PHOTO 3','PHOTO 4'].map(l=><WImg key={l} lbl={l} style={{flex:1}}/>)}
+        <div style={{position:'relative',flex:1}}>
+          <WImg lbl="PHOTO 5" style={{height:'100%'}}/>
+          <div style={{position:'absolute',inset:0,background:'rgba(10,21,32,0.68)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <WStr size={12} accent bold>+ More Photos</WStr>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Video tour */}
+    <div style={{padding:'24px 48px 0'}}>
+      <WBox lbl="VIDEO TOUR SECTION" style={{height:280,background:WF.img,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:14}}>
+        <div style={{width:56,height:56,borderRadius:'50%',border:`1.5px solid ${WF.borderA}`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{width:0,height:0,borderTop:'10px solid transparent',borderBottom:'10px solid transparent',borderLeft:`16px solid ${WF.accent}`,marginLeft:4}}/>
+        </div>
+        <WStr size={12} muted>Virtual Property Tour — 3:42</WStr>
+      </WBox>
+    </div>
+
+    {/* Detail + Sidebar */}
+    <div style={{padding:'40px 48px 60px',display:'grid',gridTemplateColumns:'1fr 340px',gap:56}}>
+
+      {/* LEFT: Detail content */}
+      <div>
+        <WLbl style={{marginBottom:8}}>Banana Island, Lagos</WLbl>
+        <WH size={32} style={{marginBottom:10}}>Property Name — Full Title Here</WH>
+        <WStr size={24} accent bold style={{marginBottom:32}}>₦ 000,000,000</WStr>
+
+        {/* Quick specs */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,padding:'20px 0',borderTop:`1px solid ${WF.border}`,borderBottom:`1px solid ${WF.border}`,marginBottom:32}}>
+          {[['Bedrooms','5'],['Bathrooms','6'],['Size','850 sqm'],['Type','Fully Detached']].map(([k,v])=>(
+            <div key={k}><WLbl style={{marginBottom:8}}>{k}</WLbl><WStr size={16} bold>{v}</WStr></div>
+          ))}
+        </div>
+
+        {/* Description */}
+        <WLbl style={{marginBottom:14}}>About This Property</WLbl>
+        {[100,100,100,60].map((w,i)=>(
+          <div key={i} style={{height:13,background:WF.border,borderRadius:2,opacity:0.4,marginBottom:10,width:`${w}%`}}/>
+        ))}
+        {[100,100,80].map((w,i)=>(
+          <div key={i} style={{height:13,background:WF.border,borderRadius:2,opacity:0.4,marginBottom:10,width:`${w}%`}}/>
+        ))}
+
+        {/* Features */}
+        <WLbl style={{marginTop:32,marginBottom:16}}>Property Features</WLbl>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
+          {['Swimming Pool','BQ / Staff Quarters','Gym','24/7 Security','Generator','Parking (4 cars)','Smart Home System','Home Theatre'].map(f=>(
+            <div key={f} style={{display:'flex',alignItems:'center',gap:10}}>
+              <div style={{width:6,height:6,borderRadius:'50%',border:`1px solid ${WF.borderA}`,flexShrink:0}}/>
+              <WStr size={12}>{f}</WStr>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* RIGHT: Sidebar */}
+      <div>
+        <WBox accent lbl="PRIMARY CTA" style={{padding:'28px 24px',background:WF.surf,marginBottom:20}}>
+          <WH size={18} style={{marginBottom:8}}>Interested in this property?</WH>
+          <WStr size={12} muted style={{marginBottom:24,lineHeight:1.7}}>Schedule a guided inspection with our expert team.</WStr>
+          <WBtn accent style={{width:'100%',height:50,fontSize:12}}>Schedule Inspection</WBtn>
+          <Ann style={{marginTop:10}}>Only CTA — no WhatsApp or direct call shown</Ann>
+        </WBox>
+        <WBox lbl="AGENT TRUST BADGE" style={{padding:'20px 24px',background:WF.surf,display:'flex',alignItems:'center',gap:16}}>
+          <WImg lbl="" style={{width:52,height:52,borderRadius:'50%',flexShrink:0}}/>
+          <div>
+            <WH size={14} style={{marginBottom:4}}>Listed by RokHaven Realty</WH>
+            <WStr size={11} muted>Verified Agency · Licensed</WStr>
+          </div>
+        </WBox>
+      </div>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 4 · SCHEDULE INSPECTION
+════════════════════════════════════════════════════════ */
+const S4_Schedule = () => (
+  <div style={{background:WF.bg}}>
+    <WNav/>
+    <div style={{maxWidth:680,margin:'0 auto',padding:'60px 24px'}}>
+      <WLbl style={{marginBottom:10}}>Book a Visit</WLbl>
+      <WH size={36} style={{marginBottom:12}}>Schedule Your Inspection</WH>
+      <WStr size={13} muted style={{marginBottom:48,lineHeight:1.7}}>Our expert team will guide you through every step of the inspection process.</WStr>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div><WLbl style={{marginBottom:8}}>Full Name</WLbl><WInput placeholder="Your full name"/></div>
+        <div><WLbl style={{marginBottom:8}}>Phone Number</WLbl><WInput placeholder="+234 — — — —"/></div>
+        <div style={{gridColumn:'1/-1'}}><WLbl style={{marginBottom:8}}>Email Address</WLbl><WInput placeholder="you@example.com"/></div>
+        <div><WLbl style={{marginBottom:8}}>Preferred Date</WLbl><WInput placeholder="Select date  📅"/></div>
+        <div><WLbl style={{marginBottom:8}}>Preferred Time</WLbl><WDrop label="Select time slot"/></div>
+      </div>
+
+      {/* Acknowledgement */}
+      <WBox lbl="ACKNOWLEDGEMENT" style={{padding:'16px 18px',background:WF.surf,marginBottom:28,display:'flex',gap:14,alignItems:'flex-start'}}>
+        <div style={{width:18,height:18,border:`1px solid ${WF.borderA}`,borderRadius:2,flexShrink:0,marginTop:2}}/>
+        <WStr size={12} style={{lineHeight:1.8,color:WF.label}}>
+          I understand that RokHaven Realty is a professional real estate agency. By scheduling this inspection, I agree to pay the applicable brokerage / professional service fee upon successful transaction.
+        </WStr>
+      </WBox>
+
+      <WBtn accent style={{width:'100%',height:52,fontSize:11}}>Confirm Inspection</WBtn>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 5 · INSPECTION CONFIRMED
+════════════════════════════════════════════════════════ */
+const S5_Confirmed = () => (
+  <div style={{background:WF.bg}}>
+    <WNav/>
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 24px',textAlign:'center'}}>
+      <div style={{width:80,height:80,borderRadius:'50%',border:`1.5px solid ${WF.borderA}`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:32}}>
+        <svg width="32" height="32" fill="none" stroke={WF.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,17 13,25 27,9"/></svg>
+      </div>
+      <WLbl accent style={{marginBottom:12}}>Booking Confirmed</WLbl>
+      <WH size={36} style={{marginBottom:16}}>Your Inspection is Confirmed</WH>
+      <WStr size={14} muted style={{maxWidth:500,lineHeight:1.9,marginBottom:44}}>
+        Thank you, [Name]. A member of our team will reach out shortly to confirm the details of your inspection.
+      </WStr>
+      <WBtn accent style={{height:48,fontSize:10}}>Browse More Properties →</WBtn>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 6 · ADMIN LOGIN
+════════════════════════════════════════════════════════ */
+const S6_AdminLogin = () => (
+  <div style={{background:'#060F1C',minHeight:600,display:'flex',alignItems:'center',justifyContent:'center'}}>
+    <div style={{width:420,textAlign:'center'}}>
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,marginBottom:48}}>
+        <svg width="40" height="40" viewBox="0 0 60 60" fill={WF.accent}><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+        <div style={{fontFamily:"'DM Serif Display',serif",fontSize:20,color:WF.accent,letterSpacing:'0.22em'}}>ROKHAVEN</div>
+        <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:9,color:WF.accent,letterSpacing:'0.46em',opacity:0.55}}>ADMIN PORTAL</div>
+      </div>
+      <WBox lbl="SECURE LOGIN FORM" style={{padding:'32px 28px',background:WF.surf}}>
+        <div style={{marginBottom:16,textAlign:'left'}}>
+          <WLbl style={{marginBottom:8}}>Email Address</WLbl>
+          <WInput placeholder="admin@rokhaven.com" style={{width:'100%'}}/>
+        </div>
+        <div style={{marginBottom:28,textAlign:'left'}}>
+          <WLbl style={{marginBottom:8}}>Password</WLbl>
+          <WInput placeholder="••••••••••••" style={{width:'100%'}}/>
+        </div>
+        <WBtn accent style={{width:'100%',height:46,marginBottom:16}}>Login</WBtn>
+        <WStr size={12} muted style={{cursor:'default'}}>Forgot password?</WStr>
+      </WBox>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 7 · ADMIN DASHBOARD
+════════════════════════════════════════════════════════ */
+const S7_AdminDashboard = () => (
+  <div style={{background:WF.bg,display:'grid',gridTemplateColumns:'240px 1fr',minHeight:860}}>
+    <WAdminSidebar active={0}/>
+    <div style={{padding:'32px 40px'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:32}}>
+        <WH size={24}>Dashboard Overview</WH>
+        <WBtn accent sm>+ Add New Listing</WBtn>
+      </div>
+      {/* Stats cards */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:36}}>
+        {[['Total Listings','48'],['Pending Inspections','12'],['Completed','87'],['Sold / Rented','34']].map(([l,v])=>(
+          <WBox key={l} style={{padding:'20px',background:WF.surf}}>
+            <WLbl style={{marginBottom:12}}>{l}</WLbl>
+            <WH size={34}>{v}</WH>
+          </WBox>
+        ))}
+      </div>
+      {/* Inspection requests table */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <WLbl>Recent Inspection Requests</WLbl>
+        <WBtn sm>View All</WBtn>
+      </div>
+      <WBox style={{background:WF.surf,overflow:'hidden'}}>
+        <div style={{display:'grid',gridTemplateColumns:'1.2fr 1fr 1.6fr 1fr 110px',padding:'12px 20px',borderBottom:`1px solid ${WF.border}`,background:WF.bg}}>
+          {['Name','Phone','Property','Date','Status'].map(h=><WLbl key={h}>{h}</WLbl>)}
+        </div>
+        {[
+          ['Amaka Okonkwo','+234 809 ···','Banana Island Villa','14 May 2025','Pending'],
+          ['Tunde Adeyemi','+234 812 ···','Ikoyi Penthouse','12 May 2025','Confirmed'],
+          ['Ngozi Eze','+234 803 ···','VI Apartment','10 May 2025','Completed'],
+          ['Babatunde F.','+234 701 ···','Lekki Townhouse','08 May 2025','Pending'],
+        ].map((row,i)=>(
+          <div key={i} style={{display:'grid',gridTemplateColumns:'1.2fr 1fr 1.6fr 1fr 110px',padding:'14px 20px',borderBottom:`1px solid ${WF.border}`,alignItems:'center'}}>
+            {row.map((cell,j)=>(
+              <WStr key={j} size={12}
+                accent={j===4&&cell==='Confirmed'}
+                muted={j===4&&cell!=='Confirmed'}
+                bold={j===4}
+              >{cell}</WStr>
+            ))}
+          </div>
+        ))}
+      </WBox>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 8 · ADMIN — ADD NEW LISTING
+════════════════════════════════════════════════════════ */
+const S8_AddListing = () => (
+  <div style={{background:WF.bg,display:'grid',gridTemplateColumns:'240px 1fr 300px',minHeight:1060}}>
+    <WAdminSidebar active={1}/>
+
+    {/* FORM */}
+    <div style={{padding:'32px 40px',borderRight:`1px solid ${WF.border}`}}>
+      <WH size={22} style={{marginBottom:6}}>Add New Listing</WH>
+      <WStr size={12} muted style={{marginBottom:32}}>Fill in property details below to publish a new listing.</WStr>
+
+      {/* Property info */}
+      <WBox lbl="PROPERTY INFO" style={{padding:20,background:WF.surf,marginBottom:16}}>
+        <div style={{marginBottom:14}}><WLbl style={{marginBottom:8}}>Property Title</WLbl><WInput placeholder="e.g. 5-Bedroom Mansion, Banana Island" style={{width:'100%'}}/></div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+          <div><WLbl style={{marginBottom:8}}>Category</WLbl><WDrop label="Sales / Rent / Shortlet"/></div>
+          <div><WLbl style={{marginBottom:8}}>Price (₦)</WLbl><WInput placeholder="Enter listing price"/></div>
+          <div style={{gridColumn:'1/-1'}}><WLbl style={{marginBottom:8}}>Location / Address</WLbl><WInput placeholder="Full property address or area"/></div>
+        </div>
+      </WBox>
+
+      {/* Specs */}
+      <WBox lbl="PROPERTY SPECS" style={{padding:20,background:WF.surf,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+          {[['Bedrooms','e.g. 5'],['Bathrooms','e.g. 6'],['Size (sqm)','e.g. 850']].map(([l,p])=>(
+            <div key={l}><WLbl style={{marginBottom:8}}>{l}</WLbl><WInput placeholder={p}/></div>
+          ))}
+        </div>
+      </WBox>
+
+      {/* Description */}
+      <WBox lbl="DESCRIPTION" style={{padding:20,background:WF.surf,marginBottom:16}}>
+        <div style={{height:100,border:`1px solid ${WF.border}`,borderRadius:3,background:WF.bg,padding:'12px 14px'}}>
+          <WStr size={11} muted>Write a detailed property description…</WStr>
+        </div>
+      </WBox>
+
+      {/* Features */}
+      <WBox lbl="FEATURES & AMENITIES" style={{padding:20,background:WF.surf,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
+          {['Swimming Pool','BQ / Staff Quarters','Gym','24/7 Security','Generator','Parking','Smart Home','Sea View','Home Theatre'].map(f=>(
+            <div key={f} style={{display:'flex',alignItems:'center',gap:8}}>
+              <div style={{width:16,height:16,border:`1px solid ${WF.border}`,borderRadius:2,flexShrink:0}}/>
+              <WStr size={11}>{f}</WStr>
+            </div>
+          ))}
+        </div>
+      </WBox>
+
+      {/* Upload photos */}
+      <WBox lbl="UPLOAD PHOTOS" dashed style={{marginBottom:16,height:120,background:WF.surf,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:10}}>
+        <WStr size={12} muted>Drag & drop photos here, or</WStr>
+        <WBtn sm>Browse Files</WBtn>
+      </WBox>
+
+      {/* Upload video */}
+      <WBox lbl="UPLOAD VIDEO" dashed style={{marginBottom:36,height:80,background:WF.surf,display:'flex',alignItems:'center',justifyContent:'center',gap:16}}>
+        <WStr size={12} muted>Upload video file or paste embed URL</WStr>
+      </WBox>
+
+      <WBtn accent style={{width:'100%',height:50,fontSize:11}}>Publish Listing</WBtn>
+    </div>
+
+    {/* PREVIEW PANEL */}
+    <div style={{padding:'32px 24px'}}>
+      <WLbl style={{marginBottom:16}}>Listing Preview</WLbl>
+      <WCard style={{width:'100%'}}/>
+      <Ann style={{marginTop:12}}>Card preview updates live as fields are filled</Ann>
+      <div style={{marginTop:24,padding:'16px',background:WF.surf,borderRadius:3,border:`1px solid ${WF.border}`}}>
+        <WLbl style={{marginBottom:10}}>Publishing Options</WLbl>
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {['Mark as Featured','Mark as New','Publish immediately'].map(o=>(
+            <div key={o} style={{display:'flex',alignItems:'center',gap:8}}>
+              <div style={{width:16,height:16,border:`1px solid ${WF.border}`,borderRadius:2}}/>
+              <WStr size={11}>{o}</WStr>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   SCREEN 9 · LIST YOUR PROPERTY (Landlord/Seller Enquiry)
+════════════════════════════════════════════════════════ */
+const S9_ListProperty = () => (
+  <div style={{background:WF.bg}}>
+    <WNav/>
+    <div style={{maxWidth:720,margin:'0 auto',padding:'60px 24px 80px'}}>
+      <WLbl style={{marginBottom:10}}>For Property Owners</WLbl>
+      <WH size={36} style={{marginBottom:12}}>List Your Property with RokHaven</WH>
+      <WStr size={13} muted style={{marginBottom:48,lineHeight:1.8,maxWidth:560}}>
+        Submit your property details below. Our team will review your enquiry and reach out within 24–48 hours to discuss next steps.
+      </WStr>
+
+      {/* Owner info */}
+      <WBox lbl="YOUR DETAILS" style={{padding:24,background:WF.surf,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div><WLbl style={{marginBottom:8}}>Full Name</WLbl><WInput placeholder="Your full name"/></div>
+          <div><WLbl style={{marginBottom:8}}>Phone Number</WLbl><WInput placeholder="+234 — — — —"/></div>
+          <div style={{gridColumn:'1/-1'}}><WLbl style={{marginBottom:8}}>Email Address</WLbl><WInput placeholder="you@example.com"/></div>
+        </div>
+      </WBox>
+
+      {/* Property info */}
+      <WBox lbl="PROPERTY DETAILS" style={{padding:24,background:WF.surf,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div><WLbl style={{marginBottom:8}}>Listing Type</WLbl><WDrop label="Sales / Rent / Shortlet"/></div>
+          <div><WLbl style={{marginBottom:8}}>Property Type</WLbl><WDrop label="Apartment / Villa / Penthouse…"/></div>
+          <div style={{gridColumn:'1/-1'}}><WLbl style={{marginBottom:8}}>Property Location / Address</WLbl><WInput placeholder="Area or full address"/></div>
+          <div><WLbl style={{marginBottom:8}}>Asking Price (₦)</WLbl><WInput placeholder="Enter your asking price"/></div>
+          <div><WLbl style={{marginBottom:8}}>Bedrooms</WLbl><WDrop label="Select"/></div>
+          <div style={{gridColumn:'1/-1'}}>
+            <WLbl style={{marginBottom:8}}>Additional Notes</WLbl>
+            <div style={{height:100,border:`1px solid ${WF.border}`,borderRadius:3,background:WF.bg,padding:'12px 14px'}}>
+              <WStr size={11} muted>Any additional details about the property…</WStr>
+            </div>
+          </div>
+        </div>
+      </WBox>
+
+      {/* Consent */}
+      <WBox lbl="CONSENT" style={{padding:'16px 18px',background:WF.surf,marginBottom:28,display:'flex',gap:14,alignItems:'flex-start'}}>
+        <div style={{width:18,height:18,border:`1px solid ${WF.borderA}`,borderRadius:2,flexShrink:0,marginTop:2}}/>
+        <WStr size={12} style={{lineHeight:1.8,color:WF.label}}>
+          I consent to RokHaven Realty contacting me regarding my property listing enquiry. I understand that submission does not guarantee listing approval.
+        </WStr>
+      </WBox>
+
+      <WBtn accent style={{width:'100%',height:52,fontSize:11}}>Submit Enquiry</WBtn>
+
+      {/* Post-submit state annotation */}
+      <Ann style={{marginTop:16,textAlign:'center'}}>
+        On submit → confirmation message: "Thank you. Our team will be in touch within 24–48 hours."
+      </Ann>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════
+   MAIN APP — Design Canvas
+════════════════════════════════════════════════════════ */
+const App = () => (
+  <DesignCanvas title="RokHaven Realty — Wireframes v1.0">
+    <DCSection id="s1" title="Public Screens" subtitle="Flows A · B">
+      <DCArtboard id="a1" label="01 · Homepage"           width={1280} height={1900}><S1_Homepage/></DCArtboard>
+      <DCArtboard id="a2" label="02 · Listings Page"      width={1280} height={1260}><S2_Listings/></DCArtboard>
+      <DCArtboard id="a3" label="03 · Property Detail"    width={1280} height={1420}><S3_PropertyDetail/></DCArtboard>
+      <DCArtboard id="a9" label="09 · List Your Property" width={1280} height={880}><S9_ListProperty/></DCArtboard>
+    </DCSection>
+    <DCSection id="s2" title="Booking Flow" subtitle="Flow C">
+      <DCArtboard id="a4" label="04 · Schedule Inspection"  width={1280} height={720}><S4_Schedule/></DCArtboard>
+      <DCArtboard id="a5" label="05 · Inspection Confirmed" width={1280} height={520}><S5_Confirmed/></DCArtboard>
+    </DCSection>
+    <DCSection id="s3" title="Admin Flow" subtitle="Password protected">
+      <DCArtboard id="a6" label="06 · Admin Login"     width={1280} height={620}><S6_AdminLogin/></DCArtboard>
+      <DCArtboard id="a7" label="07 · Admin Dashboard" width={1280} height={880}><S7_AdminDashboard/></DCArtboard>
+      <DCArtboard id="a8" label="08 · Add New Listing" width={1280} height={1080}><S8_AddListing/></DCArtboard>
+    </DCSection>
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Grand Arkadia — RokHaven Realty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #0B1B35;
+  --gold:    #C0A870;
+  --deep:    #2A3F5C;
+  --obsidian:#060F1C;
+  --ivory:   #F4EDE0;
+  --fd: 'DM Serif Display', serif;
+  --fb: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--navy); color: var(--ivory); font-family: var(--fb); font-weight: 300; line-height: 1.6; }
+a { text-decoration: none; }
+img { display: block; }
+
+/* ── NAV ── */
+#nav { position: fixed; top: 0; left: 0; right: 0; z-index: 300; height: 80px; padding: 0 60px; display: flex; align-items: center; gap: 32px; background: rgba(11,27,53,.97); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(192,168,112,.1); }
+.nav-logo { display: flex; align-items: center; gap: 13px; }
+.nav-logo .wm { font-family: var(--fd); font-size: 30px; color: var(--gold); letter-spacing: .22em; opacity: 1;}
+.nav-logo .sm { font-size: 13px; font-weight: 200; color: var(--gold); letter-spacing: .46em; opacity: .6; margin-top: 3px; }
+.nav-links { flex: 1; display: flex; align-items: center; justify-content: center; gap: 36px; }
+.nav-links a { font-size: 15px; font-weight: 400; color: rgba(244,237,224,.7); letter-spacing: .2em; text-transform: uppercase; transition: color .2s; }
+.nav-links a:hover { color: var(--ivory); }
+.nav-links a.gd { color: var(--gold); opacity: .8; }
+.nav-cta { font-size: 12px; font-weight: 400; color: var(--gold); letter-spacing: .16em; text-transform: uppercase; padding: 11px 26px; border: 1px solid var(--gold); border-radius: 2px; white-space: nowrap; transition: background .25s, color .25s; }
+.nav-cta:hover { background: var(--gold); color: var(--obsidian); }
+
+/* ── GALLERY ── */
+.gallery { margin-top: 80px; position: relative; }
+.gallery-hero { position: relative; height: 560px; overflow: hidden; cursor: zoom-in; background: var(--obsidian); }
+.gallery-hero img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.gallery-hero:hover img { transform: scale(1.02); }
+.gallery-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, rgba(11,27,53,.8), transparent); pointer-events: none; }
+.view-all { position: absolute; bottom: 20px; right: 24px; z-index: 2; display: flex; align-items: center; gap: 8px; font-family: var(--fb); font-size: 10.5px; font-weight: 500; color: var(--ivory); letter-spacing: .12em; text-transform: uppercase; background: rgba(6,15,28,.72); backdrop-filter: blur(8px); border: 1px solid rgba(192,168,112,.28); border-radius: 2px; padding: 10px 18px; cursor: pointer; transition: border-color .2s; }
+.view-all:hover { border-color: var(--gold); }
+.view-all em { font-style: normal; color: var(--gold); }
+.gallery-strip { display: flex; gap: 4px; background: var(--obsidian); padding: 4px 0; overflow-x: auto; scrollbar-width: none; }
+.gallery-strip::-webkit-scrollbar { display: none; }
+.gthumb { width: 200px; height: 112px; flex-shrink: 0; overflow: hidden; cursor: pointer; border: 2px solid transparent; border-radius: 1px; transition: border-color .2s; opacity: .75; }
+.gthumb:hover { opacity: 1; }
+.gthumb.on { border-color: var(--gold); opacity: 1; }
+.gthumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.gthumb:hover img { transform: scale(1.06); }
+
+/* ── LIGHTBOX ── */
+#lb { position: fixed; inset: 0; z-index: 1000; background: rgba(6,15,28,.97); display: none; align-items: center; justify-content: center; }
+#lb.on { display: flex; }
+.lb-x { position: fixed; top: 20px; right: 28px; font-size: 30px; color: rgba(244,237,224,.4); cursor: pointer; line-height: 1; transition: color .2s; z-index: 2; }
+.lb-x:hover { color: var(--ivory); }
+.lb-arr { position: fixed; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border: 1px solid rgba(192,168,112,.22); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; color: rgba(244,237,224,.5); background: rgba(6,15,28,.5); transition: all .2s; z-index: 2; }
+.lb-arr:hover { border-color: var(--gold); color: var(--gold); }
+#lbPrev { left: 20px; }
+#lbNext { right: 20px; }
+#lbImg { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: 2px; }
+#lbCtr { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 300; color: rgba(244,237,224,.35); letter-spacing: .15em; }
+
+/* ── PAGE LAYOUT ── */
+.page { max-width: 1280px; margin: 0 auto; padding: 52px 60px 80px; display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
+.left {}
+
+/* ── VIDEO SECTION ── */
+.vid-section { margin-bottom: 52px; }
+.sec-lbl { font-family: var(--fb); font-size: 9.5px; font-weight: 500; color: var(--gold); letter-spacing: .44em; text-transform: uppercase; margin-bottom: 16px; }
+.vid-outer { position: relative; border-radius: 3px; overflow: hidden; background: var(--obsidian); }
+
+/* Landscape: 16:9 */
+.vid-outer.ls { aspect-ratio: 16/9; }
+.vid-outer.ls iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.vid-outer.ls video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Portrait: 9:16 — centered with blurred sidebars */
+.vid-outer.pt { height: 500px; display: flex; align-items: center; justify-content: center; }
+.vid-blur { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(28px) brightness(.3) saturate(.4); transform: scale(1.1); }
+.vid-outer.pt iframe { position: relative; z-index: 1; width: calc(500px * 9/16); height: 500px; border: none; flex-shrink: 0; border-radius: 2px; }
+.vid-outer.pt .vid-pt-thumb { position: relative; z-index: 1; width: calc(500px * 9/16); height: 500px; flex-shrink: 0; overflow: hidden; border-radius: 2px; cursor: pointer; }
+.vid-outer.pt .vid-pt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Shared play overlay */
+.vid-play-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(6,15,28,.25); cursor: pointer; transition: background .25s; }
+.vid-play-layer:hover { background: rgba(6,15,28,.45); }
+.play-circle { width: 70px; height: 70px; border-radius: 50%; border: 1.5px solid var(--gold); background: rgba(192,168,112,.1); display: flex; align-items: center; justify-content: center; transition: transform .2s, background .2s; }
+.vid-play-layer:hover .play-circle { transform: scale(1.1); background: rgba(192,168,112,.18); }
+.play-circle svg { fill: var(--gold); margin-left: 5px; }
+.vid-badge { position: absolute; bottom: 14px; left: 14px; font-size: 8.5px; font-weight: 500; color: rgba(244,237,224,.45); letter-spacing: .22em; text-transform: uppercase; }
+
+/* Orientation demo toggle */
+.orient-demo { margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+.orient-lbl { font-size: 8.5px; color: rgba(244,237,224,.25); letter-spacing: .15em; text-transform: uppercase; }
+.ob { font-family: var(--fb); font-size: 10px; font-weight: 400; color: rgba(192,168,112,.5); letter-spacing: .08em; background: transparent; border: 1px solid rgba(192,168,112,.18); border-radius: 2px; padding: 5px 12px; cursor: pointer; transition: all .2s; }
+.ob:hover, .ob.on { color: var(--gold); border-color: var(--gold); background: rgba(192,168,112,.07); }
+
+/* ── PROPERTY HEADER ── */
+.prop-hdr { margin-bottom: 32px; padding-top: 8px; }
+.prop-name { font-family: var(--fd); font-size: clamp(36px, 3.8vw, 48px); color: var(--ivory); line-height: 1.08; margin-bottom: 14px; }
+.prop-price { font-size: 26px; font-weight: 500; color: var(--gold); letter-spacing: .02em; margin-bottom: 12px; }
+.prop-loc { display: flex; align-items: center; gap: 8px; font-size: 14px; color: rgba(244,237,224,.5); }
+
+/* ── DETAILS STRIP ── */
+.details { display: grid; grid-template-columns: repeat(4,1fr); background: var(--deep); border-radius: 3px; margin-bottom: 48px; overflow: hidden; }
+.spec { padding: 20px 22px; border-right: 1px solid rgba(255,255,255,.05); }
+.spec:last-child { border-right: none; }
+.spec-lbl { font-size: 8.5px; font-weight: 500; color: rgba(192,168,112,.45); letter-spacing: .3em; text-transform: uppercase; margin-bottom: 8px; }
+.spec-icon { font-size: 15px; display: block; margin-bottom: 6px; opacity: .45; }
+.spec-val { font-family: var(--fd); font-size: 18px; color: var(--ivory); }
+
+/* ── DESCRIPTION ── */
+.sec-heading { font-family: var(--fd); font-size: 26px; color: var(--ivory); margin-bottom: 20px; }
+.prop-desc { font-size: 14px; line-height: 1.95; color: rgba(244,237,224,.65); margin-bottom: 48px; }
+.prop-desc p + p { margin-top: 16px; }
+
+/* ── FEATURES ── */
+.features { margin-bottom: 60px; }
+.feat-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.fp { font-size: 12px; font-weight: 400; color: var(--gold); background: rgba(192,168,112,.08); border: 1px solid rgba(192,168,112,.2); border-radius: 2px; padding: 7px 14px; letter-spacing: .05em; transition: background .2s; }
+.fp:hover { background: rgba(192,168,112,.14); }
+
+/* ── STICKY CTA SIDEBAR ── */
+.right {}
+.cta-card { position: sticky; top: 104px; background: var(--deep); border: 1px solid rgba(192,168,112,.12); border-radius: 4px; overflow: hidden; }
+.cta-thumb { position: relative; height: 188px; }
+.cta-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cta-thumb-ov { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(6,15,28,.7)); }
+.cta-body { padding: 24px 24px 28px; }
+.cta-name { font-family: var(--fd); font-size: 18px; color: var(--ivory); margin-bottom: 6px; line-height: 1.2; }
+.cta-price { font-size: 17px; font-weight: 500; color: var(--gold); margin-bottom: 20px; }
+.cta-rule { height: 1px; background: rgba(192,168,112,.1); margin-bottom: 20px; }
+.cta-heading { font-family: var(--fd); font-size: 20px; color: var(--ivory); margin-bottom: 10px; line-height: 1.25; }
+.cta-sub { font-size: 13px; color: rgba(244,237,224,.42); line-height: 1.75; margin-bottom: 24px; }
+.cta-btn { display: block; width: 100%; padding: 17px; background: var(--gold); color: var(--obsidian); font-family: var(--fb); font-size: 11px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; text-align: center; border: none; border-radius: 2px; cursor: pointer; transition: filter .2s; margin-bottom: 14px; }
+.cta-btn:hover { filter: brightness(1.08); }
+.cta-reassure { font-size: 11px; font-weight: 300; color: rgba(244,237,224,.28); text-align: center; line-height: 1.65; }
+/* MOBILE-RESPONSIVE */
+@media(max-width:960px){
+  #nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .gallery-hero{height:320px;}
+  .gthumb{width:130px;height:74px;}
+  .page{grid-template-columns:1fr;padding:28px 20px 60px;gap:40px;}
+  .right{order:-1;}
+  .cta-card{position:static;}
+  .cta-thumb{height:160px;}
+  .details{grid-template-columns:1fr 1fr;}
+  .vid-outer.pt{height:380px;}
+  .vid-outer.pt iframe{height:380px;width:calc(380px * 9/16);}
+}
+@media(max-width:540px){
+  .gallery-hero{height:240px;}
+  .details{grid-template-columns:1fr 1fr;}
+  .prop-name{font-size:28px;}
+  .feat-pills{gap:8px;}
+}
+
+
+/* ─── TYPOGRAPHY SCALE ENFORCEMENT V2 (16px MIN, NO SCALE-DOWN) ─── */
+body{font-size:16px!important;line-height:1.6;}
+
+/* Hero headline 72-80px on 1440px desktop */
+.hero h1{font-size:clamp(56px,6vw,80px)!important;line-height:1.08;}
+.hero-h{font-size:clamp(48px,5.5vw,76px)!important;line-height:1.1;}
+
+/* Section headings — bumped */
+.sec-h{font-size:clamp(36px,3.2vw,50px)!important;line-height:1.15;}
+.pg-h{font-size:clamp(28px,2.8vw,36px)!important;}
+.pg-greeting{font-size:clamp(32px,3.2vw,44px)!important;line-height:1.15;}
+.ph-h{font-size:clamp(40px,4vw,58px)!important;line-height:1.1;}
+.page-title{font-size:clamp(40px,4vw,58px)!important;line-height:1.1;}
+.prop-name{font-size:clamp(40px,4vw,54px)!important;line-height:1.1;}
+.q-text{font-size:clamp(28px,3.4vw,44px)!important;line-height:1.18;}
+
+/* Body / paragraph text — 16-18px */
+p,.body-txt,.hero-sub,.story-p,.promise-sub,.pdesc,.prop-desc,.pg-sub,.greeting-sub,
+.fc-sub,.ph-sub,.sp-sub,.fs-sub,.card-sub,.form-sub,
+.empty-p,.es-sub,.tog-sub,.wp-desc,.psb-loc,
+.foot-tag,.suc-b,.cf-b,.confirm-body{font-size:17px!important;line-height:1.75;}
+.hero-sub{font-size:18px!important;}
+.q-sub{font-size:17px!important;line-height:1.7;}
+
+/* Property card text — readable sizes */
+.cname,.mini-name,.lcard-name{font-size:22px!important;}
+.cprice{font-size:18px!important;font-weight:500;}
+.mini-price,.lcard-price{font-size:16px!important;}
+.cloc{font-size:14px!important;}
+.cmeta,.cmeta span,.lcard-meta{font-size:14px!important;}
+.clink{font-size:13px!important;}
+
+/* List / table row content */
+.insp-name,.pr-name,.prop-name-cell,.pc-name,.lead-name,.lead-prop{font-size:16px;}
+
+/* Form inputs — minimum 16px */
+.fi,.fq-in,.f-in,.fq-input,.pfq-input,.t-in,.login-in,.dt-in,.fsel,.f-sel,.fq-sel,
+.pfq-select,.fta,.fq-ta,.t-area,.fq-textarea,.pfq-textarea{font-size:16px!important;}
+.t-in{font-size:clamp(22px,2.8vw,32px)!important;}
+.fq-lbl,.f-lbl,.pfq-lbl,.login-lbl{font-size:11px;letter-spacing:.28em;}
+
+/* Checkboxes & options */
+.chk-txt,.mf-txt,.feat-txt{font-size:15px!important;line-height:1.75;}
+.opt-lb{font-size:16px!important;}
+.mopt,.popt,.pill,.role-pill{font-size:14px!important;}
+
+/* Navigation */
+.nav-links a,.nav-cta{font-size:14px!important;letter-spacing:.18em;}
+.sb-link{font-size:14px!important;}
+.tab,.stab{font-size:14px!important;}
+.tn-mode{font-size:11px;}
+
+/* Buttons — body text minimum but uppercase tracking */
+.btn-gold,.btn-gold-full,.btn-gen,.btn-add,.btn-publish,.btn-submit,.btn-next,
+.btn-primary,.btn-outline,.btn-wa,.cf-btn,.cta-btn,.tb-btn,.btn-browse,
+.login-btn,.btn-otp,.btn-gold-sm,.ss-btn,.confirm-btn{font-size:13px!important;letter-spacing:.18em;}
+.btn-gold-full,.btn-submit,.btn-next{padding:18px!important;}
+
+/* Small buttons / links */
+.btn-sm,.btn-sm-outline,.btn-sm-g,.btn-copy,.btn-cancel-sm,.btn-cancel{font-size:12px!important;}
+.lcbtn,.ra-btn{font-size:11px!important;}
+.ir-link,.empty-cta,.link-gold,.sec-link{font-size:13px!important;}
+
+/* Notes & supporting copy */
+.cta-reassure,.sub-note,.form-note,.terms{font-size:13px!important;line-height:1.7;}
+.confirm-ref{font-size:13px;}
+.cf-si{font-size:18px!important;}
+
+/* Stats */
+.sc-num,.stat-n{font-size:42px!important;line-height:1;}
+.sc-lbl,.stat-l{font-size:13px!important;}
+.spec-val{font-size:22px!important;}
+.spec-lbl{font-size:11px;}
+
+/* Sidebar / footer details */
+.sb-uname,.sb-name{font-size:14px!important;}
+.sb-urole,.sb-role{font-size:11px;letter-spacing:.1em;}
+.foot-copy{font-size:13px!important;}
+.foot-tagline{font-size:16px!important;}
+.flinks a{font-size:14px!important;}
+
+/* Logo wordmarks — keep brand-defined sizes */
+.wm{font-size:18px;}
+.sm{font-size:10px;}
+.sb-wm{font-size:16px;}
+.sb-sm{font-size:9px;}
+
+@media(max-width:540px){
+  .hero h1,.hero-h{font-size:42px!important;}
+  .pg-greeting,.page-title,.prop-name,.ph-h{font-size:32px!important;}
+  .sec-h{font-size:28px!important;}
+}
+
+/* ─── MOBILE RESPONSIVE V3 (375px first) ─── */
+@media(max-width:768px){
+  /* GLOBAL */
+  body{font-size:16px;}
+  *,*::before,*::after{-webkit-tap-highlight-color:transparent;}
+
+  /* NAV — hide desktop links, show hamburger */
+  #nav,nav{padding:0 16px!important;height:64px!important;}
+  .nav-links{display:none!important;}
+  .nav-cta{display:none!important;}
+  .nav-cta-mobile{display:none!important;}
+  button[onclick="openLoginOverlay()"]{display:none!important;}
+  .nav-hamburger{display:flex!important;}
+
+  /* HERO */
+  .hero{min-height:540px!important;height:100vh!important;}
+  .hero h1{font-size:42px!important;line-height:1.1!important;}
+  .hero-sub{font-size:16px!important;margin-bottom:28px!important;padding:0 12px;}
+  .eyebrow{font-size:10px!important;margin-bottom:18px!important;}
+  .search-bar{flex-direction:column!important;max-width:calc(100% - 24px)!important;margin:0 12px!important;}
+  .sf{border-right:none!important;border-bottom:1px solid rgba(192,168,112,.12)!important;padding:14px 18px!important;width:100%;}
+  .btn-gold{width:100%;padding:16px!important;font-size:14px!important;min-height:52px;}
+  .scroll-ind{display:none!important;}
+
+  /* BRAND STRIP */
+  .strip{gap:14px!important;padding:14px 16px!important;overflow-x:auto;flex-wrap:nowrap!important;justify-content:flex-start!important;}
+  .strip span{font-size:9px!important;white-space:nowrap;}
+
+  /* CONTAINER */
+  .container,.page-hdr>div,.main>div{padding-left:16px!important;padding-right:16px!important;}
+  .container{padding:0 16px!important;}
+
+  /* SECTIONS */
+  .featured,.why{padding:56px 0!important;}
+  .feat-hdr{flex-direction:column;align-items:flex-start;gap:14px;margin-bottom:32px!important;}
+  .sec-h{font-size:30px!important;}
+
+  /* FEATURED PROPERTIES — horizontal scroll */
+  .pgrid{display:flex!important;grid-template-columns:none!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px!important;padding:0 16px 8px!important;margin:0 -16px!important;scrollbar-width:none;}
+  .pgrid::-webkit-scrollbar{display:none;}
+  .pgrid .pcard{min-width:82%;scroll-snap-align:start;flex-shrink:0;}
+
+  /* CATEGORIES — stacked */
+  .categories{display:flex!important;flex-direction:column!important;height:auto!important;grid-template-columns:none!important;}
+  .ctile{height:260px;}
+  .ctile-name{font-size:32px!important;}
+
+  /* WHY ROKHAVEN */
+  .pillars{grid-template-columns:1fr!important;gap:32px!important;}
+  .pillar{text-align:left;}
+  .pline{margin-left:0!important;}
+  .why-hdr{margin-bottom:40px!important;text-align:left;}
+
+  /* FOOTER */
+  .foot-grid{grid-template-columns:1fr 1fr!important;gap:32px 16px!important;}
+  footer .container{padding:0 16px!important;}
+
+  /* LISTINGS PAGE */
+  .page-hdr{padding:96px 16px 32px!important;}
+  .page-title{font-size:32px!important;}
+  .search-section{padding:14px 16px!important;}
+  .filter-wrap{position:relative!important;top:auto!important;}
+  .filter-row{padding:8px 16px!important;overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;}
+  .filter-row::-webkit-scrollbar{display:none;}
+  .filter-row > *{flex-shrink:0;}
+  .results-bar{padding:12px 16px!important;flex-wrap:wrap;gap:10px;}
+  .grid-section{padding:20px 16px 56px!important;}
+  .pcard{cursor:pointer;}
+
+  /* PROPERTY DETAIL */
+  .gallery-hero{height:280px!important;}
+  .gthumb{width:120px!important;height:70px!important;}
+  .page{display:block!important;padding:24px 16px 96px!important;grid-template-columns:1fr!important;gap:0!important;}
+  .left,.right{width:100%;}
+  .right{margin-top:32px;}
+  .cta-card{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;z-index:90;border-radius:0!important;background:#142236!important;box-shadow:0 -8px 24px rgba(0,0,0,.5);padding:14px 16px!important;display:flex;align-items:center;gap:12px;}
+  .cta-card .cta-thumb,.cta-card .cta-thumb-ov,.cta-card .cta-name,.cta-card .cta-price,.cta-card .cta-rule,.cta-card .cta-heading,.cta-card .cta-sub,.cta-card .cta-reassure{display:none!important;}
+  .cta-card .cta-body{padding:0!important;flex:1;display:flex;align-items:center;gap:12px;}
+  .cta-card .cta-btn{width:100%!important;padding:14px!important;font-size:13px!important;min-height:48px;margin:0!important;}
+  .vid-outer.pt{height:380px!important;}
+  .vid-outer.pt iframe,.vid-outer.pt .vid-pt-thumb{height:380px!important;width:calc(380px * 9/16)!important;}
+  .details{grid-template-columns:1fr 1fr!important;}
+  .prop-name{font-size:32px!important;}
+
+  /* FORMS — general */
+  .fq-input,.fq-in,.f-in,.fq-input,.pfq-input,.t-in,.login-in,.dt-in,.fsel,.f-sel,
+  .fq-sel,.pfq-select,.fta,.fq-ta,.t-area,.fq-textarea,.pfq-textarea,.fi{
+    font-size:16px!important;min-height:48px;padding:14px 16px!important;
+  }
+  textarea.fta,textarea.fq-ta,textarea.t-area,textarea.fq-textarea,textarea.pfq-textarea{min-height:100px;}
+
+  /* SCHEDULE INSPECTION */
+  .shell{flex-direction:column!important;}
+  .prop-col{width:100%!important;position:relative!important;height:auto!important;}
+  .psb-img{height:140px!important;}
+  .prop-inner{padding:14px 16px!important;}
+  .step-track{display:none!important;}
+  .step-track-lbl{display:none!important;}
+  .form-col{padding:24px 16px 84px!important;}
+  .progress-wrap{margin-bottom:24px!important;}
+  .form-h{font-size:28px!important;}
+  .btn-next{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:90;border-radius:0!important;min-height:56px;font-size:14px!important;}
+  .btn-row{padding-bottom:0;}
+  .btn-back{order:-1;margin-bottom:12px;}
+
+  /* ENQUIRY FORM */
+  #topNav{padding:0 12px!important;height:56px!important;}
+  #propSidebar{display:none!important;}
+  #progWrap{padding:12px 16px 0!important;}
+  .step{padding:24px 20px 100px!important;justify-content:flex-start!important;}
+  #botNav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;padding:14px 16px!important;background:rgba(11,27,53,.95);backdrop-filter:blur(10px);z-index:90;}
+  .q-text{font-size:26px!important;}
+  .q-sub{font-size:15px!important;}
+  .opts,.mopts,.t-wrap,.ph-row,.t-area{max-width:100%!important;width:100%;}
+  .opt{padding:16px!important;min-height:56px;}
+  .mopt{min-height:48px;padding:14px 18px!important;}
+  .dt-row{flex-direction:column!important;}
+  .btn-ok{padding:16px 24px!important;min-height:52px;}
+  .ack-card{padding:18px!important;}
+  .tn-mode{display:none!important;}
+
+  /* THANK YOU */
+  .heading{font-size:36px!important;}
+  .sub-italic{font-size:18px!important;}
+  .cta-row{flex-direction:column!important;gap:12px!important;}
+  .btn-primary,.btn-outline{max-width:100%!important;width:100%;min-height:52px;}
+  .prop-card{flex-direction:column!important;align-items:flex-start;gap:12px;}
+  .prop-thumb-sm{width:100%!important;height:120px!important;}
+
+  /* LOGIN / REGISTER PAGES */
+  nav.bg-nav,nav{padding:0 16px!important;}
+  .page{padding:32px 16px!important;}
+  .card{padding:32px 24px!important;border-radius:3px!important;width:100%!important;}
+  .card-h{font-size:30px!important;}
+  .card-logo{margin-bottom:24px!important;}
+  .btn-gold{min-height:52px;}
+  .btn-otp{min-height:48px;}
+  .login-wrap{padding:36px 24px!important;width:100%!important;}
+  .login-h{font-size:24px!important;}
+
+  /* LIST YOUR PROPERTY */
+  .main{padding:24px 16px 56px!important;grid-template-columns:1fr!important;gap:32px!important;display:block!important;}
+  .right-col{margin-top:32px;}
+  .fg-2{grid-template-columns:1fr!important;}
+  .chk-row{padding:18px 16px 20px!important;}
+  .btn-submit{min-height:52px;}
+
+  /* CONTACT */
+  .ph-h{font-size:36px!important;}
+
+  /* PORTALS — sidebar to bottom tabs */
+  .sb,aside.sb,aside.sidebar{display:none!important;}
+  .main{margin-left:0!important;padding-bottom:80px!important;}
+  .topbar{padding:0 16px!important;height:56px!important;}
+  .content{padding:24px 16px 80px!important;}
+  .stats{grid-template-columns:1fr 1fr!important;gap:12px!important;}
+  .stats .sc{padding:18px 18px!important;}
+  .sc-num{font-size:34px!important;}
+  .pg-greeting{font-size:28px!important;}
+  .pg-h{font-size:26px!important;}
+
+  /* Client/Principal mobile bottom tab bar visibility */
+  .mob-tabs,.btab-bar{display:flex!important;}
+
+  /* CLIENT PORTAL — inspection rows */
+  .insp-row{flex-direction:column!important;gap:12px!important;align-items:flex-start!important;padding:16px!important;}
+  .ir-thumb{width:100%!important;height:140px!important;}
+  .ir-dt{min-width:auto!important;}
+  .ir-actions{width:100%;}
+  .pgrid.saved-grid,.saved-grid{grid-template-columns:1fr!important;gap:14px!important;}
+  .qa-grid{grid-template-columns:1fr!important;}
+  .scroll-row{padding:0 0 8px!important;}
+  .mini-card{min-width:75%;flex-shrink:0;}
+  .prof-grid{grid-template-columns:1fr!important;gap:16px!important;}
+
+  /* PRINCIPAL PORTAL */
+  .prop-row{flex-direction:column!important;align-items:flex-start!important;gap:10px;padding:16px!important;}
+  .pr-stats{margin-left:0!important;width:100%;justify-content:space-between;}
+  .prop-card{flex-direction:column!important;}
+  .pc-img{width:100%!important;height:160px!important;}
+  .pc-stats{width:100%!important;flex-direction:row!important;border-left:none!important;border-top:1px solid rgba(192,168,112,.08)!important;justify-content:space-between!important;padding:14px 18px!important;}
+  .form-section{padding:20px 16px!important;}
+  .g2,.g3{grid-template-columns:1fr!important;}
+  .feat-grid{grid-template-columns:1fr 1fr!important;}
+  .cal-grid-hdr,.cal-grid{grid-template-columns:repeat(7,1fr)!important;}
+  .cal-day{min-height:54px!important;padding:4px!important;}
+  .cal-dn{font-size:10px!important;}
+  .cal-booking,.cal-slot-gold,.cal-slot-teal{font-size:7.5px!important;padding:2px 4px!important;}
+  .cal-month,.cal-month-lbl,.cal-controls .cal-month{font-size:18px!important;}
+  .insp-table-wrap table{font-size:13px;}
+  .insp-table-wrap th{padding:10px 12px!important;}
+  .insp-table-wrap td{padding:10px 12px!important;}
+
+  /* ADMIN DASHBOARD */
+  .stats{grid-template-columns:1fr 1fr!important;}
+  .lgrid,.lgrid-4{grid-template-columns:1fr!important;}
+  .leads-grid{grid-template-columns:1fr!important;}
+  .settings-layout{grid-template-columns:1fr!important;}
+  .gen-layout{grid-template-columns:1fr!important;}
+
+  /* LOGIN OVERLAY */
+  #loginOverlay > div[style*="display:flex"]:nth-of-type(2){flex-direction:column!important;align-items:stretch!important;padding:0 16px!important;}
+  #loginOverlay > div[style*="display:flex"]:nth-of-type(2) > div{width:100%!important;max-width:none!important;}
+
+  /* ROLE PILLS / FEATURE OPTS / CHECK ROWS — full-width tap */
+  .role-pill{width:100%;min-height:48px;text-align:center;}
+  #roleRow,#pRoleRow{flex-direction:column!important;}
+  .feat-opt{min-height:44px;}
+  .pref-pills{flex-direction:column!important;gap:8px!important;}
+  .pref-pill{width:100%;min-height:44px;text-align:center;}
+
+  /* TOUCH TARGETS — buttons / links */
+  button,.btn-sm,.btn-sm-outline,.btn-sm-g,.btn-cancel,.btn-cancel-sm,
+  .lcbtn,.ra-btn,.ir-link,.empty-cta,.link-gold,.sec-link{min-height:40px;display:inline-flex;align-items:center;}
+  .clink{min-height:auto;}
+}
+
+@media(max-width:380px){
+  .hero h1{font-size:38px!important;}
+  .sec-h{font-size:26px!important;}
+  .feat-grid{grid-template-columns:1fr!important;}
+  .stats{grid-template-columns:1fr!important;}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <a href="Homepage.html" class="nav-logo">
+    <svg width="48" height="48" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div><div class="wm">ROKHAVEN</div><div class="sm">REALTY</div></div>
+  </a>
+  <button class="nav-hamburger" onclick="openDrawer()" style="display:none;background:transparent;border:none;cursor:pointer;padding:8px;margin-left:auto;width:44px;height:44px;color:#C0A870;align-items:center;justify-content:center;" aria-label="Menu"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <div class="nav-links">
+    <a href="Listings Page.html">Sales</a>
+    <a href="#">Rent</a>
+    <a href="#">Shortlets</a>
+    <a href="Contact.html">Contact</a>
+    <a href="#" class="gd">List a Property</a>
+  </div>
+  <a href="#" class="nav-cta">Schedule a Viewing</a>
+</nav>
+
+<!-- ── GALLERY ── -->
+<div class="gallery">
+  <div class="gallery-hero" onclick="openLb(0)">
+    <img id="heroImg" src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=90&auto=format&fit=crop" alt="The Grand Arkadia"/>
+    <div class="view-all" onclick="event.stopPropagation();openLb(0)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><path d="m21 15-5-5L5 21"/></svg>
+      View All Photos <em>· 12</em>
+    </div>
+  </div>
+  <div class="gallery-strip">
+    <div class="gthumb on" onclick="setHero(0,this)"><img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+    <div class="gthumb" onclick="setHero(1,this)"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+    <div class="gthumb" onclick="setHero(2,this)"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+    <div class="gthumb" onclick="setHero(3,this)"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+    <div class="gthumb" onclick="setHero(4,this)"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+    <div class="gthumb" onclick="setHero(5,this)"><img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=70&auto=format&fit=crop" alt=""/></div>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX ── -->
+<div id="lb">
+  <span class="lb-x" onclick="closeLb()">×</span>
+  <div class="lb-arr" id="lbPrev" onclick="moveLb(-1)">‹</div>
+  <img id="lbImg" alt="" style="max-width:90vw;max-height:88vh;object-fit:contain;border-radius:2px;"/>
+  <div class="lb-arr" id="lbNext" onclick="moveLb(1)">›</div>
+  <div id="lbCtr">1 / 12</div>
+</div>
+
+<!-- ── PAGE CONTENT ── -->
+<div class="page">
+  <div class="left">
+
+    <!-- VIDEO SECTION (hidden if listing has no video) -->
+    <div class="vid-section" id="vidSection">
+      <div class="sec-lbl">Video Tour</div>
+
+      <!-- Landscape container (16:9) — default -->
+      <div class="vid-outer ls" id="vidOuter">
+        <div class="vid-play-layer" id="vidThumb" onclick="playVideo()">
+          <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=80&auto=format&fit=crop" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+          <div class="play-circle">
+            <svg width="20" height="22" viewBox="0 0 20 22"><path d="M1 1l18 10L1 21V1z"/></svg>
+          </div>
+          <div class="vid-badge">YouTube · 16:9 Landscape</div>
+        </div>
+      </div>
+
+      <!-- Demo toggle (shows how portrait Reels/TikTok look) -->
+      <div class="orient-demo">
+        <span class="orient-lbl">Demo orientation:</span>
+        <button class="ob on" onclick="setOrient('landscape',this)">16:9 Landscape</button>
+        <button class="ob" onclick="setOrient('portrait',this)">9:16 Portrait (Reels / TikTok)</button>
+      </div>
+    </div>
+
+    <!-- PROPERTY HEADER -->
+    <div class="prop-hdr">
+      <h1 class="prop-name">The Grand Arkadia</h1>
+      <div class="prop-price">₦1,200,000,000</div>
+      <div class="prop-loc">
+        <svg width="12" height="15" viewBox="0 0 12 15" fill="none"><path d="M6 0C2.686 0 0 2.686 0 6c0 4.5 6 9 6 9s6-4.5 6-9c0-3.314-2.686-6-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="rgba(192,168,112,.55)"/></svg>
+        Banana Island, Lagos Island, Lagos
+      </div>
+    </div>
+
+    <!-- DETAILS STRIP -->
+    <div class="details">
+      <div class="spec"><span class="spec-icon">🛏</span><div class="spec-lbl">Bedrooms</div><div class="spec-val">6</div></div>
+      <div class="spec"><span class="spec-icon">🚿</span><div class="spec-lbl">Bathrooms</div><div class="spec-val">7</div></div>
+      <div class="spec"><span class="spec-icon">📐</span><div class="spec-lbl">Size</div><div class="spec-val">1,200 sqm</div></div>
+      <div class="spec"><span class="spec-icon">🏛</span><div class="spec-lbl">Type</div><div class="spec-val">Fully Detached</div></div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <h2 class="sec-heading">About This Property</h2>
+    <div class="prop-desc">
+      <p>The Grand Arkadia is a masterpiece of contemporary Nigerian luxury — a fully detached mansion set on a prime 1,200 sqm plot on the prestigious Banana Island, Lagos. Designed by award-winning architects and finished to the highest international standards, every detail speaks of quiet, enduring sophistication.</p>
+      <p>The residence features six en-suite bedrooms across three floors, each with floor-to-ceiling windows that draw in sweeping views of the Lagos Lagoon. The double-height living area opens onto a landscaped courtyard and infinity pool, creating a seamless flow between interior elegance and outdoor serenity.</p>
+      <p>A full BQ with private access, a home theatre, Gaggenau-appointed kitchen, and a dedicated home office complete the offering. The estate is fully gated, with 24/7 biometric security and generator backup. This is not just a home — it is a legacy asset.</p>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <h2 class="sec-heading">Features &amp; Amenities</h2>
+      <div class="feat-pills">
+        <div class="fp">Infinity Pool</div>
+        <div class="fp">Generator</div>
+        <div class="fp">BQ / Staff Quarters</div>
+        <div class="fp">Smart Home System</div>
+        <div class="fp">Gated Estate</div>
+        <div class="fp">Home Theatre</div>
+        <div class="fp">Gym</div>
+        <div class="fp">24/7 Security</div>
+        <div class="fp">Parking — 4 Cars</div>
+        <div class="fp">Lagoon View</div>
+        <div class="fp">Biometric Access</div>
+        <div class="fp">Landscaped Garden</div>
+      </div>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- ── STICKY CTA SIDEBAR ── -->
+  <div class="right">
+    <div class="cta-card">
+      <div class="cta-thumb">
+        <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=700&q=80&auto=format&fit=crop" alt=""/>
+        <div class="cta-thumb-ov"></div>
+      </div>
+      <div class="cta-body">
+        <div class="cta-name">The Grand Arkadia</div>
+        <div class="cta-price">₦1,200,000,000</div>
+        <div class="cta-rule"></div>
+        <div class="cta-heading">Interested in this property?</div>
+        <div class="cta-sub">Schedule a professional inspection with our expert team. We'll handle every detail from start to finish.</div>
+        <a href="Schedule Inspection.html" class="cta-btn">Schedule Inspection</a>
+        <div class="cta-reassure">No commitment required.<br>We'll guide you through every step.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PHOTOS
+const PHOTOS = [
+  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=90&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=90&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=90&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=90&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=90&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1600&q=90&auto=format&fit=crop',
+];
+// Extend to 12 for the demo count
+const PHOTO_LB = [...PHOTOS, ...PHOTOS];
+
+// ── GALLERY THUMBNAIL → HERO
+function setHero(i, el) {
+  document.getElementById('heroImg').src = PHOTOS[i];
+  document.querySelectorAll('.gthumb').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── LIGHTBOX
+let lbI = 0;
+function openLb(i) { lbI = i; document.getElementById('lb').classList.add('on'); syncLb(); }
+function closeLb()  { document.getElementById('lb').classList.remove('on'); }
+function moveLb(d)  { lbI = (lbI + d + PHOTO_LB.length) % PHOTO_LB.length; syncLb(); }
+function syncLb() {
+  document.getElementById('lbImg').src = PHOTO_LB[lbI];
+  document.getElementById('lbCtr').textContent = `${lbI+1} / ${PHOTO_LB.length}`;
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lb').classList.contains('on')) return;
+  if (e.key==='ArrowLeft')  moveLb(-1);
+  if (e.key==='ArrowRight') moveLb(1);
+  if (e.key==='Escape')     closeLb();
+});
+document.getElementById('lb').addEventListener('click', e => { if(e.target.id==='lb') closeLb(); });
+
+// ── VIDEO PLAYER
+const THUMB_URL = 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=80&auto=format&fit=crop';
+const BLUR_URL  = 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=60';
+let vidOrient   = 'landscape';
+
+// Parses any video URL into an embed URL + platform name
+function parseVideo(url) {
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (yt) return { platform: 'YouTube', embed: `https://www.youtube.com/embed/${yt[1]}?autoplay=1&rel=0`, portrait: false };
+
+  const vim = url.match(/vimeo\.com\/(\d+)/);
+  if (vim) return { platform: 'Vimeo', embed: `https://player.vimeo.com/video/${vim[1]}?autoplay=1`, portrait: false };
+
+  const tik = url.match(/tiktok\.com\/[^/]+\/video\/(\d+)/);
+  if (tik) return { platform: 'TikTok', embed: `https://www.tiktok.com/embed/v2/${tik[1]}`, portrait: true };
+
+  if (url.includes('instagram.com')) return { platform: 'Instagram', embed: url.replace('instagram.com/', 'instagram.com/embed/'), portrait: true };
+  if (url.includes('facebook.com'))  return { platform: 'Facebook', embed: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`, portrait: false };
+  if (url.match(/\.(mp4|webm|mov)$/i)) return { platform: 'Video', direct: url };
+  return null;
+}
+
+function thumbHtml(orient, badge) {
+  if (orient === 'portrait') {
+    return `
+      <div class="vid-blur" style="background-image:url('${BLUR_URL}')"></div>
+      <div class="vid-pt-thumb">
+        <img src="${THUMB_URL}" alt=""/>
+        <div class="vid-play-layer" onclick="playVideo()">
+          <div class="play-circle"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M1 1l18 10L1 21V1z" fill="var(--gold)"/></svg></div>
+          <div class="vid-badge">${badge}</div>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="vid-play-layer" onclick="playVideo()" style="position:absolute;inset:0;">
+      <img src="${THUMB_URL}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+      <div class="play-circle"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M1 1l18 10L1 21V1z" fill="var(--gold)"/></svg></div>
+      <div class="vid-badge">${badge}</div>
+    </div>`;
+}
+
+function playVideo(url) {
+  const outer = document.getElementById('vidOuter');
+  // Demo: use a YouTube video if no URL provided
+  const src = url || 'https://www.youtube.com/embed/h7MYJghRWt0?autoplay=1&rel=0';
+  const parsed = parseVideo(src);
+
+  if (vidOrient === 'portrait') {
+    const pw = Math.round(500 * 9 / 16);
+    outer.innerHTML = `
+      <div class="vid-blur" style="background-image:url('${BLUR_URL}')"></div>
+      ${parsed?.direct
+        ? `<video src="${parsed.direct}" controls autoplay style="position:relative;z-index:1;width:${pw}px;height:500px;object-fit:cover;border-radius:2px;flex-shrink:0;"></video>`
+        : `<iframe src="${parsed?.embed || src}" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen style="position:relative;z-index:1;width:${pw}px;height:500px;border:none;border-radius:2px;flex-shrink:0;"></iframe>`
+      }`;
+  } else {
+    outer.innerHTML = parsed?.direct
+      ? `<video src="${parsed.direct}" controls autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>`
+      : `<iframe src="${parsed?.embed || src}" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>`;
+  }
+}
+
+function setOrient(o, btn) {
+  vidOrient = o;
+  document.querySelectorAll('.ob').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+
+  const outer = document.getElementById('vidOuter');
+  outer.className = `vid-outer ${o === 'portrait' ? 'pt' : 'ls'}`;
+
+  const badge = o === 'portrait' ? 'Portrait · Reels / TikTok / Shorts' : 'YouTube · Landscape 16:9';
+  outer.innerHTML = thumbHtml(o, badge);
+}
+</script>
+
+<script id="nav-active">
+(function(){
+  var path = location.pathname.split('/').pop() || '';
+  var cat  = new URLSearchParams(location.search).get('cat') || '';
+  document.querySelectorAll('.nav-links a').forEach(function(a){
+    var href = a.getAttribute('href') || '';
+    var hPath = href.split('?')[0].split('/').pop();
+    var hCat  = new URLSearchParams(href.split('?')[1]||'').get('cat')||'';
+    if (hPath === path && hCat === cat) {
+      a.style.color = '#C0A870';
+      a.style.borderBottom = '1px solid rgba(192,168,112,0.5)';
+      a.style.paddingBottom = '2px';
+    }
+  });
+})();
+</script>
+
+<!-- LOGIN ROLE SELECTOR OVERLAY -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(6,15,28,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;">
+  <button onclick="closeLoginOverlay()" style="position:absolute;top:28px;right:36px;background:none;border:none;color:rgba(244,237,224,.3);font-size:28px;cursor:pointer;line-height:1;transition:color .2s;" onmouseover="this.style.color='rgba(244,237,224,.8)'" onmouseout="this.style.color='rgba(244,237,224,.3)'">×</button>
+  <div style="text-align:center;margin-bottom:40px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:clamp(26px,3vw,36px);color:#F4EDE0;margin-bottom:8px;line-height:1.1;">Welcome to RokHaven</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;color:rgba(244,237,224,.38);">Select your portal to continue</div>
+  </div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;padding:0 24px;">
+    <!-- CLIENT CARD -->
+    <div onclick="location.href='Client Login.html'" style="width:300px;background:#2A3F5C;border:1px solid rgba(192,168,112,.14);border-top:3px solid #C0A870;border-radius:4px;padding:36px 28px 32px;cursor:pointer;transition:transform .28s cubic-bezier(.2,.7,.3,1),box-shadow .28s;text-align:center;" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(192,168,112,.2)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid rgba(244,237,224,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;">
+        <svg width="24" height="24" fill="none" stroke="rgba(244,237,224,0.65)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;margin-bottom:10px;">I'm a Client</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:300;color:rgba(244,237,224,.42);line-height:1.75;margin-bottom:26px;">Search properties, track your inspections, and manage your enquiries.</div>
+      <div style="background:#C0A870;color:#060F1C;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;padding:13px;border-radius:2px;">Enter Client Portal</div>
+    </div>
+    <!-- PRINCIPAL CARD -->
+    <div onclick="location.href='Principal Login.html'" style="width:300px;background:#2A3F5C;border:1px solid rgba(192,168,112,.14);border-top:3px solid #C0A870;border-radius:4px;padding:36px 28px 32px;cursor:pointer;transition:transform .28s cubic-bezier(.2,.7,.3,1),box-shadow .28s;text-align:center;" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(192,168,112,.2)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid rgba(244,237,224,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;">
+        <svg width="24" height="24" fill="none" stroke="rgba(244,237,224,0.65)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;margin-bottom:10px;">I'm a Principal</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:300;color:rgba(244,237,224,.42);line-height:1.75;margin-bottom:26px;">View your listed properties, track inspections, and manage your portfolio.</div>
+      <div style="background:transparent;color:#C0A870;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;padding:12px;border-radius:2px;border:1px solid rgba(192,168,112,.45);">Enter Principal Portal</div>
+    </div>
+  </div>
+  </div>
+<script>
+function openLoginOverlay(){document.getElementById('loginOverlay').style.display='flex';document.body.style.overflow='hidden';}
+function closeLoginOverlay(){document.getElementById('loginOverlay').style.display='none';document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoginOverlay();});
+</script>
+
+<!-- MOBILE HAMBURGER + DRAWER -->
+<button class="nav-hamburger" onclick="openDrawer()" style="display:none;background:transparent;border:none;cursor:pointer;padding:8px;margin-left:auto;align-items:center;justify-content:center;width:44px;height:44px;color:#C0A870;" aria-label="Open menu">
+  <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<div id="mobDrawer" style="position:fixed;inset:0;z-index:9500;display:none;">
+  <div onclick="closeDrawer()" style="position:absolute;inset:0;background:rgba(6,15,28,.5);"></div>
+  <aside style="position:absolute;top:0;right:0;bottom:0;width:84%;max-width:340px;background:#060F1C;border-left:1px solid rgba(192,168,112,.15);padding:24px 24px 32px;display:flex;flex-direction:column;gap:8px;animation:slideIn .25s ease;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="22" height="22" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+        <div><div style="font-family:'DM Serif Display',serif;font-size:14px;color:#C0A870;letter-spacing:.22em;">ROKHAVEN</div><div style="font-size:7px;color:#C0A870;letter-spacing:.46em;opacity:.55;font-weight:200;margin-top:2px;">REALTY</div></div>
+      </div>
+      <button onclick="closeDrawer()" style="background:none;border:none;color:rgba(244,237,224,.4);font-size:28px;cursor:pointer;line-height:1;padding:4px 8px;">×</button>
+    </div>
+    <a href="Listings Page.html" style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;padding:14px 0;border-bottom:1px solid rgba(192,168,112,.08);text-decoration:none;">Sales</a>
+    <a href="Listings Page.html?cat=rent" style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;padding:14px 0;border-bottom:1px solid rgba(192,168,112,.08);text-decoration:none;">Rent</a>
+    <a href="Listings Page.html?cat=shortlet" style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;padding:14px 0;border-bottom:1px solid rgba(192,168,112,.08);text-decoration:none;">Shortlets</a>
+    <a href="Contact.html" style="font-family:'DM Serif Display',serif;font-size:24px;color:#F4EDE0;padding:14px 0;border-bottom:1px solid rgba(192,168,112,.08);text-decoration:none;">Contact</a>
+    <a href="List Your Property.html" style="font-family:'DM Serif Display',serif;font-size:24px;color:#C0A870;padding:14px 0;text-decoration:none;">List a Property</a>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:24px;border-top:1px solid rgba(192,168,112,.1);">
+      <button onclick="closeDrawer();openLoginOverlay()" style="background:transparent;border:1px solid rgba(192,168,112,.35);color:#C0A870;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;padding:14px;border-radius:2px;cursor:pointer;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Login</button>
+      <a href="Enquiry Form.html" style="background:#C0A870;color:#060F1C;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;padding:14px;border-radius:2px;text-align:center;text-decoration:none;min-height:48px;display:flex;align-items:center;justify-content:center;">Schedule a Viewing</a>
+    </div>
+  </aside>
+</div>
+<style>@keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}</style>
+<script>
+function openDrawer(){document.getElementById('mobDrawer').style.display='block';document.body.style.overflow='hidden';}
+function closeDrawer(){document.getElementById('mobDrawer').style.display='none';document.body.style.overflow='';}
+</script>
+
+</body>
+</html>

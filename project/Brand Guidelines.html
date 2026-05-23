@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokHaven Realty — Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #060F1C; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #060F1C; }
+  ::-webkit-scrollbar-thumb { background: #C0A870; opacity: 0.4; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const B = {
+  bg:    '#0B1B35',
+  fg:    '#C0A870',
+  fg2:   '#527070',
+  light: '#F4EDE0',
+  muted: '#2A3F5C',
+  deep:  '#060F1C',
+  df:    "'DM Serif Display', serif",
+  bf:    "'DM Sans', sans-serif",
+};
+
+/* ─── MARK ─────────────────────────────── */
+const Mark = ({ color, size, outline = false }) => (
+  <svg width={size} height={size} viewBox="0 0 60 60" fill={outline ? 'none' : color} stroke={outline ? color : 'none'} strokeWidth={outline ? 1.5 : 0} style={{ display:'block', flexShrink:0 }}>
+    <path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/>
+  </svg>
+);
+
+/* ─── LOGO LOCKUPS ──────────────────────── */
+const LogoStacked = ({ color, ms = 60 }) => (
+  <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap: ms*0.26 }}>
+    <Mark color={color} size={ms}/>
+    <div style={{ textAlign:'center' }}>
+      <div style={{ fontFamily:B.df, fontSize:ms*0.3, color, letterSpacing:'0.22em', fontWeight:400, lineHeight:1 }}>ROKHAVEN</div>
+      <div style={{ fontFamily:B.bf, fontSize:ms*0.13, color, letterSpacing:'0.46em', fontWeight:200, marginTop:ms*0.07, opacity:0.65 }}>REALTY</div>
+    </div>
+  </div>
+);
+
+const LogoHoriz = ({ color, ms = 36 }) => (
+  <div style={{ display:'flex', alignItems:'center', gap: ms*0.42 }}>
+    <Mark color={color} size={ms}/>
+    <div>
+      <div style={{ fontFamily:B.df, fontSize:ms*0.44, color, letterSpacing:'0.22em', fontWeight:400, lineHeight:1 }}>ROKHAVEN</div>
+      <div style={{ fontFamily:B.bf, fontSize:ms*0.19, color, letterSpacing:'0.46em', fontWeight:200, marginTop:ms*0.1, opacity:0.65 }}>REALTY</div>
+    </div>
+  </div>
+);
+
+/* ─── SECTION WRAPPER ───────────────────── */
+const Sec = ({ n, title, sub, light, children }) => {
+  const bg = light ? B.light : B.bg;
+  const tc = light ? B.deep  : B.light;
+  const gc = light ? B.fg2   : B.fg;
+  return (
+    <div style={{ background:bg, padding:'80px 0', borderTop:`1px solid ${light ? B.deep : B.fg}12` }}>
+      <div style={{ maxWidth:1160, margin:'0 auto', padding:'0 56px' }}>
+        <div style={{ display:'flex', alignItems:'flex-end', gap:16, marginBottom: sub ? 10 : 52 }}>
+          <div style={{ fontSize:8, letterSpacing:'0.42em', color:gc, opacity:0.42, fontFamily:B.bf, fontWeight:300, marginBottom:5 }}>0{n}</div>
+          <div style={{ fontFamily:B.df, fontSize:34, color:tc, lineHeight:1 }}>{title}</div>
+          <div style={{ flex:1, height:'0.5px', background:gc, opacity:0.14, marginBottom:6 }}/>
+        </div>
+        {sub && <div style={{ fontFamily:B.bf, fontSize:10, color:tc, opacity:0.42, fontWeight:300, lineHeight:1.75, maxWidth:600, marginBottom:48 }}>{sub}</div>}
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const Rule = () => <div style={{ height:'0.5px', background:B.fg, opacity:0.1, margin:'32px 0' }}/>;
+
+/* ─── APP ───────────────────────────────── */
+function App() {
+
+  /* ── Business Card ── */
+  const CardFront = ({ w = 428, h = 277 }) => (
+    <div style={{ width:w, height:h, background:B.bg, display:'flex', flexDirection:'column', justifyContent:'space-between', padding:`${h*0.094}px ${w*0.075}px`, position:'relative', overflow:'hidden', boxShadow:'0 8px 48px rgba(0,0,0,0.55)', flexShrink:0 }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:B.fg }}/>
+      <LogoHoriz color={B.fg} ms={w*0.054}/>
+      <div>
+        <div style={{ fontFamily:B.df, fontSize:w*0.04, color:B.light, fontWeight:400, marginBottom:w*0.012 }}>Adebayo Osei</div>
+        <div style={{ fontSize:w*0.016, color:B.fg, letterSpacing:'0.22em', fontWeight:300, marginBottom:w*0.022 }}>SENIOR PROPERTY ADVISOR</div>
+        <div style={{ height:'0.5px', background:B.fg, opacity:0.18, marginBottom:w*0.02 }}/>
+        <div style={{ display:'flex', gap:14 }}>
+          <span style={{ fontSize:w*0.018, color:B.light, opacity:0.38, fontWeight:300, fontFamily:B.bf }}>+234 800 000 0000</span>
+          <span style={{ fontSize:w*0.018, color:B.light, opacity:0.38, fontWeight:300, fontFamily:B.bf }}>rokhaven.com</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const CardBack = ({ w = 428, h = 277 }) => (
+    <div style={{ width:w, height:h, background:B.fg, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14, boxShadow:'0 8px 48px rgba(0,0,0,0.55)', flexShrink:0 }}>
+      <Mark color={B.deep} size={w*0.135}/>
+      <div style={{ fontFamily:B.bf, fontSize:w*0.016, color:B.deep, letterSpacing:'0.3em', opacity:0.5 }}>WHERE LEGACY LIVES</div>
+    </div>
+  );
+
+  return (
+    <div style={{ background:B.deep, fontFamily:B.bf }}>
+
+      {/* ═══ COVER ════════════════════════════════════ */}
+      <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:B.deep, position:'relative', overflow:'hidden', padding:'60px' }}>
+        <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', opacity:0.04, pointerEvents:'none' }}>
+          <Mark color={B.fg} size={700}/>
+        </div>
+        <LogoStacked color={B.fg} ms={128}/>
+        <div style={{ marginTop:26, fontSize:8, letterSpacing:'0.38em', color:B.fg, opacity:0.48, fontFamily:B.bf, fontWeight:300 }}>WHERE LEGACY LIVES</div>
+        <div style={{ marginTop:40, width:100, height:'0.5px', background:B.fg, opacity:0.22 }}/>
+        <div style={{ marginTop:22, textAlign:'center', fontSize:8, letterSpacing:'0.28em', color:B.light, opacity:0.25, fontFamily:B.bf, lineHeight:2 }}>
+          BRAND IDENTITY GUIDELINES<br/>
+          <span style={{ letterSpacing:'0.1em', opacity:0.7 }}>MMXXVI — CONFIDENTIAL</span>
+        </div>
+        <div style={{ position:'absolute', bottom:36, right:56, fontSize:7, color:B.light, opacity:0.16, letterSpacing:'0.2em', fontFamily:B.bf }}>ROKHAVEN REALTY LTD</div>
+      </div>
+
+      {/* ═══ 01 — OVERVIEW ════════════════════════════ */}
+      <Sec n={1} title="Brand Overview" sub="RokHaven is Nigeria's premier luxury real estate brand — built on exclusivity, integrity, and a legacy of extraordinary properties for those who accept nothing but the finest.">
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, marginBottom:48 }}>
+          <div style={{ borderLeft:`2px solid ${B.fg}`, paddingLeft:24 }}>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:14, fontFamily:B.bf }}>POSITIONING STATEMENT</div>
+            <div style={{ fontFamily:B.df, fontSize:15.5, color:B.light, lineHeight:1.72, fontStyle:'italic', opacity:0.82 }}>
+              "For Nigeria's discerning high-net-worth individuals, RokHaven is the premier luxury real estate brand that offers curated, exclusive properties and a personalised, world-class experience."
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:14, fontFamily:B.bf }}>BRAND PROMISE</div>
+            <div style={{ fontFamily:B.df, fontSize:20, color:B.fg, lineHeight:1.4, marginBottom:16 }}>
+              "A legacy of luxury,<br/>where every detail matters."
+            </div>
+            <div style={{ fontFamily:B.bf, fontSize:9.5, color:B.light, opacity:0.42, lineHeight:1.85, fontWeight:300 }}>
+              RokHaven delivers curated, secure, and sophisticated living spaces — combining local insight with global standards to redefine luxury real estate in Nigeria.
+            </div>
+          </div>
+        </div>
+        <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:16, fontFamily:B.bf }}>BRAND VALUES</div>
+        <div style={{ display:'flex', gap:2 }}>
+          {[
+            { v:'Exclusivity',  d:'A bespoke experience for clients who seek unparalleled luxury and privacy.' },
+            { v:'Integrity',    d:'Transparency and honesty in every transaction, every relationship.' },
+            { v:'Excellence',   d:'Uncompromising quality across every property and every service touchpoint.' },
+            { v:'Discretion',   d:'Complete privacy and confidentiality for every client and transaction.' },
+            { v:'Legacy',       d:'Properties and relationships that stand the test of time — for generations.' },
+          ].map((val, i) => (
+            <div key={i} style={{ flex:1, background:B.muted, padding:'22px 18px' }}>
+              <div style={{ width:20, height:'1px', background:B.fg, opacity:0.4, marginBottom:14 }}/>
+              <div style={{ fontFamily:B.df, fontSize:15, color:B.fg, marginBottom:9 }}>{val.v}</div>
+              <div style={{ fontFamily:B.bf, fontSize:8.5, color:B.light, opacity:0.4, lineHeight:1.65, fontWeight:300 }}>{val.d}</div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ═══ 02 — THE LOGO ════════════════════════════ */}
+      <Sec n={2} title="The Logo System" sub="The RokHaven mark is a gateway arch — representing both 'haven' (sanctuary, safe harbour) and 'rok' (solidity, permanence). It is always produced as a solid-fill shape.">
+        {/* Primary presentations */}
+        <div style={{ display:'grid', gridTemplateColumns:'1.1fr 1fr 1fr', gap:2, marginBottom:40 }}>
+          <div style={{ background:B.bg, padding:'52px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:32 }}>
+            <div style={{ fontSize:6, letterSpacing:'0.38em', color:B.fg, opacity:0.3, alignSelf:'flex-start', fontFamily:B.bf }}>PRIMARY — DARK</div>
+            <LogoStacked color={B.fg} ms={88}/>
+            <div style={{ fontSize:6.5, letterSpacing:'0.3em', color:B.fg, opacity:0.38 }}>WHERE LEGACY LIVES</div>
+          </div>
+          <div style={{ background:B.muted, padding:'36px', display:'flex', flexDirection:'column', justifyContent:'center', gap:22 }}>
+            <div style={{ fontSize:6, letterSpacing:'0.38em', color:B.fg, opacity:0.3, fontFamily:B.bf }}>HORIZONTAL</div>
+            <LogoHoriz color={B.fg} ms={32}/>
+            <div style={{ height:'0.5px', background:B.fg, opacity:0.12 }}/>
+            <div style={{ fontSize:6, letterSpacing:'0.38em', color:B.fg, opacity:0.3, fontFamily:B.bf }}>MARK ONLY</div>
+            <Mark color={B.fg} size={44}/>
+          </div>
+          <div style={{ background:B.light, padding:'36px', display:'flex', flexDirection:'column', justifyContent:'center', gap:22 }}>
+            <div style={{ fontSize:6, letterSpacing:'0.38em', color:B.bg, opacity:0.35, fontFamily:B.bf }}>REVERSED — LIGHT</div>
+            <LogoStacked color={B.bg} ms={62}/>
+            <div style={{ height:'0.5px', background:B.bg, opacity:0.1 }}/>
+            <LogoHoriz color={B.bg} ms={26}/>
+          </div>
+        </div>
+
+        {/* Clear space + minimum size */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, marginBottom:0 }}>
+          <div>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:18, fontFamily:B.bf }}>CLEAR SPACE</div>
+            <div style={{ background:B.muted, padding:'40px', display:'inline-flex' }}>
+              <div style={{ border:`1px dashed ${B.fg}45`, padding:'24px 32px', position:'relative' }}>
+                <LogoHoriz color={B.fg} ms={46}/>
+                <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', fontSize:7, color:B.fg, opacity:0.55, letterSpacing:'0.15em', fontFamily:B.bf }}>X</div>
+                <div style={{ position:'absolute', left:-16, top:'50%', transform:'translateY(-50%)', fontSize:7, color:B.fg, opacity:0.55, fontFamily:B.bf }}>X</div>
+                <div style={{ position:'absolute', bottom:-12, left:'50%', transform:'translateX(-50%)', fontSize:7, color:B.fg, opacity:0.55, fontFamily:B.bf }}>X</div>
+                <div style={{ position:'absolute', right:-16, top:'50%', transform:'translateY(-50%)', fontSize:7, color:B.fg, opacity:0.55, fontFamily:B.bf }}>X</div>
+              </div>
+            </div>
+            <div style={{ marginTop:12, fontFamily:B.bf, fontSize:9, color:B.light, opacity:0.38, lineHeight:1.75, fontWeight:300, maxWidth:320 }}>
+              Minimum clear space of <em style={{color:B.fg,opacity:0.7}}>X</em> (equal to the mark height) must be maintained on all sides. Nothing may intrude on this zone.
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:18, fontFamily:B.bf }}>MINIMUM SIZE</div>
+            <div style={{ display:'flex', gap:28, alignItems:'flex-end', marginBottom:16 }}>
+              {[{ s:70, l:'72px digital' }, { s:40, l:'12mm print' }, { s:24, l:'24px min' }].map((sz, i) => (
+                <div key={i} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
+                  <Mark color={B.fg} size={sz.s}/>
+                  <div style={{ fontSize:6.5, color:B.light, opacity:0.32, fontFamily:B.bf, textAlign:'center', letterSpacing:'0.1em' }}>{sz.l}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontFamily:B.bf, fontSize:9, color:B.light, opacity:0.38, lineHeight:1.75, fontWeight:300, maxWidth:320 }}>
+              Below 24px digital or 8mm in print the gateway mark loses legibility. Use the wordmark alone at these scales.
+            </div>
+          </div>
+        </div>
+      </Sec>
+
+      {/* ═══ 03 — COLOUR SYSTEM ═══════════════════════ */}
+      <Sec n={3} title="Colour System" sub="The RokHaven palette draws from two sources: the deep Nigerian ocean at night, and the warm earthy tones of Nigerian stone and bronze craftsmanship.">
+        <div style={{ display:'flex', gap:2, marginBottom:36 }}>
+          {/* Midnight Navy — shown as a featured background swatch with visible border */}
+          <div style={{ flex:1.6 }}>
+            <div style={{ height:100, background:'#0B1B35', border:'1px solid rgba(192,168,112,0.22)', position:'relative' }}>
+              <div style={{ position:'absolute', bottom:8, left:10 }}>
+                <svg width="18" height="18" viewBox="0 0 60 60" fill="#C0A870" opacity="0.4"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+              </div>
+            </div>
+            <div style={{ paddingTop:10, paddingRight:4 }}>
+              <div style={{ fontFamily:B.df, fontSize:12, color:B.fg, marginBottom:4 }}>Midnight Navy</div>
+              <div style={{ fontFamily:B.bf, fontSize:7.5, color:B.light, opacity:0.4, marginBottom:2 }}>HEX &nbsp;#0B1B35</div>
+              <div style={{ fontFamily:B.bf, fontSize:7.5, color:B.light, opacity:0.4, marginBottom:4 }}>RGB &nbsp;11, 27, 53</div>
+              <div style={{ fontFamily:B.bf, fontSize:7, color:B.light, opacity:0.3, letterSpacing:'0.07em' }}>Primary Background</div>
+            </div>
+          </div>
+          {/* Remaining swatches */}
+          {[
+            { name:'Bronze Gold',   hex:'#C0A870', rgb:'192, 168, 112', role:'Primary Accent'    },
+            { name:'Slate Teal',    hex:'#527070', rgb:'82, 112, 112',  role:'Secondary Accent'  },
+            { name:'Warm Ivory',    hex:'#F4EDE0', rgb:'244, 237, 224', role:'Light / Reversed'  },
+            { name:'Deep Muted',    hex:'#2A3F5C', rgb:'42, 63, 92',    role:'Supporting Dark'   },
+            { name:'Obsidian',      hex:'#060F1C', rgb:'6, 15, 28',     role:'Deep Black'        },
+          ].map((c, i) => (
+            <div key={i} style={{ flex:1 }}>
+              <div style={{ height:72, background:c.hex, border:`1px solid ${B.fg}09` }}/>
+              <div style={{ paddingTop:10, paddingRight:4 }}>
+                <div style={{ fontFamily:B.df, fontSize:12, color:B.fg, marginBottom:4 }}>{c.name}</div>
+                <div style={{ fontFamily:B.bf, fontSize:7.5, color:B.light, opacity:0.4, marginBottom:2 }}>HEX &nbsp;{c.hex.toUpperCase()}</div>
+                <div style={{ fontFamily:B.bf, fontSize:7.5, color:B.light, opacity:0.4, marginBottom:4 }}>RGB &nbsp;{c.rgb}</div>
+                <div style={{ fontFamily:B.bf, fontSize:7, color:B.light, opacity:0.3, letterSpacing:'0.07em' }}>{c.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:16, fontFamily:B.bf }}>COLOUR USAGE</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:2 }}>
+          {[
+            { title:'Primary Context',   bg:B.bg,    col:B.fg,   desc:'Default brand application. Use Midnight Navy as background with Bronze Gold mark and typography.' },
+            { title:'Reversed Context',  bg:B.light, col:B.deep, desc:'For print stationery, light digital surfaces, and high-contrast applications.' },
+            { title:'Accent Context',    bg:B.muted, col:B.fg,   desc:'Supporting panels, card backs, dividers, and secondary UI elements.' },
+          ].map((u, i) => (
+            <div key={i} style={{ background:u.bg, padding:'26px 22px' }}>
+              <div style={{ fontFamily:B.bf, fontSize:7, letterSpacing:'0.26em', color:u.col, opacity:0.5, marginBottom:12 }}>{u.title.toUpperCase()}</div>
+              <LogoHoriz color={u.col} ms={28}/>
+              <div style={{ height:'0.5px', background:u.col, opacity:0.1, margin:'16px 0' }}/>
+              <div style={{ fontFamily:B.bf, fontSize:8.5, color:u.col, opacity:0.5, lineHeight:1.7, fontWeight:300 }}>{u.desc}</div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ═══ 04 — TYPOGRAPHY ══════════════════════════ */}
+      <Sec n={4} title="Typography">
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, marginBottom:44 }}>
+          <div style={{ paddingBottom:32, borderBottom:`1px solid ${B.fg}14` }}>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:16, fontFamily:B.bf }}>DISPLAY TYPEFACE</div>
+            <div style={{ fontFamily:B.df, fontSize:58, color:B.fg, fontWeight:400, lineHeight:0.95, marginBottom:10 }}>Ikoyi</div>
+            <div style={{ fontFamily:B.df, fontSize:58, color:B.light, fontWeight:400, lineHeight:0.95, fontStyle:'italic', marginBottom:18, opacity:0.75 }}>Abuja</div>
+            <div style={{ fontFamily:B.df, fontSize:13, color:B.light, opacity:0.42, fontStyle:'italic', lineHeight:1.6 }}>
+              "Curated for clients who value integrity, innovation, and lasting value."
+            </div>
+            <div style={{ fontSize:6.5, color:B.light, opacity:0.24, marginTop:12, fontFamily:'monospace', letterSpacing:'0.1em' }}>
+              DM Serif Display — Regular / Italic<br/>
+              Use for headlines, display, pull quotes.
+            </div>
+          </div>
+          <div style={{ paddingBottom:32, borderBottom:`1px solid ${B.fg}14` }}>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:16, fontFamily:B.bf }}>BODY TYPEFACE</div>
+            <div style={{ fontFamily:B.bf, fontSize:34, color:B.light, fontWeight:200, letterSpacing:'0.04em', marginBottom:10 }}>Aa Bb Cc Dd</div>
+            <div style={{ fontFamily:B.bf, fontSize:34, color:B.fg, fontWeight:300, letterSpacing:'0.04em', marginBottom:18 }}>1 2 3 4 5 6</div>
+            <div style={{ fontFamily:B.bf, fontSize:10.5, color:B.light, opacity:0.42, lineHeight:1.85, fontWeight:300 }}>
+              RokHaven provides exclusive access to Nigeria's most prestigious properties — curated portfolios combining local expertise with global standards of excellence.
+            </div>
+            <div style={{ fontSize:6.5, color:B.light, opacity:0.24, marginTop:12, fontFamily:'monospace', letterSpacing:'0.1em' }}>
+              DM Sans — ExtraLight / Light / Regular<br/>
+              Use for body copy, labels, UI text.
+            </div>
+          </div>
+        </div>
+
+        <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:16, fontFamily:B.bf }}>TYPE SCALE</div>
+        {[
+          { l:'DISPLAY', sz:40, f:B.df, w:400, sp:'-0.01em', sample:'The Residence at Ocean Promenade'         },
+          { l:'H1',      sz:26, f:B.df, w:400, sp:'0',        sample:'Premium Properties, Curated for You'    },
+          { l:'H2',      sz:18, f:B.df, w:400, sp:'0.01em',   sample:'Banana Island · Ikoyi · Maitama'        },
+          { l:'LABEL',   sz:8.5,f:B.bf, w:400, sp:'0.3em',    sample:'AVAILABLE LISTINGS'                     },
+          { l:'BODY',    sz:11, f:B.bf, w:300, sp:'0.02em',   sample:'We are pleased to present this exclusive property, carefully curated from our portfolio of premium residences.' },
+          { l:'CAPTION', sz:8,  f:B.bf, w:300, sp:'0.05em',   sample:'All prices quoted in Nigerian Naira. Subject to change without notice.' },
+        ].map((t, i) => (
+          <div key={i} style={{ display:'flex', alignItems:'baseline', gap:16, paddingBottom:9, borderBottom:`1px solid ${B.fg}08`, marginBottom:9 }}>
+            <div style={{ width:52, fontSize:6, color:B.light, opacity:0.22, letterSpacing:'0.1em', flexShrink:0, fontFamily:B.bf }}>{t.l}</div>
+            <div style={{ fontFamily:t.f, fontSize:t.sz, color:B.light, fontWeight:t.w, letterSpacing:t.sp, opacity:0.84, overflow:'hidden', whiteSpace:t.sz>14?'nowrap':'normal', textOverflow:'ellipsis' }}>
+              {t.sample}
+            </div>
+          </div>
+        ))}
+      </Sec>
+
+      {/* ═══ 05 — LOGO DON'TS ═════════════════════════ */}
+      <Sec n={5} title="Logo  Incorrect Usage" sub="The gateway mark must never be altered, recoloured, distorted, or placed in any context that compromises the brand's integrity.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2 }}>
+          {[
+            { title:"Don't change colour",    child: <LogoStacked color="#D94F4F" ms={52}/>,                                    rule:'Use only approved brand colours. Never apply unauthorised hues to the mark or wordmark.' },
+            { title:"Don't stretch or distort", child: <div style={{ transform:'scaleX(1.6)', transformOrigin:'center' }}><Mark color={B.fg} size={56}/></div>, rule:'Always maintain the mark\'s original proportions. Never scale non-uniformly.' },
+            { title:"Don't rotate",             child: <div style={{ transform:'rotate(45deg)', display:'inline-block' }}><Mark color={B.fg} size={56}/></div>, rule:'The gateway arch must always face upright. Any rotation destroys its meaning.' },
+            { title:"Don't use on busy bg",     child: (
+              <div style={{ background:`repeating-linear-gradient(45deg,${B.muted},${B.muted} 8px,${B.bg} 8px,${B.bg} 16px)`, padding:'10px', display:'inline-block' }}>
+                <LogoHoriz color={B.fg} ms={32}/>
+              </div>
+            ), rule:'Only place the logo on solid, approved background colours.' },
+            { title:"Don't add effects",        child: <div style={{ filter:'drop-shadow(0 0 10px rgba(192,168,112,0.7))', display:'inline-block' }}><Mark color={B.fg} size={56}/></div>, rule:'No drop shadows, glows, gradients, or filters on the mark.' },
+            { title:"Don't use outline only",   child: <Mark color={B.fg} size={56} outline={true}/>, rule:'The gateway mark is always solid-filled. An outline version is not an approved variant.' },
+          ].map((d, i) => (
+            <div key={i} style={{ background:B.muted, padding:'26px 22px', position:'relative' }}>
+              <div style={{ position:'absolute', top:14, right:14, width:22, height:22, borderRadius:'50%', background:'#C83333', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, color:'white', fontWeight:700, lineHeight:1 }}>×</div>
+              <div style={{ fontSize:6.5, letterSpacing:'0.26em', color:B.fg, opacity:0.45, marginBottom:18, fontFamily:B.bf }}>{d.title.toUpperCase()}</div>
+              <div style={{ minHeight:70, display:'flex', alignItems:'center', marginBottom:18 }}>{d.child}</div>
+              <div style={{ fontFamily:B.bf, fontSize:8.5, color:B.light, opacity:0.38, lineHeight:1.6, fontWeight:300 }}>{d.rule}</div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ═══ 06 — APPLICATIONS ════════════════════════ */}
+      <Sec n={6} title="Brand Applications">
+
+        {/* Business card */}
+        <div style={{ marginBottom:60 }}>
+          <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:22, fontFamily:B.bf }}>BUSINESS CARD — 85 × 55 mm</div>
+          <div style={{ display:'flex', gap:20, alignItems:'center' }}>
+            <CardFront/>
+            <CardBack/>
+            <div style={{ marginLeft:8, display:'flex', flexDirection:'column', gap:6 }}>
+              <div style={{ fontSize:6.5, color:B.light, opacity:0.25, letterSpacing:'0.14em', fontFamily:B.bf, writingMode:'vertical-rl', transform:'rotate(180deg)' }}>FRONT · BACK</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Letterhead */}
+        <div style={{ marginBottom:60 }}>
+          <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:22, fontFamily:B.bf }}>LETTERHEAD — A4</div>
+          <div style={{ width:480, background:'#FEFCF8', boxShadow:'0 8px 48px rgba(0,0,0,0.45)', overflow:'hidden' }}>
+            <div style={{ background:B.bg, padding:'16px 30px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <LogoHoriz color={B.fg} ms={21}/>
+              <div style={{ textAlign:'right', fontSize:6.5, color:B.fg, opacity:0.48, lineHeight:1.9, letterSpacing:'0.1em', fontFamily:B.bf }}>
+                <div>rokhaven.com</div><div>Lagos · Abuja, Nigeria</div>
+              </div>
+            </div>
+            <div style={{ height:'2px', background:B.fg }}/>
+            <div style={{ padding:'36px 38px 28px' }}>
+              <div style={{ marginBottom:26 }}>
+                <div style={{ fontSize:6, letterSpacing:'0.3em', color:B.deep, opacity:0.3, marginBottom:4, fontFamily:B.bf }}>DATE</div>
+                <div style={{ fontSize:9.5, color:B.deep, opacity:0.42, fontWeight:300, fontFamily:B.bf }}>May 16, 2026</div>
+              </div>
+              <div style={{ marginBottom:22 }}>
+                <div style={{ fontFamily:B.df, fontSize:20, color:B.deep, fontWeight:400, lineHeight:1.2, marginBottom:6 }}>Property Proposal</div>
+                <div style={{ fontSize:7, letterSpacing:'0.26em', color:B.fg, fontFamily:B.bf }}>IKOYI LUXURY RESIDENCE</div>
+              </div>
+              <div style={{ height:'1px', background:B.deep, opacity:0.07, marginBottom:20 }}/>
+              <div style={{ fontFamily:B.bf, fontSize:9.5, color:B.deep, fontWeight:300, lineHeight:1.95, opacity:0.52 }}>
+                <p style={{ marginBottom:12 }}>Dear Mr. Adesanya,</p>
+                <p style={{ marginBottom:12 }}>We are pleased to present this exclusive property proposal, carefully curated from our portfolio of premium residences across Lagos's most prestigious neighbourhoods.</p>
+                <p>Each property reflects RokHaven's commitment to unparalleled luxury, discretion, and enduring value.</p>
+              </div>
+              <div style={{ marginTop:28, borderTop:`1px solid ${B.deep}0C`, paddingTop:16 }}>
+                <div style={{ fontFamily:B.df, fontSize:14, color:B.deep, opacity:0.6, fontStyle:'italic', marginBottom:4 }}>Amara Obi</div>
+                <div style={{ fontSize:6.5, letterSpacing:'0.22em', color:B.fg, fontFamily:B.bf }}>SENIOR PROPERTY ADVISOR</div>
+              </div>
+            </div>
+            <div style={{ padding:'9px 30px', borderTop:`1px solid ${B.deep}09`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:6, color:B.deep, opacity:0.2, letterSpacing:'0.1em', fontFamily:B.bf }}>ROKHAVEN REALTY LTD · RC XXXXXXX</div>
+              <Mark color={B.fg} size={14}/>
+            </div>
+          </div>
+        </div>
+
+        {/* Social media */}
+        <div style={{ marginBottom:60 }}>
+          <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:22, fontFamily:B.bf }}>SOCIAL & DIGITAL ASSETS</div>
+          <div style={{ display:'flex', gap:16, alignItems:'flex-end' }}>
+            <div>
+              <div style={{ fontSize:6, color:B.light, opacity:0.26, letterSpacing:'0.22em', marginBottom:7, fontFamily:B.bf }}>PROFILE</div>
+              <div style={{ width:108, height:108, borderRadius:'50%', background:B.bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Mark color={B.fg} size={54}/>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize:6, color:B.light, opacity:0.26, letterSpacing:'0.22em', marginBottom:7, fontFamily:B.bf }}>IG STORY</div>
+              <div style={{ width:76, height:136, background:B.bg, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:10, borderRadius:3 }}>
+                <Mark color={B.fg} size={30}/>
+                <div style={{ fontFamily:B.df, fontSize:7.5, color:B.fg, letterSpacing:'0.14em', textAlign:'center', lineHeight:1.45 }}>ROK<br/>HAVEN</div>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize:6, color:B.light, opacity:0.26, letterSpacing:'0.22em', marginBottom:7, fontFamily:B.bf }}>SQUARE POST</div>
+              <div style={{ width:164, height:164, background:B.bg, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:11, padding:18 }}>
+                <div style={{ fontSize:5.5, letterSpacing:'0.3em', color:B.fg, opacity:0.38 }}>NEW LISTING</div>
+                <Mark color={B.fg} size={42}/>
+                <div style={{ textAlign:'center' }}>
+                  <div style={{ fontFamily:B.df, fontSize:10, color:B.fg, letterSpacing:'0.2em' }}>ROKHAVEN</div>
+                  <div style={{ fontSize:4.5, color:B.fg, letterSpacing:'0.36em', opacity:0.46, marginTop:1, fontFamily:B.bf }}>REALTY</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:6, color:B.light, opacity:0.26, letterSpacing:'0.22em', marginBottom:7, fontFamily:B.bf }}>EMAIL BANNER</div>
+              <div style={{ background:B.bg, height:66, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', marginBottom:12 }}>
+                <LogoHoriz color={B.fg} ms={19}/>
+                <div style={{ fontSize:6, color:B.fg, opacity:0.38, letterSpacing:'0.18em', fontFamily:B.bf }}>WHERE LEGACY LIVES</div>
+              </div>
+              <div style={{ fontSize:6, color:B.light, opacity:0.26, letterSpacing:'0.22em', marginBottom:7, fontFamily:B.bf }}>EMAIL SIGNATURE</div>
+              <div style={{ background:'#FEFCF8', padding:'13px 16px', borderLeft:`3px solid ${B.fg}`, display:'flex', alignItems:'center', gap:13 }}>
+                <Mark color={B.bg} size={28}/>
+                <div>
+                  <div style={{ fontFamily:B.df, fontSize:13, color:B.deep, marginBottom:2 }}>Amara Obi</div>
+                  <div style={{ fontSize:6.5, color:B.fg2, letterSpacing:'0.14em', marginBottom:4, fontFamily:B.bf }}>Senior Property Advisor · RokHaven Realty</div>
+                  <div style={{ fontSize:7.5, color:'#9A9A9A', fontFamily:B.bf }}>+234 800 000 0000 · amara@rokhaven.com · rokhaven.com</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Property listing */}
+        <div>
+          <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg, opacity:0.5, marginBottom:22, fontFamily:B.bf }}>PROPERTY LISTING TEMPLATE</div>
+          <div style={{ width:700, background:'#FEFCF8', boxShadow:'0 8px 48px rgba(0,0,0,0.4)', overflow:'hidden' }}>
+            <div style={{ background:B.bg, padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <LogoHoriz color={B.fg} ms={17}/>
+              <div style={{ fontSize:6, letterSpacing:'0.3em', color:B.fg, opacity:0.44, fontFamily:B.bf }}>EXCLUSIVE LISTING</div>
+            </div>
+            <div style={{ height:'2px', background:B.fg }}/>
+            <div style={{ height:168, backgroundImage:`repeating-linear-gradient(45deg,${B.deep}04 0px,${B.deep}04 1px,transparent 1px,transparent 24px)`, display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+              <div style={{ fontSize:8, color:B.deep, opacity:0.12, fontFamily:'monospace', letterSpacing:'0.2em' }}>PROPERTY PHOTOGRAPH</div>
+              <div style={{ position:'absolute', bottom:12, right:20, background:B.bg, padding:'7px 14px' }}>
+                <div style={{ fontSize:5.5, letterSpacing:'0.2em', color:B.fg, opacity:0.5, marginBottom:2, fontFamily:B.bf }}>ASKING PRICE</div>
+                <div style={{ fontFamily:B.df, fontSize:15, color:B.fg }}>₦2.4 Billion</div>
+              </div>
+            </div>
+            <div style={{ padding:'18px 24px 14px', display:'flex', gap:22 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:6.5, letterSpacing:'0.24em', color:B.fg, marginBottom:5, fontFamily:B.bf }}>BANANA ISLAND, IKOYI — LAGOS</div>
+                <div style={{ fontFamily:B.df, fontSize:18, color:B.deep, fontWeight:400, lineHeight:1.25, marginBottom:16 }}>The Residence at<br/>Ocean Promenade</div>
+                <div style={{ display:'flex', gap:18 }}>
+                  {[{v:'6',l:'BEDS'},{v:'7.5',l:'BATHS'},{v:'1,200',l:'SQM'}].map((s,i)=>(
+                    <div key={i}>
+                      <div style={{ fontFamily:B.df, fontSize:16, color:B.fg }}>{s.v}</div>
+                      <div style={{ fontSize:5.5, letterSpacing:'0.2em', color:B.deep, opacity:0.3, marginTop:2, fontFamily:B.bf }}>{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ flex:'0 0 190', borderLeft:`1px solid ${B.deep}0C`, paddingLeft:20 }}>
+                <div style={{ fontSize:6, letterSpacing:'0.26em', color:B.deep, opacity:0.28, marginBottom:10, fontFamily:B.bf }}>HIGHLIGHTS</div>
+                {['Private waterfront access','Smart home automation','Staff quarters + 4-car garage','Rooftop infinity pool'].map((f,i)=>(
+                  <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:7, fontSize:8.5, color:B.deep, opacity:0.5, fontWeight:300, marginBottom:6, lineHeight:1.3, fontFamily:B.bf }}>
+                    <div style={{ width:3.5, height:3.5, background:B.fg, opacity:0.55, transform:'rotate(45deg)', flexShrink:0, marginTop:3 }}/>
+                    {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ padding:'8px 24px', background:B.bg, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:6.5, color:B.fg, opacity:0.5, letterSpacing:'0.14em', fontFamily:B.bf }}>+234 800 000 0000 · rokhaven.com</div>
+              <Mark color={B.fg} size={14}/>
+            </div>
+          </div>
+        </div>
+      </Sec>
+
+      {/* ═══ 07 — TONE OF VOICE ══════════════════════ */}
+      <Sec n={7} title="Tone of Voice" light sub="How RokHaven speaks is as important as how it looks. Every word should reflect the brand's sophistication, warmth, and authority.">
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48 }}>
+          <div>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg2, opacity:0.8, marginBottom:18, fontFamily:B.bf }}>VOICE ATTRIBUTES</div>
+            {[
+              { a:'Elegant & Reserved',    d:'Avoids hype or exaggeration. A polished tone that subtly conveys luxury — it never needs to shout.' },
+              { a:'Warm yet Professional', d:'Engaging, welcoming, and respectful. Genuine interest in each client\'s unique vision and needs.' },
+              { a:'Clear & Concise',       d:'Free of jargon. Descriptive and approachable language, aligned with the refinement of the luxury market.' },
+              { a:'Local Intelligence',    d:'Demonstrates deep knowledge of the Nigerian market — its neighbourhoods, culture, and nuances.' },
+            ].map((v, i) => (
+              <div key={i} style={{ marginBottom:22, paddingBottom:20, borderBottom:`1px solid ${B.deep}10` }}>
+                <div style={{ fontFamily:B.df, fontSize:15, color:B.deep, marginBottom:7 }}>{v.a}</div>
+                <div style={{ fontFamily:B.bf, fontSize:9.5, color:B.deep, opacity:0.5, lineHeight:1.8, fontWeight:300 }}>{v.d}</div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={{ fontSize:7.5, letterSpacing:'0.32em', color:B.fg2, opacity:0.8, marginBottom:18, fontFamily:B.bf }}>COPY EXAMPLES</div>
+            {[
+              { label:'ON BRAND ✓', bg:B.deep, tc:B.fg, bc:B.fg, text:'"Discover a curated selection of Lagos\'s most distinguished residences — each property chosen for its architectural distinction, exclusivity, and enduring value."', ok:true },
+              { label:'OFF BRAND ✗', bg:'#F5ECEC', tc:'#8B2222', bc:'#C83333', text:'"HOT LISTINGS! Don\'t miss out on AMAZING deals in Ikoyi! Call NOW to book your dream home before it\'s gone!!!"', ok:false },
+            ].map((ex, i) => (
+              <div key={i} style={{ marginBottom:16, padding:'22px', background:ex.bg }}>
+                <div style={{ fontSize:6.5, letterSpacing:'0.26em', color:ex.bc, marginBottom:12, fontFamily:B.bf, opacity:0.75 }}>{ex.label}</div>
+                <div style={{ fontFamily:B.df, fontSize:12, color: ex.ok ? B.light : '#5A2020', lineHeight:1.7, fontStyle:'italic', opacity:0.82 }}>{ex.text}</div>
+              </div>
+            ))}
+            <div style={{ marginTop:8, fontFamily:B.bf, fontSize:9, color:B.deep, opacity:0.42, lineHeight:1.75, fontWeight:300 }}>
+              Never use exclamation marks, hyperbole, or urgency language. The brand speaks from a position of calm authority — it does not chase clients; it attracts them.
+            </div>
+          </div>
+        </div>
+      </Sec>
+
+      {/* BACK COVER */}
+      <div style={{ background:B.deep, padding:'72px 0', borderTop:`1px solid ${B.fg}12` }}>
+        <div style={{ maxWidth:1160, margin:'0 auto', padding:'0 56px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <LogoHoriz color={B.fg} ms={20}/>
+          <div style={{ textAlign:'center' }}>
+            <div style={{ fontFamily:B.df, fontSize:13, color:B.fg, letterSpacing:'0.2em', opacity:0.6 }}>WHERE LEGACY LIVES</div>
+          </div>
+          <div style={{ textAlign:'right', fontSize:7, color:B.light, opacity:0.18, letterSpacing:'0.1em', fontFamily:B.bf, lineHeight:2 }}>
+            BRAND IDENTITY GUIDELINES<br/>
+            © 2026 ROKHAVEN REALTY LTD<br/>
+            CONFIDENTIAL
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

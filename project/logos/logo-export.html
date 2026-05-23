@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #222; display: flex; flex-direction: column; gap: 2px; }
+  .logo-frame { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .df { font-family: 'DM Serif Display', serif; font-weight: 400; }
+  .bf { font-family: 'DM Sans', sans-serif; font-weight: 200; }
+  svg { display: block; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- 1. Primary stacked — dark -->
+<div class="logo-frame" id="f1" style="width:800px;height:500px;background:#0B1B35;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:28px;">
+    <svg width="100" height="100" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div style="text-align:center;">
+      <div class="df" style="font-size:40px;color:#C0A870;letter-spacing:0.22em;line-height:1;">ROKHAVEN</div>
+      <div class="bf" style="font-size:17px;color:#C0A870;letter-spacing:0.46em;margin-top:10px;opacity:0.65;">REALTY</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Primary stacked — light -->
+<div class="logo-frame" id="f2" style="width:800px;height:500px;background:#F4EDE0;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:28px;">
+    <svg width="100" height="100" viewBox="0 0 60 60" fill="#0B1B35"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div style="text-align:center;">
+      <div class="df" style="font-size:40px;color:#0B1B35;letter-spacing:0.22em;line-height:1;">ROKHAVEN</div>
+      <div class="bf" style="font-size:17px;color:#0B1B35;letter-spacing:0.46em;margin-top:10px;opacity:0.65;">REALTY</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Horizontal — dark -->
+<div class="logo-frame" id="f3" style="width:800px;height:260px;background:#0B1B35;">
+  <div style="display:flex;align-items:center;gap:28px;">
+    <svg width="72" height="72" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div>
+      <div class="df" style="font-size:32px;color:#C0A870;letter-spacing:0.22em;line-height:1;">ROKHAVEN</div>
+      <div class="bf" style="font-size:14px;color:#C0A870;letter-spacing:0.46em;margin-top:8px;opacity:0.65;">REALTY</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Horizontal — light -->
+<div class="logo-frame" id="f4" style="width:800px;height:260px;background:#F4EDE0;">
+  <div style="display:flex;align-items:center;gap:28px;">
+    <svg width="72" height="72" viewBox="0 0 60 60" fill="#0B1B35"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div>
+      <div class="df" style="font-size:32px;color:#0B1B35;letter-spacing:0.22em;line-height:1;">ROKHAVEN</div>
+      <div class="bf" style="font-size:14px;color:#0B1B35;letter-spacing:0.46em;margin-top:8px;opacity:0.65;">REALTY</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Mark only — dark -->
+<div class="logo-frame" id="f5" style="width:400px;height:400px;background:#0B1B35;">
+  <svg width="180" height="180" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+</div>
+
+<!-- 6. Mark only — light -->
+<div class="logo-frame" id="f6" style="width:400px;height:400px;background:#F4EDE0;">
+  <svg width="180" height="180" viewBox="0 0 60 60" fill="#0B1B35"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+</div>
+
+<!-- 7. Mark only — gold (for stamps, emboss) -->
+<div class="logo-frame" id="f7" style="width:400px;height:400px;background:#C0A870;">
+  <svg width="180" height="180" viewBox="0 0 60 60" fill="#060F1C"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+</div>
+
+<!-- 8. Wordmark only — dark -->
+<div class="logo-frame" id="f8" style="width:800px;height:200px;background:#0B1B35;">
+  <div style="text-align:center;">
+    <div style="height:0.5px;background:#C0A870;opacity:0.3;margin-bottom:14px;width:400px;"></div>
+    <div class="df" style="font-size:44px;color:#C0A870;letter-spacing:0.28em;line-height:1;">ROKHAVEN</div>
+    <div class="bf" style="font-size:18px;color:#C0A870;letter-spacing:0.52em;margin-top:10px;opacity:0.65;">REALTY</div>
+    <div style="height:0.5px;background:#C0A870;opacity:0.3;margin-top:14px;width:400px;"></div>
+  </div>
+</div>
+
+</body>
+</html>

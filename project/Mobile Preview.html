@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokHaven Realty — Mobile Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C0A870;--obs:#060F1C;--navy:#0B1B35;--ivory:#F4EDE0;--fd:'DM Serif Display',serif;--fb:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0A0F1A;color:var(--ivory);font-family:var(--fb);font-weight:300;min-height:100vh;}
+
+/* HEADER */
+header{padding:36px 40px 32px;border-bottom:1px solid rgba(192,168,112,.08);display:flex;justify-content:space-between;align-items:center;}
+.logo{display:flex;align-items:center;gap:11px;}
+.wm{font-family:var(--fd);font-size:14px;color:var(--gold);letter-spacing:.22em;}
+.sm{font-size:7px;color:var(--gold);letter-spacing:.46em;opacity:.55;margin-top:2px;font-weight:200;}
+.h-title{font-family:var(--fd);font-size:22px;color:var(--ivory);margin-bottom:4px;}
+.h-sub{font-size:11px;color:rgba(192,168,112,.5);letter-spacing:.3em;text-transform:uppercase;}
+
+/* GROUPS */
+.section{padding:48px 40px 24px;}
+.sec-lbl{font-size:10px;font-weight:500;color:rgba(192,168,112,.45);letter-spacing:.4em;text-transform:uppercase;margin-bottom:6px;}
+.sec-name{font-family:var(--fd);font-size:24px;color:var(--ivory);margin-bottom:32px;}
+
+/* GALLERY */
+.gallery{display:flex;gap:36px;overflow-x:auto;padding:0 40px 56px;scrollbar-width:thin;scrollbar-color:rgba(192,168,112,.2) transparent;}
+.gallery::-webkit-scrollbar{height:6px;}
+.gallery::-webkit-scrollbar-thumb{background:rgba(192,168,112,.2);border-radius:3px;}
+
+/* PHONE FRAME */
+.phone{display:flex;flex-direction:column;flex-shrink:0;align-items:center;}
+.frame{
+  width:395px;height:810px;
+  background:#0A0F1A;
+  border-radius:48px;
+  padding:10px;
+  box-shadow:
+    0 0 0 2px rgba(192,168,112,.15),
+    0 30px 70px rgba(0,0,0,.5),
+    0 60px 120px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(255,255,255,.05);
+  position:relative;
+  flex-shrink:0;
+}
+.frame::before{
+  content:'';position:absolute;top:18px;left:50%;transform:translateX(-50%);
+  width:100px;height:26px;background:#000;border-radius:14px;z-index:10;
+  pointer-events:none;
+}
+.screen{
+  width:100%;height:100%;
+  background:#0B1B35;
+  border-radius:38px;
+  overflow:hidden;
+  position:relative;
+  -webkit-overflow-scrolling:touch;
+}
+.screen iframe{
+  width:100%;height:100%;
+  border:none;
+  display:block;
+  background:#0B1B35;
+}
+.open-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(192,168,112,.6);text-decoration:none;margin-top:8px;transition:color .2s;}
+.open-link:hover{color:var(--gold);}
+.open-link::after{content:'↗';font-size:13px;}
+.label{
+  margin-top:20px;text-align:center;
+}
+.label-tag{font-size:9.5px;font-weight:500;color:var(--gold);letter-spacing:.35em;text-transform:uppercase;opacity:.7;margin-bottom:6px;}
+.label-title{font-family:var(--fd);font-size:17px;color:var(--ivory);}
+.label-sub{font-size:11px;color:rgba(244,237,224,.32);margin-top:3px;}
+
+/* FOOTER */
+.foot{padding:36px 40px;border-top:1px solid rgba(192,168,112,.08);text-align:center;font-size:11px;color:rgba(244,237,224,.25);}
+.foot a{color:rgba(192,168,112,.55);text-decoration:none;transition:color .2s;}
+.foot a:hover{color:var(--gold);}
+
+@media(max-width:900px){
+  header{padding:20px;flex-direction:column;gap:16px;text-align:center;}
+  .section{padding:28px 20px 12px;}
+  .gallery{gap:24px;padding:0 20px 36px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div><div class="wm">ROKHAVEN</div><div class="sm">REALTY</div></div>
+  </div>
+  <div style="text-align:right;">
+    <div class="h-title">Mobile Preview</div>
+    <div class="h-sub">375px viewport · Live previews</div>
+  </div>
+</header>
+
+<!-- ── PUBLIC SITE ── -->
+<div class="section">
+  <div class="sec-lbl">Section 01</div>
+  <div class="sec-name">Public Website</div>
+</div>
+<div class="gallery">
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Homepage.html" title="Homepage" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Marketing</div><div class="label-title">Homepage</div><div class="label-sub">Hero · Featured · Categories · Footer</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Listings Page.html" title="Listings" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Browse</div><div class="label-title">Listings Page</div><div class="label-sub">Filter bar · 1-column grid</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Property Detail Page.html" title="Property Detail" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Conversion</div><div class="label-title">Property Detail</div><div class="label-sub">Gallery · Sticky CTA bar</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="List Your Property.html" title="List Your Property" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Owners</div><div class="label-title">List Your Property</div><div class="label-sub">Role pills · Direct mandate only</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Contact.html" title="Contact" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Contact</div><div class="label-title">Contact Page</div><div class="label-sub">Form · Office info</div></div>
+  </div>
+</div>
+
+<!-- ── FORMS ── -->
+<div class="section">
+  <div class="sec-lbl">Section 02</div>
+  <div class="sec-name">Booking &amp; Enquiry Flows</div>
+</div>
+<div class="gallery">
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Schedule Inspection.html" title="Schedule Inspection" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Inspection</div><div class="label-title">Schedule Inspection</div><div class="label-sub">12-step smart form</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Enquiry Form.html" title="Enquiry Form" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Enquiry</div><div class="label-title">Enquiry Form</div><div class="label-sub">20-step Typeform style</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Thank You.html?name=Adaeze&amp;ref=RH-2026-47291" title="Thank You" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Confirmation</div><div class="label-title">Thank You</div><div class="label-sub">Animated checkmark · Client portal CTA</div></div>
+  </div>
+</div>
+
+<!-- ── AUTH ── -->
+<div class="section">
+  <div class="sec-lbl">Section 03</div>
+  <div class="sec-name">Authentication</div>
+</div>
+<div class="gallery">
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Client Login.html" title="Client Login" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Sign In</div><div class="label-title">Client Login</div><div class="label-sub">Email/Password · OTP option</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Client Register.html" title="Client Register" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Sign Up</div><div class="label-title">Create Profile</div><div class="label-sub">Password strength meter</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Principal Login.html" title="Principal Login" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Sign In</div><div class="label-title">Principal Login</div><div class="label-sub">Property owners &amp; mandates</div></div>
+  </div>
+</div>
+
+<!-- ── PORTALS ── -->
+<div class="section">
+  <div class="sec-lbl">Section 04</div>
+  <div class="sec-name">Authenticated Portals</div>
+</div>
+<div class="gallery">
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Client Portal.html" title="Client Portal" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Client</div><div class="label-title">Client Portal</div><div class="label-sub">Dashboard · Bottom tab bar</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Principal Portal.html" title="Principal Portal" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Principal</div><div class="label-title">Principal Portal</div><div class="label-sub">Portfolio · Submit property</div></div>
+  </div>
+  <div class="phone">
+    <div class="frame"><div class="screen"><iframe src="Admin Dashboard.html" title="Admin Dashboard" loading="eager" scrolling="yes"></iframe></div></div>
+    <div class="label"><div class="label-tag">Internal</div><div class="label-title">Admin Dashboard</div><div class="label-sub">Bookings · Leads · Settings</div></div>
+  </div>
+</div>
+
+<div class="foot">
+  RokHaven Realty · Mobile Preview · <a href="Homepage.html">View Live →</a>
+</div>
+
+</body>
+</html>

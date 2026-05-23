@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokHaven — Social Templates & Signage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>* { box-sizing: border-box; margin: 0; padding: 0; } body { background: #0C0C0C; }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+
+const B = {
+  bg:    '#0B1B35', fg:    '#C0A870', fg2:   '#527070',
+  light: '#F4EDE0', muted: '#2A3F5C', deep:  '#060F1C',
+  df:    "'DM Serif Display', serif",
+  bf:    "'DM Sans', sans-serif",
+};
+
+const Mark = ({ color, size }) => (
+  <svg width={size} height={size} viewBox="0 0 60 60" fill={color} style={{ display:'block', flexShrink:0 }}>
+    <path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/>
+  </svg>
+);
+
+const LogoH = ({ color, ms }) => (
+  <div style={{ display:'flex', alignItems:'center', gap: ms*0.42 }}>
+    <Mark color={color} size={ms}/>
+    <div>
+      <div style={{ fontFamily:B.df, fontSize:ms*0.44, color, letterSpacing:'0.22em', fontWeight:400, lineHeight:1 }}>ROKHAVEN</div>
+      <div style={{ fontFamily:B.bf, fontSize:ms*0.19, color, letterSpacing:'0.46em', fontWeight:200, marginTop:ms*0.1, opacity:0.65 }}>REALTY</div>
+    </div>
+  </div>
+);
+
+const Stripe = ({ w, h, c }) => (
+  <div style={{ width:w, height:h, backgroundImage:`repeating-linear-gradient(45deg,${c}07 0,${c}07 1px,transparent 1px,transparent 26px)`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ fontSize:7.5, color:c, opacity:0.12, fontFamily:'monospace', letterSpacing:'0.18em' }}>PROPERTY PHOTO</div>
+  </div>
+);
+
+/* ═══ SQUARE POSTS 360 × 360 ═══════════════════════ */
+
+const PostNewListing = () => (
+  <div style={{ width:360, height:360, background:B.bg, display:'flex', flexDirection:'column', overflow:'hidden', position:'relative' }}>
+    <div style={{ position:'absolute', right:-30, top:-30, opacity:0.06 }}><Mark color={B.fg} size={200}/></div>
+    <div style={{ height:'2px', background:B.fg, flexShrink:0 }}/>
+    <Stripe w={360} h={195} c={B.fg}/>
+    <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', justifyContent:'space-between', background:B.muted }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ background:B.fg, padding:'4px 10px', fontSize:5.5, color:B.deep, letterSpacing:'0.24em', fontFamily:B.bf }}>NEW LISTING</div>
+        <div style={{ fontSize:7.5, color:B.fg, opacity:0.5, letterSpacing:'0.2em', fontFamily:B.bf }}>BANANA ISLAND</div>
+      </div>
+      <div>
+        <div style={{ fontFamily:B.df, fontSize:18, color:B.light, lineHeight:1.2, marginBottom:6 }}>Ocean Promenade<br/>Residence</div>
+        <div style={{ fontFamily:B.df, fontSize:16, color:B.fg, marginBottom:10 }}>₦2.4 Billion</div>
+        <div style={{ display:'flex', gap:14 }}>
+          {[['6','beds'],['7.5','baths'],['1,200','sqm']].map(([v,l],i)=>(
+            <div key={i} style={{ fontSize:8.5, color:B.light, opacity:0.5, fontFamily:B.bf }}>
+              <span style={{ fontWeight:400, color:B.fg, opacity:0.9 }}>{v}</span> {l}
+            </div>
+          ))}
+        </div>
+      </div>
+      <LogoH color={B.fg} ms={16}/>
+    </div>
+  </div>
+);
+
+const PostSold = () => (
+  <div style={{ width:360, height:360, background:B.bg, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
+    <div style={{ position:'absolute', opacity:0.05 }}><Mark color={B.fg} size={320}/></div>
+    <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:B.fg }}/>
+    <div style={{ position:'relative', textAlign:'center', padding:'0 32px' }}>
+      <div style={{ fontFamily:B.df, fontSize:72, color:B.fg, letterSpacing:'0.08em', lineHeight:1, marginBottom:16, fontWeight:400 }}>SOLD</div>
+      <div style={{ height:'0.5px', width:80, background:B.fg, opacity:0.3, margin:'0 auto 16px' }}/>
+      <div style={{ fontFamily:B.df, fontSize:15, color:B.light, opacity:0.65, marginBottom:6 }}>Ocean Promenade Residence</div>
+      <div style={{ fontSize:7, color:B.fg, opacity:0.5, letterSpacing:'0.24em', fontFamily:B.bf, marginBottom:24 }}>BANANA ISLAND, IKOYI</div>
+      <LogoH color={B.fg} ms={16}/>
+    </div>
+    <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'2px', background:B.fg }}/>
+  </div>
+);
+
+const PostQuote = () => (
+  <div style={{ width:360, height:360, background:B.deep, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden', padding:'36px' }}>
+    <div style={{ position:'absolute', opacity:0.04 }}><Mark color={B.fg} size={340}/></div>
+    <div style={{ position:'relative', textAlign:'center' }}>
+      <div style={{ fontSize:5.5, letterSpacing:'0.42em', color:B.fg, opacity:0.45, marginBottom:22, fontFamily:B.bf }}>THE ROKHAVEN PROMISE</div>
+      <div style={{ fontFamily:B.df, fontSize:17, color:B.light, lineHeight:1.6, fontStyle:'italic', marginBottom:22, opacity:0.85 }}>
+        "A legacy of luxury, where every detail matters."
+      </div>
+      <div style={{ width:40, height:'0.5px', background:B.fg, opacity:0.3, margin:'0 auto 18px' }}/>
+      <LogoH color={B.fg} ms={16}/>
+      <div style={{ marginTop:10, fontSize:6.5, color:B.fg, opacity:0.38, letterSpacing:'0.3em', fontFamily:B.bf }}>WHERE LEGACY LIVES</div>
+    </div>
+  </div>
+);
+
+const PostMarket = () => (
+  <div style={{ width:360, height:360, background:B.bg, overflow:'hidden', position:'relative' }}>
+    <div style={{ height:'2px', background:B.fg }}/>
+    <div style={{ padding:'20px 22px' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
+        <div style={{ fontSize:6.5, letterSpacing:'0.32em', color:B.fg, opacity:0.55, fontFamily:B.bf }}>LAGOS MARKET UPDATE</div>
+        <div style={{ fontSize:6, color:B.light, opacity:0.28, fontFamily:B.bf }}>Q2 · 2026</div>
+      </div>
+      <div style={{ fontFamily:B.df, fontSize:58, color:B.fg, lineHeight:0.9, marginBottom:6 }}>+18%</div>
+      <div style={{ fontFamily:B.df, fontSize:13, color:B.light, opacity:0.55, marginBottom:20, lineHeight:1.4 }}>Luxury property appreciation<br/>year-on-year, Lagos Island</div>
+      <div style={{ height:'0.5px', background:B.fg, opacity:0.12, marginBottom:18 }}/>
+      <div style={{ display:'flex', gap:24, marginBottom:20 }}>
+        {[['₦4.1B','Avg. prime sale'],['63','Days on market'],['94%','List-to-sale']].map(([v,l],i)=>(
+          <div key={i}>
+            <div style={{ fontFamily:B.df, fontSize:17, color:B.fg }}>{v}</div>
+            <div style={{ fontSize:7, color:B.light, opacity:0.38, marginTop:3, fontFamily:B.bf, fontWeight:300 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{ position:'absolute', bottom:16, left:22, right:22, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <LogoH color={B.fg} ms={14}/>
+      <div style={{ fontSize:6, color:B.light, opacity:0.22, fontFamily:B.bf }}>rokhaven.com</div>
+    </div>
+  </div>
+);
+
+const PostOpenHouse = () => (
+  <div style={{ width:360, height:360, background:B.light, display:'flex', flexDirection:'column', overflow:'hidden', position:'relative' }}>
+    <div style={{ height:'2px', background:B.bg }}/>
+    <div style={{ flex:1, padding:'24px 26px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <LogoH color={B.bg} ms={16}/>
+        <div style={{ fontSize:6, letterSpacing:'0.28em', color:B.bg, opacity:0.35, fontFamily:B.bf }}>INVITATION</div>
+      </div>
+      <div>
+        <div style={{ fontSize:6.5, letterSpacing:'0.34em', color:B.fg2, marginBottom:10, fontFamily:B.bf }}>OPEN HOUSE</div>
+        <div style={{ fontFamily:B.df, fontSize:32, color:B.bg, lineHeight:1.1, marginBottom:14 }}>
+          Saturday<br/>31 May
+        </div>
+        <div style={{ fontSize:8, color:B.muted, letterSpacing:'0.12em', fontFamily:B.bf, marginBottom:4 }}>10:00 AM — 2:00 PM</div>
+        <div style={{ height:'0.5px', background:B.bg, opacity:0.12, margin:'14px 0' }}/>
+        <div style={{ fontFamily:B.df, fontSize:14, color:B.bg, marginBottom:4 }}>Ocean Promenade Residence</div>
+        <div style={{ fontSize:7.5, color:B.muted, fontFamily:B.bf, fontWeight:300, marginBottom:16 }}>Banana Island, Ikoyi, Lagos</div>
+        <div style={{ display:'inline-block', border:`1px solid ${B.bg}`, padding:'7px 16px', fontSize:6.5, color:B.bg, letterSpacing:'0.2em', fontFamily:B.bf }}>
+          REGISTER YOUR INTEREST
+        </div>
+      </div>
+    </div>
+    <div style={{ height:'2px', background:B.bg }}/>
+  </div>
+);
+
+/* ═══ STORY TEMPLATES 216 × 384 ═══════════════════ */
+
+const StoryLaunch = () => (
+  <div style={{ width:216, height:384, background:B.bg, display:'flex', flexDirection:'column', position:'relative', overflow:'hidden' }}>
+    <div style={{ position:'absolute', top:0, left:0, right:0, padding:'16px 16px 0', display:'flex', alignItems:'center', justifyContent:'space-between', zIndex:2 }}>
+      <LogoH color={B.fg} ms={14}/>
+      <div style={{ fontSize:5.5, color:B.fg, letterSpacing:'0.26em', opacity:0.55, fontFamily:B.bf }}>NEW</div>
+    </div>
+    <Stripe w={216} h={240} c={B.fg}/>
+    <div style={{ position:'absolute', top:0, left:0, right:0, height:240, background:`linear-gradient(to bottom, ${B.bg}60 0%, transparent 40%, ${B.bg}AA 85%, ${B.bg} 100%)` }}/>
+    <div style={{ flex:1, padding:'16px', display:'flex', flexDirection:'column', justifyContent:'flex-end', position:'relative', zIndex:1, background:B.bg }}>
+      <div style={{ fontSize:5.5, letterSpacing:'0.3em', color:B.fg, opacity:0.5, marginBottom:7, fontFamily:B.bf }}>EXCLUSIVE LISTING</div>
+      <div style={{ fontFamily:B.df, fontSize:17, color:B.light, lineHeight:1.25, marginBottom:5 }}>Ocean Promenade<br/>Residence</div>
+      <div style={{ fontSize:7, color:B.fg, opacity:0.55, marginBottom:6, fontFamily:B.bf, letterSpacing:'0.14em' }}>BANANA ISLAND · ₦2.4B</div>
+      <div style={{ height:'0.5px', background:B.fg, opacity:0.18, marginBottom:10 }}/>
+      <div style={{ fontSize:6.5, letterSpacing:'0.2em', color:B.fg, opacity:0.6, fontFamily:B.bf, textAlign:'center' }}>SWIPE UP TO ENQUIRE</div>
+    </div>
+  </div>
+);
+
+const StoryBrand = () => (
+  <div style={{ width:216, height:384, background:B.deep, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', padding:'20px 18px', position:'relative', overflow:'hidden' }}>
+    <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', opacity:0.06 }}>
+      <Mark color={B.fg} size={260}/>
+    </div>
+    <LogoH color={B.fg} ms={14}/>
+    <div style={{ position:'relative', textAlign:'center' }}>
+      <div style={{ fontFamily:B.df, fontSize:15.5, color:B.light, lineHeight:1.65, fontStyle:'italic', opacity:0.84, marginBottom:18 }}>
+        "A legacy of luxury, where every detail matters."
+      </div>
+      <div style={{ width:32, height:'0.5px', background:B.fg, opacity:0.3, margin:'0 auto 14px' }}/>
+      <div style={{ fontSize:6, letterSpacing:'0.34em', color:B.fg, opacity:0.5, fontFamily:B.bf }}>WHERE LEGACY LIVES</div>
+    </div>
+    <div style={{ fontSize:6.5, color:B.fg, opacity:0.35, letterSpacing:'0.18em', fontFamily:B.bf }}>rokhaven.com</div>
+  </div>
+);
+
+const StoryStats = () => (
+  <div style={{ width:216, height:384, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+    <div style={{ flex:'0 0 210', background:B.bg, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between', position:'relative' }}>
+      <div style={{ position:'absolute', right:-10, top:-10, opacity:0.06 }}><Mark color={B.fg} size={140}/></div>
+      <LogoH color={B.fg} ms={12}/>
+      <div>
+        <div style={{ fontFamily:B.df, fontSize:16, color:B.light, lineHeight:1.25, marginBottom:4 }}>Ocean Promenade<br/>Residence</div>
+        <div style={{ fontSize:6.5, color:B.fg, opacity:0.55, letterSpacing:'0.14em', fontFamily:B.bf }}>BANANA ISLAND, IKOYI</div>
+      </div>
+    </div>
+    <div style={{ height:'2px', background:B.fg }}/>
+    <div style={{ flex:1, background:B.fg, padding:'16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+      <div style={{ fontSize:5.5, letterSpacing:'0.3em', color:B.deep, opacity:0.55, fontFamily:B.bf }}>PROPERTY SPECS</div>
+      {[['6 Beds','6 Bathrooms'],['1,200 SQM','Private Pool'],['4-Car Garage','Staff Quarters'],['Smart Home','Waterfront']].map(([a,b],i)=>(
+        <div key={i} style={{ display:'flex', justifyContent:'space-between' }}>
+          <div style={{ fontFamily:B.bf, fontSize:8, color:B.deep, opacity:0.75, fontWeight:300 }}>{a}</div>
+          <div style={{ fontFamily:B.bf, fontSize:8, color:B.deep, opacity:0.75, fontWeight:300 }}>{b}</div>
+        </div>
+      ))}
+      <div style={{ fontSize:16, fontFamily:B.df, color:B.deep, fontWeight:400 }}>₦2.4B</div>
+    </div>
+  </div>
+);
+
+/* ═══ FOR-SALE BOARDS ══════════════════════════════ */
+
+const BoardPortrait = ({ label = 'FOR SALE' }) => {
+  const colors = {
+    'FOR SALE':  { label: B.fg,    labelBg: 'transparent', border: `2px solid ${B.fg}` },
+    'TO LET':   { label: B.fg2,   labelBg: 'transparent', border: `2px solid ${B.fg2}` },
+    'SOLD':     { label: B.deep,  labelBg: B.fg,          border: 'none' },
+  };
+  const c = colors[label];
+  return (
+    <div style={{ width:280, height:452, background:B.bg, display:'flex', flexDirection:'column', boxShadow:'0 8px 40px rgba(0,0,0,0.5)', overflow:'hidden', position:'relative' }}>
+      <div style={{ height:'4px', background: label==='TO LET' ? B.fg2 : B.fg }}/>
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', padding:'28px 24px 22px', position:'relative' }}>
+        <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', opacity:0.05 }}>
+          <Mark color={B.fg} size={260}/>
+        </div>
+        <Mark color={label==='TO LET'?B.fg2:B.fg} size={56}/>
+        <div style={{ textAlign:'center', position:'relative' }}>
+          <div style={{ display:'inline-block', padding:'8px 22px', ...c.border&&{border:c.border}, background:c.labelBg, marginBottom:22 }}>
+            <div style={{ fontFamily:B.df, fontSize:22, color:c.label, letterSpacing:'0.12em' }}>{label}</div>
+          </div>
+          <div style={{ fontFamily:B.df, fontSize:16, color:B.light, lineHeight:1.3, marginBottom:8, opacity:0.88 }}>
+            Ocean Promenade<br/>Residence
+          </div>
+          <div style={{ fontSize:7.5, color: label==='TO LET'?B.fg2:B.fg, letterSpacing:'0.18em', fontFamily:B.bf, marginBottom:6 }}>
+            BANANA ISLAND, IKOYI
+          </div>
+        </div>
+        <div>
+          <div style={{ height:'0.5px', background:label==='TO LET'?B.fg2:B.fg, opacity:0.2, marginBottom:14 }}/>
+          <LogoH color={label==='TO LET'?B.fg2:B.fg} ms={15}/>
+          <div style={{ marginTop:9, fontSize:7, color:B.light, opacity:0.35, letterSpacing:'0.12em', fontFamily:B.bf, textAlign:'center' }}>
+            +234 800 000 0000
+          </div>
+        </div>
+      </div>
+      <div style={{ height:'3px', background:label==='TO LET'?B.fg2:B.fg, opacity:0.4 }}/>
+    </div>
+  );
+};
+
+const BoardHoarding = () => (
+  <div style={{ width:840, height:280, background:B.bg, display:'flex', alignItems:'center', boxShadow:'0 8px 40px rgba(0,0,0,0.5)', overflow:'hidden', position:'relative' }}>
+    <div style={{ position:'absolute', top:0, left:0, right:0, height:'4px', background:B.fg }}/>
+    <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'2px', background:B.fg, opacity:0.3 }}/>
+    <div style={{ position:'absolute', right:-20, opacity:0.04 }}><Mark color={B.fg} size={280}/></div>
+    {/* Left: logo */}
+    <div style={{ flex:'0 0 260', padding:'0 44px', borderRight:`1px solid ${B.fg}18`, display:'flex', flexDirection:'column', gap:12 }}>
+      <LogoH color={B.fg} ms={24}/>
+      <div style={{ fontSize:7.5, color:B.light, opacity:0.35, letterSpacing:'0.12em', fontFamily:B.bf, fontWeight:300 }}>
+        +234 800 000 0000<br/>rokhaven.com
+      </div>
+    </div>
+    {/* Center: development name */}
+    <div style={{ flex:1, padding:'0 52px', textAlign:'center' }}>
+      <div style={{ fontSize:7, letterSpacing:'0.4em', color:B.fg, opacity:0.48, marginBottom:12, fontFamily:B.bf }}>COMING SOON</div>
+      <div style={{ fontFamily:B.df, fontSize:38, color:B.light, lineHeight:1.1, marginBottom:8 }}>The Meridian<br/>Collection</div>
+      <div style={{ fontSize:8, color:B.fg, opacity:0.55, letterSpacing:'0.22em', fontFamily:B.bf }}>BANANA ISLAND · 12 EXCLUSIVE RESIDENCES</div>
+    </div>
+    {/* Right: image placeholder + details */}
+    <div style={{ flex:'0 0 220', borderLeft:`1px solid ${B.fg}18`, height:'100%', display:'flex', flexDirection:'column' }}>
+      <Stripe w={220} h={180} c={B.fg}/>
+      <div style={{ flex:1, padding:'10px 18px', background:B.muted, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ fontFamily:B.df, fontSize:13, color:B.fg }}>From ₦1.8B</div>
+        <div style={{ fontSize:6.5, color:B.light, opacity:0.38, letterSpacing:'0.14em', fontFamily:B.bf }}>ENQUIRE</div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ═══ APP ══════════════════════════════════════════ */
+function App() {
+  return (
+    <DesignCanvas title="RokHaven — Social Templates & Signage">
+
+      <DCSection id="posts" title="Square Posts — 1080 × 1080">
+        {[
+          ['post-listing', 'New Listing',    <PostNewListing/>],
+          ['post-sold',    'Sold',           <PostSold/>],
+          ['post-quote',   'Brand Quote',    <PostQuote/>],
+          ['post-market',  'Market Update',  <PostMarket/>],
+          ['post-open',    'Open House',     <PostOpenHouse/>],
+        ].map(([id, label, child]) => (
+          <DCArtboard key={id} id={id} label={label} width={360} height={360}>{child}</DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="stories" title="Stories — 1080 × 1920">
+        {[
+          ['story-launch', 'Property Launch',  <StoryLaunch/>],
+          ['story-brand',  'Brand Statement',  <StoryBrand/>],
+          ['story-stats',  'Property Specs',   <StoryStats/>],
+        ].map(([id, label, child]) => (
+          <DCArtboard key={id} id={id} label={label} width={216} height={384}>{child}</DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="boards" title="For-Sale Boards">
+        <DCArtboard id="board-fs"  label="For Sale Board"   width={280} height={452}><BoardPortrait label="FOR SALE"/></DCArtboard>
+        <DCArtboard id="board-tl"  label="To Let Board"     width={280} height={452}><BoardPortrait label="TO LET"/></DCArtboard>
+        <DCArtboard id="board-sol" label="Sold Board"       width={280} height={452}><BoardPortrait label="SOLD"/></DCArtboard>
+        <DCArtboard id="board-dev" label="Development Hoarding — 6m × 2m" width={840} height={280}><BoardHoarding/></DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

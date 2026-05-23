@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokHaven Realty — Brand Identity Exploration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Serif+Display:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Jost:wght@200;300;400;500&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400&family=Raleway:wght@100;200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0F0F0F; }
+</style>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="56" fill="#111"/>
+  <rect x="5" y="5" width="22" height="46" fill="#090807" rx="1"/>
+  <path d="M 11,38 L 11,26 A 8,8 0 0,1 27,26 L 27,38 L 23,38 L 23,26 A 4,4 0 0,0 15,26 L 15,38 Z" fill="#C9A96E" opacity="0.8"/>
+  <rect x="31" y="5" width="22" height="46" fill="#0B1B35" rx="1"/>
+  <path d="M 37,38 L 37,26 A 8,8 0 0,1 53,26 L 53,38 L 49,38 L 49,26 A 4,4 0 0,0 41,26 L 41,38 Z" fill="#C0A870" opacity="0.8"/>
+  <rect x="57" y="5" width="18" height="46" fill="#0D1A10" rx="1"/>
+  <text x="58" y="32" font-family="sans-serif" font-size="4" fill="#C0A870" opacity="0.5">ABC</text>
+</svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+
+/* ═══════════════════════════════════════════════
+   BRAND DEFINITIONS
+═══════════════════════════════════════════════ */
+const DIRS = {
+  A: {
+    name: 'Heritage Gold',
+    label: 'A',
+    tagline: 'A LEGACY OF LUXURY',
+    desc: 'Nigerian Heritage × Global Prestige',
+    df: "'Cormorant Garamond', serif",
+    bf: "'Jost', sans-serif",
+    bg:    '#090807',
+    fg:    '#C9A96E',
+    fg2:   '#8B7355',
+    light: '#F5EDE0',
+    muted: '#5C4A38',
+    deep:  '#3D2B1F',
+  },
+  B: {
+    name: 'Arch Modern',
+    label: 'B',
+    tagline: 'WHERE LEGACY LIVES',
+    desc: 'International Luxury × Nigerian Earth',
+    df: "'DM Serif Display', serif",
+    bf: "'DM Sans', sans-serif",
+    bg:    '#0B1B35',
+    fg:    '#C0A870',
+    fg2:   '#527070',
+    light: '#F4EDE0',
+    muted: '#2A3F5C',
+    deep:  '#060F1C',
+  },
+  C: {
+    name: 'Earth Prestige',
+    label: 'C',
+    tagline: 'CURATED · SECURED · ENDURING',
+    desc: 'Modern African Luxury × Distinctive',
+    df: "'Libre Baskerville', serif",
+    bf: "'Raleway', sans-serif",
+    bg:    '#F4EDE0',
+    fg:    '#1D2B1F',
+    fg2:   '#B8955A',
+    light: '#FEFCF8',
+    muted: '#8FA98A',
+    deep:  '#2C4030',
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   SVG MARKS
+═══════════════════════════════════════════════ */
+
+// Direction A: The Jewel — precision diamond with axis lines
+const MarkA = ({ color, size }) => (
+  <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
+    <polygon points="40,2 78,40 40,78 2,40" stroke={color} strokeWidth="1.5"/>
+    <polygon points="40,18 62,40 40,62 18,40" stroke={color} strokeWidth="1"/>
+    <line x1="40" y1="2"  x2="40" y2="18" stroke={color} strokeWidth="1.5"/>
+    <line x1="78" y1="40" x2="62" y2="40" stroke={color} strokeWidth="1.5"/>
+    <line x1="40" y1="78" x2="40" y2="62" stroke={color} strokeWidth="1.5"/>
+    <line x1="2"  y1="40" x2="18" y2="40" stroke={color} strokeWidth="1.5"/>
+    <polygon points="40,33 47,40 40,47 33,40" fill={color}/>
+  </svg>
+);
+
+// Direction B: The Gateway — arch ring (haven as entrance)
+const MarkB = ({ color, size }) => (
+  <svg width={size} height={size} viewBox="0 0 60 60" fill={color}>
+    <path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/>
+  </svg>
+);
+
+// Direction C: The Compass — interlocking squares (Nigerian geometric influence)
+const MarkC = ({ color, size }) => (
+  <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
+    <rect x="15" y="15" width="50" height="50" stroke={color} strokeWidth="1.8"/>
+    <rect x="15" y="15" width="50" height="50" stroke={color} strokeWidth="1.8" transform="rotate(45 40 40)"/>
+    <polygon points="40,33 47,40 40,47 33,40" fill={color}/>
+  </svg>
+);
+
+const MARKS = { A: MarkA, B: MarkB, C: MarkC };
+
+/* ═══════════════════════════════════════════════
+   LOGO BUILDING BLOCKS
+═══════════════════════════════════════════════ */
+
+const Wordmark = ({ dir, color, size }) => {
+  const d = DIRS[dir];
+  return (
+    <div>
+      <div style={{ fontFamily: d.df, fontSize: size, color, letterSpacing: '0.22em', fontWeight: 300, lineHeight: 1 }}>
+        ROKHAVEN
+      </div>
+      <div style={{ fontFamily: d.bf, fontSize: size * 0.44, color, letterSpacing: '0.46em', fontWeight: 300, marginTop: size * 0.18, opacity: 0.65 }}>
+        REALTY
+      </div>
+    </div>
+  );
+};
+
+const StackedLogo = ({ dir, color, ms }) => {
+  const Mark = MARKS[dir];
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: ms * 0.24 }}>
+      <Mark color={color} size={ms} />
+      <div style={{ textAlign: 'center' }}>
+        <Wordmark dir={dir} color={color} size={ms * 0.3} />
+      </div>
+    </div>
+  );
+};
+
+const HorizLogo = ({ dir, color, ms }) => {
+  const Mark = MARKS[dir];
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: ms * 0.42 }}>
+      <Mark color={color} size={ms} />
+      <Wordmark dir={dir} color={color} size={ms * 0.44} />
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   LOGO DIRECTION BOARD  760 × 580
+═══════════════════════════════════════════════ */
+
+const LogoBoard = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const Mark = MARKS[dir];
+
+  // Reversed panel colours
+  const revBg  = isC ? d.fg  : d.light;
+  const revFg  = isC ? d.fg2 : d.bg;
+
+  return (
+    <div style={{ width: 760, height: 580, background: d.bg, display: 'flex', fontFamily: d.bf, overflow: 'hidden' }}>
+
+      {/* LEFT — primary hero presentation */}
+      <div style={{
+        flex: '0 0 400',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '40px',
+        borderRight: `1px solid ${d.fg}18`,
+      }}>
+        <div style={{ fontSize: 7, letterSpacing: '0.42em', color: d.fg, opacity: 0.32, marginBottom: 32, fontFamily: d.bf }}>
+          DIRECTION {dir}
+        </div>
+        <StackedLogo dir={dir} color={d.fg} ms={104} />
+        <div style={{ marginTop: 28, fontFamily: d.bf, fontSize: 7.5, letterSpacing: '0.26em', color: d.fg, opacity: 0.52 }}>
+          {d.tagline}
+        </div>
+        <div style={{ marginTop: 8, fontSize: 6.5, color: d.fg, opacity: 0.22, letterSpacing: '0.12em', fontFamily: d.bf }}>
+          {d.desc}
+        </div>
+      </div>
+
+      {/* RIGHT — logo system */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+
+        {/* Horizontal lockup */}
+        <div style={{ flex: 1, padding: '22px 26px', borderBottom: `1px solid ${d.fg}10`, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ fontSize: 6.5, letterSpacing: '0.34em', color: d.fg, opacity: 0.26, marginBottom: 13, fontFamily: d.bf }}>
+            HORIZONTAL LOCKUP
+          </div>
+          <HorizLogo dir={dir} color={d.fg} ms={34} />
+        </div>
+
+        {/* Reversed (light) version */}
+        <div style={{ flex: 1, padding: '22px 26px', borderBottom: `1px solid ${d.fg}10`, background: revBg, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ fontSize: 6.5, letterSpacing: '0.34em', color: revFg, opacity: 0.28, marginBottom: 13, fontFamily: d.bf }}>
+            REVERSED VERSION
+          </div>
+          <HorizLogo dir={dir} color={revFg} ms={30} />
+        </div>
+
+        {/* Icon only + full lockup with tagline */}
+        <div style={{ flex: 1, padding: '18px 26px', display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div>
+            <div style={{ fontSize: 6.5, letterSpacing: '0.34em', color: d.fg, opacity: 0.26, marginBottom: 10, fontFamily: d.bf }}>
+              MARK ONLY
+            </div>
+            <Mark color={d.fg} size={44} />
+          </div>
+
+          <div style={{ width: 1, height: 52, background: d.fg, opacity: 0.1 }} />
+
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 6.5, letterSpacing: '0.34em', color: d.fg, opacity: 0.26, marginBottom: 10, fontFamily: d.bf }}>
+              WITH TAGLINE
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+              <Mark color={d.fg} size={28} />
+              <div>
+                <div style={{ fontFamily: d.df, fontSize: 12, color: d.fg, letterSpacing: '0.2em', fontWeight: 300 }}>ROKHAVEN</div>
+                <div style={{ fontFamily: d.bf, fontSize: 5.5, color: d.fg, letterSpacing: '0.44em', opacity: 0.55, marginTop: 2 }}>REALTY</div>
+                <div style={{ height: '0.5px', background: d.fg, opacity: 0.18, margin: '5px 0' }} />
+                <div style={{ fontFamily: d.bf, fontSize: 5.5, color: d.fg, letterSpacing: '0.18em', opacity: 0.4 }}>{d.tagline}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   BRAND SYSTEM BOARD  640 × 920
+═══════════════════════════════════════════════ */
+
+const BrandSystem = ({ dir }) => {
+  const d = DIRS[dir];
+  const tx = d.fg;
+  const border = `1px solid ${tx}0E`;
+
+  const palette = dir === 'A'
+    ? [{ l: 'OBSIDIAN',     h: d.bg,   r: 'Background' },
+       { l: 'ANTIQUE GOLD', h: d.fg,   r: 'Primary'    },
+       { l: 'WARM BRONZE',  h: d.fg2,  r: 'Accent'     },
+       { l: 'IVORY',        h: d.light,r: 'Light'      },
+       { l: 'KOLA BROWN',   h: d.muted,r: 'Supporting' }]
+    : dir === 'B'
+    ? [{ l: 'MIDNIGHT NAVY', h: d.bg,   r: 'Background' },
+       { l: 'BRONZE GOLD',  h: d.fg,   r: 'Primary'    },
+       { l: 'SLATE TEAL',   h: d.fg2,  r: 'Accent'     },
+       { l: 'WARM IVORY',   h: d.light,r: 'Light'      },
+       { l: 'DEEP MUTED',   h: d.muted,r: 'Supporting' }]
+    : [{ l: 'IVORY',        h: d.bg,   r: 'Background' },
+       { l: 'DEEP FOREST',  h: d.fg,   r: 'Primary'    },
+       { l: 'BRONZE',       h: d.fg2,  r: 'Accent'     },
+       { l: 'WARM WHITE',   h: d.light,r: 'Light'      },
+       { l: 'SAGE',         h: d.muted,r: 'Supporting' }];
+
+  const displaySample = dir === 'A' ? 'Abuja' : dir === 'B' ? 'Ikoyi' : 'Lagos';
+  const displayQuote = '"Where every property tells a story of legacy."';
+  const displayName = d.df.replace(/'/g, '').split(',')[0];
+  const bodyName    = d.bf.replace(/'/g, '').split(',')[0];
+
+  return (
+    <div style={{ width: 640, height: 920, background: d.bg, padding: '36px 36px 28px', fontFamily: d.bf, overflow: 'hidden' }}>
+      <div style={{ fontSize: 7, letterSpacing: '0.42em', color: tx, opacity: 0.3, marginBottom: 28 }}>
+        BRAND SYSTEM — {d.name.toUpperCase()}
+      </div>
+
+      {/* Colour palette */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ fontSize: 7, letterSpacing: '0.32em', color: tx, opacity: 0.4, marginBottom: 12 }}>COLOUR PALETTE</div>
+        <div style={{ display: 'flex', gap: 1 }}>
+          {palette.map((c, i) => (
+            <div key={i} style={{ flex: i === 0 ? 2 : 1 }}>
+              <div style={{ height: 60, background: c.h, border: `1px solid ${tx}09` }} />
+              <div style={{ paddingTop: 6, paddingRight: 2 }}>
+                <div style={{ fontSize: 6.5, color: tx, opacity: 0.7, letterSpacing: '0.04em' }}>{c.l}</div>
+                <div style={{ fontSize: 6, color: tx, opacity: 0.32, fontFamily: 'monospace', marginTop: 1 }}>{c.h}</div>
+                <div style={{ fontSize: 5.5, color: tx, opacity: 0.27, letterSpacing: '0.07em', marginTop: 1 }}>{c.r}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Brand pattern */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ fontSize: 7, letterSpacing: '0.32em', color: tx, opacity: 0.4, marginBottom: 12 }}>BRAND PATTERN</div>
+        <div style={{
+          height: 78,
+          border: `1px solid ${tx}09`,
+          backgroundImage: `repeating-linear-gradient(45deg, ${d.fg}08 0, ${d.fg}08 1px, transparent 0, transparent 50%), repeating-linear-gradient(-45deg, ${d.fg}08 0, ${d.fg}08 1px, transparent 0, transparent 50%)`,
+          backgroundSize: '16px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ fontFamily: d.df, fontSize: 48, color: d.fg, opacity: 0.07, letterSpacing: '0.22em', fontWeight: 300 }}>RH</div>
+        </div>
+      </div>
+
+      {/* Display typeface */}
+      <div style={{ paddingBottom: 24, borderBottom: border, marginBottom: 22 }}>
+        <div style={{ fontSize: 7, letterSpacing: '0.32em', color: tx, opacity: 0.4, marginBottom: 12 }}>DISPLAY TYPEFACE</div>
+        <div style={{ fontFamily: d.df, fontSize: 52, color: tx, fontWeight: 300, lineHeight: 1, letterSpacing: '-0.01em' }}>{displaySample}</div>
+        <div style={{ fontFamily: d.df, fontSize: 12, color: tx, opacity: 0.45, marginTop: 9, fontStyle: 'italic', lineHeight: 1.55 }}>{displayQuote}</div>
+        <div style={{ fontSize: 6, color: tx, opacity: 0.26, marginTop: 7, fontFamily: 'monospace', letterSpacing: '0.1em' }}>
+          {displayName} — Light / Regular / Italic
+        </div>
+      </div>
+
+      {/* Body typeface */}
+      <div style={{ paddingBottom: 24, borderBottom: border, marginBottom: 22 }}>
+        <div style={{ fontSize: 7, letterSpacing: '0.32em', color: tx, opacity: 0.4, marginBottom: 12 }}>BODY TYPEFACE</div>
+        <div style={{ fontFamily: d.bf, fontSize: 20, color: tx, fontWeight: 200, letterSpacing: '0.08em' }}>Aa Bb Cc Dd Ee Ff Gg</div>
+        <div style={{ fontFamily: d.bf, fontSize: 9.5, color: tx, opacity: 0.48, marginTop: 9, lineHeight: 1.8, fontWeight: 300 }}>
+          RokHaven provides exclusive access to Nigeria's most prestigious properties — curated portfolios combining local expertise with global standards of excellence.
+        </div>
+        <div style={{ fontSize: 6, color: tx, opacity: 0.26, marginTop: 7, fontFamily: 'monospace', letterSpacing: '0.1em' }}>
+          {bodyName} — Thin / Light / Regular
+        </div>
+      </div>
+
+      {/* Type scale */}
+      <div>
+        <div style={{ fontSize: 7, letterSpacing: '0.32em', color: tx, opacity: 0.4, marginBottom: 12 }}>TYPE SCALE</div>
+        {[
+          { lbl: 'DISPLAY', size: 30, font: d.df, wt: 300,  sp: '-0.01em', sample: 'Ikoyi Luxury Estate'       },
+          { lbl: 'H2',      size: 18, font: d.df, wt: 400,  sp: '0.01em',  sample: 'Premium Residences'         },
+          { lbl: 'LABEL',   size: 8,  font: d.bf, wt: 400,  sp: '0.28em',  sample: 'AVAILABLE LISTINGS'         },
+          { lbl: 'BODY',    size: 10, font: d.bf, wt: 300,  sp: '0.02em',  sample: 'Tailored to your vision of luxury' },
+          { lbl: 'CAPTION', size: 7,  font: d.bf, wt: 300,  sp: '0.05em',  sample: 'All prices in Nigerian Naira', op: 0.42 },
+        ].map((t, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 12, paddingBottom: 8, borderBottom: `1px solid ${tx}07`, marginBottom: 8 }}>
+            <div style={{ width: 50, fontSize: 5.5, color: tx, opacity: 0.25, letterSpacing: '0.1em', flexShrink: 0, fontFamily: d.bf }}>{t.lbl}</div>
+            <div style={{ fontFamily: t.font, fontSize: t.size, color: tx, fontWeight: t.wt, letterSpacing: t.sp, opacity: t.op || 0.82, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+              {t.sample}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   BUSINESS CARD  (two cards: 390×230 each, board 820×290)
+═══════════════════════════════════════════════ */
+
+const CardFront = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const cardBg = isC ? d.fg : d.bg;
+  const accentCol = isC ? d.fg2 : d.fg;
+  const nameCol = isC ? d.light : d.light;
+  const Mark = MARKS[dir];
+  return (
+    <div style={{ width: 390, height: 230, background: cardBg, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '22px 26px', position: 'relative', overflow: 'hidden', fontFamily: d.bf, boxShadow: '0 3px 22px rgba(0,0,0,0.28)' }}>
+      <div style={{ position: 'absolute', right: 0, top: 0, width: 80, height: 80, background: accentCol, opacity: 0.07, clipPath: 'polygon(100% 0, 100% 100%, 0 0)' }} />
+      <HorizLogo dir={dir} color={accentCol} ms={22} />
+      <div>
+        <div style={{ fontFamily: d.df, fontSize: 16, color: nameCol, fontWeight: dir === 'B' ? 400 : 300, marginBottom: 4 }}>Adebayo Osei</div>
+        <div style={{ fontSize: 6.5, color: accentCol, letterSpacing: '0.22em', fontWeight: 300, opacity: 0.9, marginBottom: 10 }}>SENIOR PROPERTY ADVISOR</div>
+        <div style={{ height: '0.75px', background: accentCol, opacity: 0.2, marginBottom: 8 }} />
+        <div style={{ display: 'flex', gap: 14 }}>
+          <div style={{ fontSize: 7.5, color: nameCol, opacity: 0.4, fontWeight: 300 }}>+234 800 000 0000</div>
+          <div style={{ fontSize: 7.5, color: nameCol, opacity: 0.4, fontWeight: 300 }}>rokhaven.com</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CardBack = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const cardBg = isC ? d.fg2 : d.fg;
+  const markCol = isC ? d.bg : d.bg;
+  const Mark = MARKS[dir];
+  return (
+    <div style={{ width: 390, height: 230, background: cardBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, boxShadow: '0 3px 22px rgba(0,0,0,0.28)' }}>
+      <Mark color={markCol} size={52} />
+      <div style={{ fontFamily: d.bf, fontSize: 6.5, color: markCol, letterSpacing: '0.28em', opacity: 0.5 }}>{d.tagline}</div>
+    </div>
+  );
+};
+
+const BizCardBoard = ({ dir }) => {
+  const d = DIRS[dir];
+  const panelBg = dir === 'C' ? '#DED5C2' : '#181818';
+  const lblCol  = dir === 'C' ? '#998B7A' : '#5A5A5A';
+  return (
+    <div style={{ width: 820, height: 290, background: panelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 22, padding: '24px', fontFamily: d.bf }}>
+      <div>
+        <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 9 }}>FRONT</div>
+        <CardFront dir={dir} />
+      </div>
+      <div>
+        <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 9 }}>BACK</div>
+        <CardBack dir={dir} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   LETTERHEAD  560 × 800
+═══════════════════════════════════════════════ */
+
+const LetterheadBoard = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const headBg   = isC ? d.fg    : d.bg;
+  const headCol  = isC ? d.fg2   : d.fg;
+  const paperBg  = '#FEFCF8';
+  const textCol  = isC ? d.fg    : d.deep;
+  const accentCol = d.fg;
+  const Mark = MARKS[dir];
+  return (
+    <div style={{ width: 560, height: 800, background: paperBg, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 6px 28px rgba(0,0,0,0.14)', fontFamily: d.bf }}>
+      <div style={{ background: headBg, padding: '18px 34px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <HorizLogo dir={dir} color={headCol} ms={24} />
+        <div style={{ textAlign: 'right', fontSize: 6.5, color: headCol, opacity: 0.52, lineHeight: 1.9, letterSpacing: '0.1em' }}>
+          <div>rokhaven.com</div>
+          <div>Lagos · Abuja, Nigeria</div>
+        </div>
+      </div>
+      <div style={{ height: 2, background: accentCol, flexShrink: 0 }} />
+
+      <div style={{ flex: 1, padding: '38px 42px 28px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ marginBottom: 30 }}>
+          <div style={{ fontSize: 6.5, letterSpacing: '0.32em', color: textCol, opacity: 0.32, marginBottom: 5 }}>DATE</div>
+          <div style={{ fontSize: 9.5, color: textCol, opacity: 0.45, fontWeight: 300 }}>May 16, 2026</div>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontFamily: d.df, fontSize: 22, color: textCol, fontWeight: 300, lineHeight: 1.2, marginBottom: 6 }}>
+            Property Proposal
+          </div>
+          <div style={{ fontSize: 7, letterSpacing: '0.26em', color: accentCol }}>IKOYI LUXURY RESIDENCE</div>
+        </div>
+
+        <div style={{ height: '1px', background: textCol, opacity: 0.08, marginBottom: 22 }} />
+
+        <div style={{ fontFamily: d.bf, fontSize: 10, color: textCol, fontWeight: 300, lineHeight: 1.95, opacity: 0.58 }}>
+          <p style={{ marginBottom: 14 }}>Dear Mr. Adesanya,</p>
+          <p style={{ marginBottom: 14 }}>
+            We are pleased to present this exclusive property proposal, carefully curated from our portfolio of premium residences across Lagos's most prestigious neighbourhoods.
+          </p>
+          <p>
+            Each property has been selected with your specific requirements in mind, reflecting RokHaven's commitment to delivering unparalleled luxury, discretion, and lasting value to clients who appreciate only the finest.
+          </p>
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <div style={{ borderTop: `1px solid ${textCol}0C`, paddingTop: 18 }}>
+          <div style={{ fontFamily: d.df, fontSize: 15, color: textCol, opacity: 0.65, fontStyle: 'italic', marginBottom: 4 }}>Amara Obi</div>
+          <div style={{ fontSize: 6.5, letterSpacing: '0.22em', color: accentCol }}>SENIOR PROPERTY ADVISOR</div>
+        </div>
+      </div>
+
+      <div style={{ padding: '10px 34px', borderTop: `1px solid ${textCol}09`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ fontSize: 6, color: textCol, opacity: 0.22, letterSpacing: '0.12em' }}>ROKHAVEN REALTY LTD · RC XXXXXXX</div>
+        <Mark color={accentCol} size={17} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   SOCIAL & DIGITAL ASSETS  940 × 360
+═══════════════════════════════════════════════ */
+
+const SocialBoard = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const panelBg = isC ? '#EAE0CC' : '#161616';
+  const lblCol  = isC ? '#9A8A76' : '#595959';
+  const darkBg  = isC ? d.fg     : d.bg;
+  const markCol = isC ? d.fg2    : d.fg;
+  const Mark    = MARKS[dir];
+
+  return (
+    <div style={{ width: 940, height: 360, background: panelBg, padding: '26px', display: 'flex', alignItems: 'flex-start', gap: 18, fontFamily: d.bf }}>
+
+      {/* Profile pic */}
+      <div>
+        <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>PROFILE PHOTO</div>
+        <div style={{ width: 118, height: 118, borderRadius: '50%', background: darkBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Mark color={markCol} size={58} />
+        </div>
+      </div>
+
+      {/* Instagram story */}
+      <div>
+        <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>IG STORY</div>
+        <div style={{ width: 78, height: 140, background: darkBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, borderRadius: 4 }}>
+          <Mark color={markCol} size={32} />
+          <div style={{ fontFamily: d.df, fontSize: 7, color: markCol, letterSpacing: '0.14em', textAlign: 'center', fontWeight: 300, lineHeight: 1.5 }}>
+            ROK<br />HAVEN
+          </div>
+        </div>
+      </div>
+
+      {/* Square post */}
+      <div>
+        <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>SQUARE POST</div>
+        <div style={{ width: 172, height: 172, background: darkBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 11, padding: 20 }}>
+          <div style={{ fontSize: 6, letterSpacing: '0.3em', color: markCol, opacity: 0.42 }}>NEW LISTING</div>
+          <Mark color={markCol} size={42} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: d.df, fontSize: 10, color: markCol, letterSpacing: '0.18em', fontWeight: 300 }}>ROKHAVEN</div>
+            <div style={{ fontSize: 5, color: markCol, letterSpacing: '0.36em', opacity: 0.48, marginTop: 2 }}>REALTY</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Banner + email signature */}
+      <div style={{ flex: 1 }}>
+        <div>
+          <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>EMAIL BANNER</div>
+          <div style={{ background: darkBg, height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' }}>
+            <HorizLogo dir={dir} color={markCol} ms={20} />
+            <div style={{ fontSize: 6, color: markCol, opacity: 0.4, letterSpacing: '0.18em' }}>{d.tagline}</div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>EMAIL SIGNATURE</div>
+          <div style={{ background: '#FEFCF8', padding: '13px 16px', borderLeft: `3px solid ${markCol}`, display: 'flex', alignItems: 'center', gap: 13 }}>
+            <Mark color={isC ? d.fg : d.bg} size={27} />
+            <div>
+              <div style={{ fontFamily: d.df, fontSize: 13, color: isC ? d.fg : d.deep, fontWeight: isC ? 700 : 400, marginBottom: 2 }}>Amara Obi</div>
+              <div style={{ fontSize: 6.5, color: markCol, letterSpacing: '0.14em', marginBottom: 4 }}>Senior Property Advisor · RokHaven Realty</div>
+              <div style={{ fontSize: 7, color: '#9A9A9A' }}>+234 800 000 0000 · amara@rokhaven.com · rokhaven.com</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 6, letterSpacing: '0.32em', color: lblCol, marginBottom: 8 }}>BRAND STAMP / WATERMARK</div>
+          <div style={{ background: markCol, width: 100, height: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14 }}>
+            <Mark color={isC ? d.bg : d.bg} size={38} />
+            <div style={{ fontFamily: d.df, fontSize: 7, color: isC ? d.bg : d.bg, letterSpacing: '0.18em', fontWeight: 300 }}>RH</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   PROPERTY LISTING TEMPLATE  800 × 620
+═══════════════════════════════════════════════ */
+
+const ListingBoard = ({ dir }) => {
+  const d = DIRS[dir];
+  const isC = dir === 'C';
+  const headBg  = isC ? d.fg    : d.bg;
+  const headCol = isC ? d.fg2   : d.fg;
+  const paperBg = isC ? d.light : '#FEFCF8';
+  const textCol = isC ? d.fg    : d.deep;
+  const acc     = d.fg;
+  const Mark    = MARKS[dir];
+
+  return (
+    <div style={{ width: 800, height: 620, background: paperBg, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.1)', fontFamily: d.bf }}>
+      <div style={{ background: headBg, padding: '13px 26px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <HorizLogo dir={dir} color={headCol} ms={19} />
+        <div style={{ fontSize: 6, letterSpacing: '0.3em', color: headCol, opacity: 0.48 }}>EXCLUSIVE LISTING</div>
+      </div>
+      <div style={{ height: 2, background: acc, flexShrink: 0 }} />
+
+      {/* Property image placeholder */}
+      <div style={{
+        height: 210,
+        backgroundImage: `repeating-linear-gradient(45deg, ${textCol}04 0px, ${textCol}04 1px, transparent 1px, transparent 26px)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', flexShrink: 0
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 9, color: textCol, opacity: 0.13, fontFamily: 'monospace', letterSpacing: '0.2em' }}>PROPERTY PHOTOGRAPH</div>
+        </div>
+        <div style={{ position: 'absolute', bottom: 14, right: 22, background: headBg, padding: '8px 14px' }}>
+          <div style={{ fontSize: 5.5, letterSpacing: '0.2em', color: headCol, opacity: 0.55, marginBottom: 2 }}>ASKING PRICE</div>
+          <div style={{ fontFamily: d.df, fontSize: 17, color: headCol, fontWeight: 300 }}>₦2.4 Billion</div>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div style={{ flex: 1, padding: '18px 26px', display: 'flex', gap: 24, overflow: 'hidden' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 6.5, letterSpacing: '0.24em', color: acc, marginBottom: 5 }}>BANANA ISLAND, IKOYI — LAGOS</div>
+          <div style={{ fontFamily: d.df, fontSize: 19, color: textCol, fontWeight: 300, lineHeight: 1.25, marginBottom: 18 }}>
+            The Residence at<br />Ocean Promenade
+          </div>
+          <div style={{ display: 'flex', gap: 18 }}>
+            {[{ v: '6', l: 'BEDS' }, { v: '7.5', l: 'BATHS' }, { v: '1,200', l: 'SQM' }, { v: '2026', l: 'BUILT' }].map((s, i) => (
+              <div key={i}>
+                <div style={{ fontFamily: d.df, fontSize: 17, color: acc, fontWeight: 300 }}>{s.v}</div>
+                <div style={{ fontSize: 5.5, letterSpacing: '0.2em', color: textCol, opacity: 0.32, marginTop: 2 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ flex: '0 0 210', borderLeft: `1px solid ${textCol}0C`, paddingLeft: 22 }}>
+          <div style={{ fontSize: 6, letterSpacing: '0.26em', color: textCol, opacity: 0.3, marginBottom: 10 }}>HIGHLIGHTS</div>
+          {['Private waterfront access', 'Smart home automation', 'Staff quarters + 4-car garage', 'Rooftop infinity pool', 'Concierge service included'].map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7, fontSize: 8.5, color: textCol, opacity: 0.52, fontWeight: 300, marginBottom: 7, lineHeight: 1.35 }}>
+              <div style={{ width: 3.5, height: 3.5, background: acc, opacity: 0.55, transform: 'rotate(45deg)', flexShrink: 0, marginTop: 3 }} />
+              {f}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: '9px 26px', background: headBg, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ fontSize: 6.5, color: headCol, opacity: 0.55, letterSpacing: '0.14em' }}>+234 800 000 0000 · rokhaven.com</div>
+        <Mark color={headCol} size={15} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   APP
+/* ═══════════════════════════════════════════════
+   WEBSITE MOCKUP  1440 × 1680
+═══════════════════════════════════════════════ */
+
+const WebsiteMockup = () => {
+  const d  = DIRS['B'];
+  const bg = d.bg, fg = d.fg, lt = d.light, dp = d.deep;
+  const df = d.df, bf = d.bf;
+  const Mark = MARKS['B'];
+
+  const PropCard = ({ loc, name, price, beds, baths, sqm }) => (
+    <div style={{ flex:1, background:dp, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+      <div style={{ height:186, backgroundImage:`repeating-linear-gradient(45deg,${fg}05 0,${fg}05 1px,transparent 1px,transparent 26px)`, display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+        <div style={{ fontSize:7.5, color:fg, opacity:0.12, fontFamily:'monospace', letterSpacing:'0.18em' }}>PROPERTY PHOTO</div>
+        <div style={{ position:'absolute', top:10, left:12, background:fg, padding:'4px 10px' }}>
+          <div style={{ fontSize:5, color:dp, letterSpacing:'0.2em', fontFamily:bf }}>EXCLUSIVE</div>
+        </div>
+      </div>
+      <div style={{ padding:'16px 18px', flex:1, display:'flex', flexDirection:'column' }}>
+        <div style={{ fontSize:5.5, letterSpacing:'0.28em', color:fg, opacity:0.6, marginBottom:5, fontFamily:bf }}>{loc}</div>
+        <div style={{ fontFamily:df, fontSize:15, color:lt, marginBottom:8, lineHeight:1.25 }}>{name}</div>
+        <div style={{ fontFamily:df, fontSize:17, color:fg, marginBottom:10 }}>{price}</div>
+        <div style={{ display:'flex', gap:12, marginTop:'auto' }}>
+          {[{v:beds,l:'beds'},{v:baths,l:'baths'},{v:sqm,l:'sqm'}].map((s,i)=>(
+            <div key={i} style={{ fontSize:8, color:lt, opacity:0.38, fontFamily:bf, fontWeight:300 }}>
+              <span style={{fontWeight:400}}>{s.v}</span> {s.l}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ width:1440, background:bg, fontFamily:bf }}>
+
+      {/* NAV */}
+      <div style={{ height:70, background:dp, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 60px', borderBottom:`1px solid ${fg}12` }}>
+        <div style={{ display:'flex', alignItems:'center', gap:11 }}>
+          <Mark color={fg} size={20}/>
+          <div>
+            <div style={{ fontFamily:df, fontSize:12.5, color:fg, letterSpacing:'0.22em' }}>ROKHAVEN</div>
+            <div style={{ fontSize:5, color:fg, letterSpacing:'0.44em', opacity:0.5, marginTop:1, fontFamily:bf, fontWeight:300 }}>REALTY</div>
+          </div>
+        </div>
+        <div style={{ display:'flex', gap:34 }}>
+          {['PORTFOLIO','LAGOS','ABUJA','ABOUT','CONTACT'].map(l=>(
+            <div key={l} style={{ fontSize:7.5, color:lt, opacity:0.46, letterSpacing:'0.22em', fontWeight:300 }}>{l}</div>
+          ))}
+        </div>
+        <div style={{ border:`1px solid ${fg}`, padding:'8px 20px', fontSize:7, color:fg, letterSpacing:'0.22em', fontWeight:300 }}>ENQUIRE</div>
+      </div>
+
+      {/* HERO */}
+      <div style={{ height:560, position:'relative', display:'flex', alignItems:'center', justifyContent:'center', backgroundImage:`repeating-linear-gradient(45deg,${fg}03 0,${fg}03 1px,transparent 0,transparent 48px)`, backgroundSize:'48px 48px', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', opacity:0.055, pointerEvents:'none' }}>
+          <Mark color={fg} size={540}/>
+        </div>
+        <div style={{ position:'relative', textAlign:'center', zIndex:1 }}>
+          <div style={{ fontSize:7.5, letterSpacing:'0.5em', color:fg, opacity:0.48, marginBottom:22, fontWeight:300 }}>
+            NIGERIA'S PREMIER LUXURY REAL ESTATE
+          </div>
+          <div style={{ fontFamily:df, fontSize:92, color:lt, lineHeight:0.92, letterSpacing:'0.08em', marginBottom:26 }}>ROKHAVEN</div>
+          <div style={{ fontSize:9, color:fg, letterSpacing:'0.38em', fontWeight:300, marginBottom:18, opacity:0.82 }}>WHERE LEGACY LIVES</div>
+          <div style={{ fontSize:11, color:lt, opacity:0.36, fontWeight:300, maxWidth:500, margin:'0 auto 34px', lineHeight:1.7, letterSpacing:'0.02em' }}>
+            Curated, exclusive properties across Nigeria's most prestigious addresses — Banana Island, Ikoyi, Maitama and beyond.
+          </div>
+          <div style={{ display:'flex', gap:14, justifyContent:'center' }}>
+            <div style={{ background:fg, padding:'12px 30px', fontSize:7.5, color:dp, letterSpacing:'0.24em', fontWeight:400 }}>EXPLORE PROPERTIES</div>
+            <div style={{ border:`1px solid ${fg}`, padding:'12px 30px', fontSize:7.5, color:fg, letterSpacing:'0.24em', fontWeight:300 }}>BOOK CONSULTATION</div>
+          </div>
+        </div>
+        <div style={{ position:'absolute', bottom:24, left:'50%', transform:'translateX(-50%)', display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
+          <div style={{ fontSize:5.5, letterSpacing:'0.3em', color:fg, opacity:0.26 }}>SCROLL</div>
+          <div style={{ width:1, height:24, background:fg, opacity:0.16 }}/>
+        </div>
+      </div>
+
+      {/* GOLD STRIP */}
+      <div style={{ height:44, background:fg, display:'flex', alignItems:'center', overflow:'hidden', padding:'0 60px' }}>
+        <div style={{ display:'flex', alignItems:'center', whiteSpace:'nowrap', gap:0 }}>
+          {['BANANA ISLAND','·','IKOYI','·','VICTORIA ISLAND','·','LEKKI PHASE 1','·','MAITAMA','·','ASOKORO','·','BANANA ISLAND','·','IKOYI','·','VICTORIA ISLAND','·','LEKKI PHASE 1','·'].map((t,i)=>(
+            <span key={i} style={{ fontSize:t==='·'?13:7, color:dp, letterSpacing:t==='·'?0:'0.24em', fontFamily:bf, padding:t==='·'?'0 18px':'0 6px', opacity:t==='·'?0.4:0.88 }}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* LISTINGS */}
+      <div style={{ padding:'60px 60px 68px' }}>
+        <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom:32 }}>
+          <div>
+            <div style={{ fontSize:7, letterSpacing:'0.38em', color:fg, opacity:0.5, marginBottom:9, fontWeight:300 }}>EXCLUSIVE PORTFOLIO</div>
+            <div style={{ fontFamily:df, fontSize:34, color:lt }}>Featured Properties</div>
+          </div>
+          <div style={{ fontSize:7, letterSpacing:'0.22em', color:fg, opacity:0.5, borderBottom:`1px solid ${fg}55`, paddingBottom:3, fontWeight:300 }}>VIEW ALL LISTINGS</div>
+        </div>
+        <div style={{ display:'flex', gap:2 }}>
+          <PropCard loc="BANANA ISLAND, IKOYI" name="Meridian Penthouse" price="₦4.2B" beds={5} baths={6} sqm="920"/>
+          <PropCard loc="MAITAMA, ABUJA" name="The Ridgeline Estate" price="₦2.8B" beds={6} baths={7} sqm="1,200"/>
+          <PropCard loc="VICTORIA ISLAND, LAGOS" name="Harbour Residences No. 7" price="₦1.95B" beds={4} baths={4} sqm="680"/>
+        </div>
+      </div>
+
+      {/* BRAND STATEMENT */}
+      <div style={{ background:dp, padding:'68px 60px', display:'flex', alignItems:'center', gap:72 }}>
+        <div style={{ flex:'0 0 72' }}><Mark color={fg} size={68}/></div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:7, letterSpacing:'0.36em', color:fg, opacity:0.42, marginBottom:18, fontWeight:300 }}>THE ROKHAVEN PROMISE</div>
+          <div style={{ fontFamily:df, fontSize:27, color:lt, lineHeight:1.5, fontStyle:'italic', maxWidth:700, marginBottom:22 }}>
+            "A legacy of luxury, where every detail matters. Extraordinary properties, an exceptional experience — defined by trust, exclusivity, and an unwavering commitment to excellence."
+          </div>
+          <div style={{ fontSize:7.5, letterSpacing:'0.26em', color:fg, opacity:0.52, fontWeight:300 }}>WHERE LEGACY LIVES</div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ background:dp, borderTop:`1px solid ${fg}14`, padding:'42px 60px 28px' }}>
+        <div style={{ display:'flex', gap:56, marginBottom:36 }}>
+          <div style={{ flex:'0 0 190' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+              <Mark color={fg} size={20}/><div style={{ fontFamily:df, fontSize:11, color:fg, letterSpacing:'0.2em' }}>ROKHAVEN</div>
+            </div>
+            <div style={{ fontSize:8, color:lt, opacity:0.3, lineHeight:1.8, fontWeight:300 }}>
+              Nigeria's premier luxury real estate, curating exceptional properties across Lagos and Abuja.
+            </div>
+          </div>
+          {[
+            {t:'PORTFOLIO',ls:['Lagos Properties','Abuja Properties','New Developments','Investment Properties']},
+            {t:'COMPANY',  ls:['About RokHaven','Our Team','Press','Careers']},
+            {t:'CONTACT',  ls:['+234 800 000 0000','hello@rokhaven.com','1 Adewale Kolawole Crescent','Lekki Phase 1, Lagos']},
+          ].map((col,i)=>(
+            <div key={i} style={{ flex:1 }}>
+              <div style={{ fontSize:6.5, letterSpacing:'0.3em', color:fg, opacity:0.44, marginBottom:14 }}>{col.t}</div>
+              {col.ls.map((l,j)=>(<div key={j} style={{ fontSize:8.5, color:lt, opacity:0.32, marginBottom:9, fontWeight:300 }}>{l}</div>))}
+            </div>
+          ))}
+        </div>
+        <div style={{ height:'1px', background:fg, opacity:0.1, marginBottom:14 }}/>
+        <div style={{ display:'flex', justifyContent:'space-between' }}>
+          <div style={{ fontSize:6.5, color:lt, opacity:0.2, letterSpacing:'0.1em' }}>© 2026 RokHaven Realty Ltd. All rights reserved.</div>
+          <div style={{ fontSize:6.5, color:lt, opacity:0.2, letterSpacing:'0.1em' }}>Privacy Policy · Terms of Service</div>
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   APP
+═══════════════════════════════════════════════ */
+function App() {
+  return (
+    <DesignCanvas title="RokHaven Realty — Brand Identity Exploration">
+
+      <DCSection id="logos" title="01 — Logo Directions">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`logo-${dir}`} label={`Direction ${dir}: ${DIRS[dir].name}`} width={760} height={580}>
+            <LogoBoard dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="systems" title="02 — Brand Systems">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`sys-${dir}`} label={`Direction ${dir}: Colour & Type`} width={640} height={920}>
+            <BrandSystem dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="cards" title="03 — Business Cards">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`card-${dir}`} label={`Direction ${dir}: Business Card`} width={820} height={290}>
+            <BizCardBoard dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="letterhead" title="04 — Stationery">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`letter-${dir}`} label={`Direction ${dir}: Letterhead`} width={560} height={800}>
+            <LetterheadBoard dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="social" title="05 — Social & Digital">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`social-${dir}`} label={`Direction ${dir}: Social & Email`} width={940} height={360}>
+            <SocialBoard dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="listings" title="06 — Property Listing Template">
+        {['A','B','C'].map(dir => (
+          <DCArtboard key={dir} id={`listing-${dir}`} label={`Direction ${dir}: Listing Sheet`} width={800} height={620}>
+            <ListingBoard dir={dir} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>

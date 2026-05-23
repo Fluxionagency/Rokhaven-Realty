@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto-Account Notifications — RokHaven Design</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1B35;--gold:#C0A870;--deep:#2A3F5C;--obs:#060F1C;--ivory:#F4EDE0;--fd:'DM Serif Display',serif;--fb:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0A0F1A;color:var(--ivory);font-family:var(--fb);font-weight:300;padding:60px 40px 80px;}
+h1{font-family:var(--fd);font-size:14px;color:rgba(192,168,112,.45);letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px;}
+.pg-sub{font-size:12px;color:rgba(244,237,224,.22);margin-bottom:60px;letter-spacing:.06em;}
+.row{display:flex;gap:40px;align-items:flex-start;margin-bottom:80px;flex-wrap:wrap;}
+.row-lbl{font-size:8.5px;font-weight:500;color:rgba(192,168,112,.35);letter-spacing:.35em;text-transform:uppercase;margin-bottom:16px;}
+
+/* ── EMAIL CARD ── */
+.email-mock{width:560px;max-width:100%;border-radius:4px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7);flex-shrink:0;}
+.em-head{background:var(--navy);padding:20px 28px;border-bottom:1px solid rgba(192,168,112,.1);display:flex;align-items:center;gap:12px;}
+.em-logo .wm{font-family:var(--fd);font-size:13px;color:var(--gold);letter-spacing:.22em;}
+.em-logo .sm{font-size:6px;color:var(--gold);letter-spacing:.46em;opacity:.55;font-weight:200;margin-top:2px;}
+.em-body{background:#111B2A;padding:36px 36px 32px;}
+.em-badge{display:inline-block;font-size:7.5px;font-weight:500;color:var(--gold);letter-spacing:.38em;text-transform:uppercase;border:1px solid rgba(192,168,112,.3);border-radius:2px;padding:3px 10px;margin-bottom:20px;}
+.em-h{font-family:var(--fd);font-size:24px;color:var(--ivory);margin-bottom:12px;line-height:1.2;}
+.em-p{font-size:13.5px;color:rgba(244,237,224,.52);line-height:1.9;margin-bottom:24px;}
+.em-highlight{background:rgba(192,168,112,.08);border:1px solid rgba(192,168,112,.18);border-radius:3px;padding:14px 18px;margin-bottom:28px;}
+.em-hl-lbl{font-size:8px;font-weight:500;color:rgba(192,168,112,.45);letter-spacing:.28em;text-transform:uppercase;margin-bottom:6px;}
+.em-hl-val{font-size:14px;color:var(--gold);font-weight:400;}
+.em-btn{display:block;background:var(--gold);color:var(--obs);font-family:var(--fb);font-size:10.5px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;padding:14px;text-align:center;border-radius:2px;text-decoration:none;margin-bottom:22px;}
+.em-foot{border-top:1px solid rgba(192,168,112,.08);padding-top:20px;font-size:11px;color:rgba(244,237,224,.2);text-align:center;line-height:1.7;}
+.em-foot a{color:rgba(192,168,112,.35);}
+
+/* ── WHATSAPP CARD ── */
+.wa-mock{width:340px;max-width:100%;flex-shrink:0;}
+.wa-header{background:#1F2C34;padding:12px 16px;display:flex;align-items:center;gap:10px;border-radius:8px 8px 0 0;}
+.wa-av{width:36px;height:36px;border-radius:50%;background:var(--navy);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;color:var(--gold);flex-shrink:0;}
+.wa-name{font-size:13px;font-weight:500;color:#e9edef;}
+.wa-status{font-size:10px;color:#8696a0;}
+.wa-body{background:#0D1418;padding:12px;border-radius:0 0 8px 8px;min-height:200px;}
+.wa-bubble{background:#1F2C34;border-radius:0 8px 8px 8px;padding:12px 14px;max-width:90%;margin-bottom:6px;position:relative;}
+.wa-bubble::before{content:'';position:absolute;top:0;left:-6px;width:0;height:0;border-style:solid;border-width:0 6px 6px 0;border-color:transparent #1F2C34 transparent transparent;}
+.wa-bubble p{font-size:13px;color:#e9edef;line-height:1.65;margin-bottom:6px;}
+.wa-bubble .wa-link{display:block;margin-top:8px;background:rgba(192,168,112,.12);border:1px solid rgba(192,168,112,.25);border-radius:4px;padding:9px 12px;font-size:11.5px;color:var(--gold);font-weight:500;text-align:center;}
+.wa-time{font-size:10px;color:#8696a0;text-align:right;margin-top:4px;}
+.wa-tick{color:#53bdeb;font-size:12px;}
+
+/* SMS card */
+.sms-mock{width:300px;flex-shrink:0;}
+.sms-hdr{background:#1C1C1E;padding:12px 16px;border-radius:10px 10px 0 0;text-align:center;font-size:11px;color:#8E8E93;}
+.sms-body{background:#1C1C1E;padding:12px 14px;border-radius:0 0 10px 10px;}
+.sms-bubble{background:#2C2C2E;border-radius:14px 14px 14px 2px;padding:10px 14px;max-width:90%;margin-bottom:4px;}
+.sms-bubble p{font-size:12.5px;color:#E5E5EA;line-height:1.6;}
+.sms-time{font-size:10px;color:#636366;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<h1>Auto-Account Notifications</h1>
+<p class="pg-sub">Design mockup — sent automatically when a client or principal submits their first form on RokHaven</p>
+
+<!-- CLIENT AUTO-ACCOUNT NOTIFICATION -->
+<div style="margin-bottom:16px;font-family:var(--fb);font-size:10px;font-weight:500;color:rgba(192,168,112,.5);letter-spacing:.35em;text-transform:uppercase;">01 — CLIENT AUTO-ACCOUNT</div>
+<div class="row">
+
+  <!-- EMAIL -->
+  <div>
+    <div class="row-lbl">Email Notification</div>
+    <div class="email-mock">
+      <div class="em-head">
+        <svg width="22" height="22" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+        <div class="em-logo"><div class="wm">ROKHAVEN</div><div class="sm">REALTY</div></div>
+      </div>
+      <div class="em-body">
+        <div class="em-badge">Welcome to RokHaven</div>
+        <div class="em-h">Your account has been created, Adaeze.</div>
+        <p class="em-p">We've automatically set up your RokHaven client profile following your inspection request. You can now log in to track the status of your inspection, save properties, and manage all your enquiries in one place.</p>
+        <div class="em-highlight">
+          <div class="em-hl-lbl">Your Inspection</div>
+          <div class="em-hl-val">The Grand Arkadia — Banana Island</div>
+        </div>
+        <a class="em-btn" href="#">Access Your Client Dashboard →</a>
+        <div class="em-foot">
+          RokHaven Realty · 3B Bourdillon Road, Ikoyi, Lagos<br>
+          <a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div>
+    <div class="row-lbl">WhatsApp Notification</div>
+    <div class="wa-mock">
+      <div class="wa-header">
+        <div class="wa-av">RH</div>
+        <div>
+          <div class="wa-name">RokHaven Realty</div>
+          <div class="wa-status">Official Business Account</div>
+        </div>
+      </div>
+      <div class="wa-body">
+        <div class="wa-bubble">
+          <p>👋 Welcome to RokHaven, *Adaeze*.</p>
+          <p>Your client account has been created. Use the link below to access your dashboard and track your inspection for *The Grand Arkadia, Banana Island*.</p>
+          <a class="wa-link" href="#">🔐 Access Client Dashboard</a>
+          <div class="wa-time">10:42 AM <span class="wa-tick">✓✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PRINCIPAL AUTO-ACCOUNT NOTIFICATION -->
+<div style="margin-bottom:16px;font-family:var(--fb);font-size:10px;font-weight:500;color:rgba(192,168,112,.5);letter-spacing:.35em;text-transform:uppercase;">02 — PRINCIPAL AUTO-ACCOUNT</div>
+<div class="row">
+
+  <!-- EMAIL -->
+  <div>
+    <div class="row-lbl">Email Notification</div>
+    <div class="email-mock">
+      <div class="em-head">
+        <svg width="22" height="22" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+        <div class="em-logo"><div class="wm">ROKHAVEN</div><div class="sm">REALTY</div></div>
+      </div>
+      <div class="em-body">
+        <div class="em-badge">Principal Account Ready</div>
+        <div class="em-h">Your Principal account is ready, Emeka.</div>
+        <p class="em-p">Thank you for listing your property with RokHaven. Your Principal account has been created — log in to track your listing's inspections, manage enquiries, and monitor your portfolio.</p>
+        <div class="em-highlight">
+          <div class="em-hl-lbl">Your Listing</div>
+          <div class="em-hl-val">Oceanfront Penthouse — Victoria Island</div>
+        </div>
+        <a class="em-btn" href="#">Access Your Principal Dashboard →</a>
+        <div class="em-foot">
+          RokHaven Realty · Where Legacy Lives<br>
+          <a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div>
+    <div class="row-lbl">WhatsApp Notification</div>
+    <div class="wa-mock">
+      <div class="wa-header">
+        <div class="wa-av">RH</div>
+        <div>
+          <div class="wa-name">RokHaven Realty</div>
+          <div class="wa-status">Official Business Account</div>
+        </div>
+      </div>
+      <div class="wa-body">
+        <div class="wa-bubble">
+          <p>🏛 Welcome, *Emeka*.</p>
+          <p>Your *Principal account* is now live. Log in to track inspections on your listing, respond to client enquiries, and manage your portfolio with RokHaven.</p>
+          <a class="wa-link" href="#">🔐 Access Principal Dashboard</a>
+          <div class="wa-time">2:15 PM <span class="wa-tick">✓✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

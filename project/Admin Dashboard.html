@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — RokHaven Realty</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1B35;--gold:#C0A870;--deep:#2A3F5C;--obs:#060F1C;--ivory:#F4EDE0;--card:#0E1E30;--teal:#527070;--fd:'DM Serif Display',serif;--fb:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--ivory);font-family:var(--fb);font-weight:300;display:flex;min-height:100vh;line-height:1.5;}
+button,select,input,textarea{font-family:var(--fb);}a{text-decoration:none;}
+
+/* SIDEBAR */
+.sb{width:220px;flex-shrink:0;background:var(--obs);border-right:1px solid rgba(192,168,112,.08);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;z-index:100;}
+.sb-logo{padding:24px 20px 22px;border-bottom:1px solid rgba(192,168,112,.07);display:flex;align-items:center;gap:11px;}
+.sb-wm{font-family:var(--fd);font-size:15px;color:var(--gold);letter-spacing:.22em;}
+.sb-sm{font-size:7px;color:var(--gold);letter-spacing:.46em;opacity:.55;font-weight:200;margin-top:3px;}
+.sb-section{font-size:7.5px;font-weight:500;color:rgba(192,168,112,.28);letter-spacing:.35em;text-transform:uppercase;padding:18px 20px 8px;}
+.sb-nav{flex:1;display:flex;flex-direction:column;padding-bottom:8px;}
+.sb-link{display:flex;align-items:center;gap:11px;padding:11px 20px;font-size:12.5px;font-weight:300;color:rgba(244,237,224,.38);border-left:2px solid transparent;cursor:pointer;transition:all .18s;background:none;border-top:none;border-bottom:none;border-right:none;text-align:left;width:100%;}
+.sb-link:hover{color:rgba(244,237,224,.7);background:rgba(192,168,112,.04);}
+.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(192,168,112,.06);font-weight:400;}
+.sb-link svg{flex-shrink:0;opacity:.7;}
+.sb-foot{padding:16px 20px;border-top:1px solid rgba(192,168,112,.07);}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(192,168,112,.12);border:1px solid rgba(192,168,112,.2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold);}
+.sb-name{font-size:12px;font-weight:400;color:rgba(244,237,224,.5);}
+.sb-role{font-size:9px;color:rgba(244,237,224,.22);margin-top:1px;}
+.sb-out{font-size:9.5px;color:rgba(192,168,112,.3);cursor:pointer;margin-top:12px;transition:color .2s;}
+.sb-out:hover{color:var(--gold);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+.topbar{height:60px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(192,168,112,.07);background:rgba(11,27,53,.7);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;}
+.topbar-title{font-family:var(--fd);font-size:19px;color:var(--ivory);}
+.topbar-date{font-size:10px;color:rgba(244,237,224,.22);margin-top:3px;letter-spacing:.1em;}
+.btn-add{display:flex;align-items:center;gap:7px;background:var(--gold);color:var(--obs);font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:10px 20px;border:none;border-radius:2px;cursor:pointer;transition:filter .2s;white-space:nowrap;}
+.btn-add:hover{filter:brightness(1.08);}
+.content{padding:32px 36px 60px;flex:1;}
+
+/* PANELS */
+.panel{display:none;}.panel.active{display:block;}
+
+/* SUB TABS */
+.sub-tabs{display:flex;gap:0;margin-bottom:28px;border-bottom:1px solid rgba(192,168,112,.1);}
+.stab{font-size:11.5px;font-weight:300;color:rgba(244,237,224,.38);padding:9px 22px 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;}
+.stab:hover{color:rgba(244,237,224,.65);}
+.stab.on{color:var(--gold);border-bottom-color:var(--gold);font-weight:400;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:36px;}
+.sc{background:var(--deep);border:1px solid rgba(192,168,112,.08);border-radius:3px;padding:22px 24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.sc:hover{border-color:rgba(192,168,112,.2);transform:translateY(-2px);}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:.35;}
+.sc-num{font-family:var(--fd);font-size:38px;color:var(--gold);margin-bottom:6px;line-height:1;}
+.sc-lbl{font-size:11px;color:rgba(244,237,224,.4);letter-spacing:.06em;}
+.sc-delta{position:absolute;top:16px;right:16px;font-size:9.5px;padding:3px 7px;border-radius:2px;}
+.up{color:#5DC882;background:rgba(93,200,130,.1);}
+.pend{color:var(--gold);background:rgba(192,168,112,.1);}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sec-title{font-family:var(--fd);font-size:19px;color:var(--ivory);}
+.sec-link{font-size:10.5px;color:rgba(192,168,112,.55);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(192,168,112,.2);cursor:pointer;transition:all .2s;}
+.sec-link:hover{color:var(--gold);border-color:var(--gold);}
+
+/* TABLE */
+.tbl-wrap{background:var(--card);border:1px solid rgba(192,168,112,.07);border-radius:3px;overflow:hidden;margin-bottom:32px;}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;font-size:8.5px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;padding:13px 18px;border-bottom:1px solid rgba(192,168,112,.07);background:rgba(6,15,28,.3);}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);border-left:2px solid transparent;transition:background .15s,border-color .15s;cursor:pointer;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(192,168,112,.04);border-left-color:rgba(192,168,112,.3);}
+td{padding:14px 18px;font-size:12.5px;font-weight:300;color:rgba(244,237,224,.65);vertical-align:middle;}
+td.strong{color:var(--ivory);font-weight:400;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:2px;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.b-pending{color:#E0B44A;background:rgba(224,180,74,.1);border:1px solid rgba(224,180,74,.2);}
+.b-pending::before{background:#E0B44A;}
+.b-confirmed{color:#5DC882;background:rgba(93,200,130,.1);border:1px solid rgba(93,200,130,.2);}
+.b-confirmed::before{background:#5DC882;}
+.b-completed{color:var(--teal);background:rgba(82,112,112,.12);border:1px solid rgba(82,112,112,.3);}
+.b-completed::before{background:var(--teal);}
+
+/* ROW ACTIONS */
+.row-actions{display:flex;gap:6px;opacity:0;transition:opacity .15s;}
+tbody tr:hover .row-actions{opacity:1;}
+.ra-btn{font-size:9.5px;color:rgba(192,168,112,.55);background:transparent;border:1px solid rgba(192,168,112,.15);border-radius:2px;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ra-btn:hover{color:var(--gold);border-color:rgba(192,168,112,.4);}
+.ra-del{color:rgba(224,112,112,.6);border-color:rgba(224,112,112,.18);}
+.ra-del:hover{color:#E07070;border-color:rgba(224,112,112,.4);}
+
+/* LISTING GRID */
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.lgrid-4{grid-template-columns:repeat(4,1fr);}
+.lcard{background:var(--deep);border:1px solid rgba(192,168,112,.08);border-radius:3px;overflow:hidden;transition:border-color .2s;}
+.lcard:hover{border-color:rgba(192,168,112,.22);}
+.lcard-img{height:110px;overflow:hidden;position:relative;}
+.lcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.lcard:hover .lcard-img img{transform:scale(1.05);}
+.lbadge{position:absolute;top:9px;left:9px;font-size:7.5px;font-weight:500;color:var(--obs);background:var(--gold);padding:3px 7px;border-radius:1px;letter-spacing:.18em;text-transform:uppercase;}
+.lcard-body{padding:12px 14px 14px;}
+.lcard-name{font-family:var(--fd);font-size:13px;color:var(--ivory);margin-bottom:3px;}
+.lcard-price{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:7px;}
+.lcard-meta{font-size:10.5px;color:rgba(244,237,224,.35);margin-bottom:10px;}
+.lcard-actions{display:flex;gap:6px;}
+.lcbtn{flex:1;font-size:9px;font-weight:400;color:rgba(244,237,224,.4);background:transparent;border:1px solid rgba(192,168,112,.12);border-radius:2px;padding:6px 0;text-align:center;cursor:pointer;letter-spacing:.08em;transition:all .18s;}
+.lcbtn:hover{border-color:rgba(192,168,112,.35);color:var(--gold);}
+
+/* PROP MINI */
+.prop-row{display:flex;align-items:center;gap:9px;}
+.prop-thumb{width:38px;height:28px;border-radius:1px;overflow:hidden;flex-shrink:0;}
+.prop-thumb img{width:100%;height:100%;object-fit:cover;}
+.prop-name-cell{font-size:12px;color:var(--ivory);font-weight:400;}
+.prop-loc-cell{font-size:10px;color:rgba(244,237,224,.3);}
+
+/* CALENDAR */
+.cal-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.cal-month{font-family:var(--fd);font-size:22px;color:var(--ivory);}
+.cal-nav-btns{display:flex;gap:8px;align-items:center;}
+.cal-btn{background:transparent;border:1px solid rgba(192,168,112,.18);border-radius:2px;color:rgba(244,237,224,.5);width:32px;height:32px;cursor:pointer;font-size:14px;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.cal-btn:hover{border-color:var(--gold);color:var(--gold);}
+.cal-today-btn{font-size:9px;padding:0 12px;width:auto;letter-spacing:.12em;text-transform:uppercase;}
+.cal-grid-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+.cal-dh{text-align:center;font-size:9px;font-weight:500;color:rgba(244,237,224,.22);letter-spacing:.2em;text-transform:uppercase;padding:6px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day{min-height:88px;background:rgba(11,27,53,.4);border:1px solid rgba(255,255,255,.04);border-radius:2px;padding:7px;cursor:pointer;transition:border-color .18s;}
+.cal-day:hover:not(.cal-we):not(.cal-other){border-color:rgba(192,168,112,.18);}
+.cal-day.cal-today{border-color:rgba(192,168,112,.4);}
+.cal-day.cal-other{opacity:.28;cursor:default;}
+.cal-day.cal-we{background:rgba(6,15,28,.45);cursor:default;}
+.cal-dn{font-size:11px;color:rgba(244,237,224,.38);margin-bottom:5px;}
+.cal-day.cal-today .cal-dn{color:var(--gold);font-weight:500;}
+.cal-booking{background:rgba(192,168,112,.1);border:1px solid rgba(192,168,112,.28);border-radius:2px;padding:3px 6px;margin-bottom:3px;font-size:9px;color:var(--gold);line-height:1.4;}
+.cal-slots{font-size:8.5px;color:rgba(82,112,112,.65);margin-top:3px;display:flex;align-items:center;gap:3px;}
+.cal-slots::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.cal-legend{display:flex;gap:18px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(192,168,112,.07);}
+.cal-li{display:flex;align-items:center;gap:7px;font-size:10.5px;color:rgba(244,237,224,.32);}
+.cal-dot{width:11px;height:11px;border-radius:2px;}
+
+/* GENERATE LINK */
+.gen-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+.form-card{background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:26px;}
+.fc-title{font-family:var(--fd);font-size:19px;color:var(--ivory);margin-bottom:6px;}
+.fc-sub{font-size:12.5px;color:rgba(244,237,224,.38);margin-bottom:22px;line-height:1.7;}
+.fg-block{margin-bottom:16px;}
+.fg-block label{display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;}
+.fg-block label span{color:rgba(192,168,112,.3);font-weight:300;}
+.fi{width:100%;background:rgba(42,63,92,.28);border:1px solid rgba(192,168,112,.13);border-radius:2px;outline:none;font-family:var(--fb);font-size:14px;font-weight:300;color:var(--ivory);padding:12px 14px;transition:border-color .2s;}
+.fi::placeholder{color:#A3A3A3;}
+.fi:focus{border-color:rgba(192,168,112,.42);}
+.fsel{width:100%;background:rgba(42,63,92,.28);border:1px solid rgba(192,168,112,.13);border-radius:2px;outline:none;font-family:var(--fb);font-size:14px;font-weight:300;color:var(--ivory);padding:12px 14px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(192,168,112,0.35)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:rgba(42,63,92,.28);}
+.fsel:focus{border-color:rgba(192,168,112,.42);}
+.fsel option{background:#142236;}
+.fta{width:100%;background:rgba(42,63,92,.28);border:1px solid rgba(192,168,112,.13);border-radius:2px;outline:none;font-family:var(--fb);font-size:13px;font-weight:300;color:var(--ivory);padding:12px 14px;resize:vertical;min-height:80px;line-height:1.7;}
+.fta::placeholder{color:#A3A3A3;}
+.fta:focus{border-color:rgba(192,168,112,.42);}
+.btn-gen{width:100%;padding:14px;background:var(--gold);color:var(--obs);font-size:10.5px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:filter .2s;margin-top:6px;}
+.btn-gen:hover{filter:brightness(1.08);}
+.link-result{background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:26px;display:flex;flex-direction:column;gap:20px;}
+.link-label{font-size:8px;font-weight:500;color:rgba(192,168,112,.4);letter-spacing:.3em;text-transform:uppercase;margin-bottom:9px;}
+.link-box{background:rgba(11,27,53,.6);border:1.5px solid var(--gold);border-radius:3px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.link-url{font-size:12px;color:rgba(192,168,112,.8);word-break:break-all;flex:1;}
+.btn-copy{font-size:9px;font-weight:500;color:var(--obs);background:var(--gold);border:none;border-radius:2px;padding:7px 13px;cursor:pointer;white-space:nowrap;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;flex-shrink:0;}
+.btn-copy:hover{filter:brightness(1.08);}
+.btn-copy.copied{background:#5DC882;color:#fff;}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;border:none;border-radius:2px;padding:12px;cursor:pointer;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;transition:filter .2s;width:100%;}
+.btn-wa:hover{filter:brightness(1.08);}
+.btn-outline-link{display:flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:rgba(244,237,224,.5);border:1px solid rgba(192,168,112,.18);border-radius:2px;padding:11px;cursor:pointer;font-size:10.5px;font-weight:300;letter-spacing:.08em;transition:all .18s;width:100%;}
+.btn-outline-link:hover{border-color:rgba(192,168,112,.4);color:var(--ivory);}
+.link-expiry{font-size:10.5px;color:rgba(244,237,224,.22);display:flex;align-items:center;gap:7px;}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;background:rgba(11,27,53,.4);border:1px solid rgba(192,168,112,.1);border-radius:3px;}
+.qr-inner{background:#fff;padding:8px;border-radius:2px;}
+.qr-caption{font-size:9.5px;color:rgba(244,237,224,.28);letter-spacing:.15em;text-transform:uppercase;}
+
+/* LEADS KANBAN */
+.leads-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.pipe-col{background:rgba(11,27,53,.45);border:1px solid rgba(192,168,112,.07);border-radius:3px;padding:14px;}
+.pipe-head{font-size:8.5px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.25em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.pipe-count{background:rgba(192,168,112,.12);color:var(--gold);border-radius:10px;padding:2px 8px;font-size:9px;}
+.lead-card{background:var(--deep);border:1px solid rgba(192,168,112,.08);border-radius:3px;padding:11px 13px;margin-bottom:9px;cursor:pointer;transition:border-color .18s;}
+.lead-card:hover{border-color:rgba(192,168,112,.25);}
+.lead-name{font-size:12.5px;font-weight:400;color:var(--ivory);margin-bottom:2px;}
+.lead-prop{font-size:11px;color:rgba(244,237,224,.38);margin-bottom:6px;}
+.lead-time{font-size:9.5px;color:rgba(244,237,224,.22);display:flex;align-items:center;gap:5px;}
+
+/* REMINDERS */
+.rem-status{display:flex;gap:6px;flex-wrap:wrap;}
+.rem-pill{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;padding:3px 8px;border-radius:2px;}
+.rem-sent{color:#5DC882;background:rgba(93,200,130,.1);border:1px solid rgba(93,200,130,.2);}
+.rem-pending{color:var(--gold);background:rgba(192,168,112,.08);border:1px solid rgba(192,168,112,.2);}
+
+/* SETTINGS */
+.settings-layout{display:grid;grid-template-columns:190px 1fr;gap:24px;}
+.snav-item{font-size:12.5px;font-weight:300;color:rgba(244,237,224,.38);padding:10px 14px;border-radius:2px;cursor:pointer;transition:all .18s;border:none;background:transparent;text-align:left;width:100%;display:block;}
+.snav-item:hover{background:rgba(192,168,112,.05);color:rgba(244,237,224,.7);}
+.snav-item.on{background:rgba(192,168,112,.08);color:var(--gold);font-weight:400;}
+.sp-panel{background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:26px;}
+.sp-title{font-family:var(--fd);font-size:20px;color:var(--ivory);margin-bottom:6px;}
+.sp-sub{font-size:12.5px;color:rgba(244,237,224,.35);margin-bottom:22px;line-height:1.7;}
+.int-card{background:rgba(11,27,53,.5);border:1px solid rgba(192,168,112,.1);border-radius:3px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+.int-icon{width:40px;height:40px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.int-info{flex:1;}
+.int-name{font-size:13.5px;font-weight:400;color:var(--ivory);margin-bottom:3px;}
+.int-desc{font-size:11.5px;color:rgba(244,237,224,.32);line-height:1.6;}
+.int-btn{font-size:9.5px;color:rgba(244,237,224,.38);padding:5px 12px;border:1px solid rgba(192,168,112,.18);border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;background:transparent;}
+.int-btn:hover{border-color:var(--gold);color:var(--gold);}
+.int-btn.connected{color:#5DC882;border-color:rgba(93,200,130,.3);background:rgba(93,200,130,.08);cursor:default;}
+
+/* EMAIL PROVIDER OPTION CARDS */
+.email-opt{padding:12px 14px;background:rgba(11,27,53,.5);border:1.5px solid rgba(192,168,112,.1);border-radius:3px;cursor:pointer;transition:all .18s;position:relative;}
+.email-opt:hover{border-color:rgba(192,168,112,.32);background:rgba(192,168,112,.04);}
+.email-opt.connected{border-color:var(--gold);background:rgba(192,168,112,.08);}
+.eo-name{font-size:12.5px;font-weight:400;color:var(--ivory);margin-bottom:3px;}
+.eo-desc{font-size:10.5px;color:rgba(244,237,224,.32);line-height:1.5;}
+.eo-badge{font-size:8.5px;font-weight:500;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:7px;}
+
+/* OVERLAY + PANELS */
+.overlay{position:fixed;inset:0;background:rgba(6,15,28,.87);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.overlay.on{display:flex;}
+.panel-wrap{background:#0D1E30;border:1px solid rgba(192,168,112,.15);border-radius:4px;width:680px;max-height:90vh;overflow-y:auto;scrollbar-width:none;}
+.panel-wrap::-webkit-scrollbar{display:none;}
+.panel-hdr{padding:22px 26px 18px;border-bottom:1px solid rgba(192,168,112,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0D1E30;z-index:2;}
+.panel-title{font-family:var(--fd);font-size:19px;color:var(--ivory);}
+.panel-x{font-size:22px;color:rgba(244,237,224,.28);cursor:pointer;transition:color .18s;line-height:1;}
+.panel-x:hover{color:var(--ivory);}
+.panel-body{padding:22px 26px 28px;}
+.panel-footer{padding:14px 26px;border-top:1px solid rgba(192,168,112,.08);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#0D1E30;}
+.btn-cancel-sm{font-size:10px;color:rgba(244,237,224,.32);background:transparent;border:1px solid rgba(192,168,112,.1);border-radius:2px;padding:10px 18px;cursor:pointer;transition:all .18s;}
+.btn-cancel-sm:hover{border-color:rgba(192,168,112,.3);color:rgba(244,237,224,.6);}
+.btn-publish{font-size:10px;font-weight:500;color:var(--obs);background:var(--gold);border:none;border-radius:2px;padding:10px 22px;cursor:pointer;letter-spacing:.16em;text-transform:uppercase;transition:filter .2s;}
+.btn-publish:hover{filter:brightness(1.07);}
+.upload-zone{border:1.5px dashed rgba(192,168,112,.2);border-radius:3px;padding:26px;text-align:center;cursor:pointer;transition:all .2s;}
+.upload-zone:hover{border-color:rgba(192,168,112,.42);background:rgba(192,168,112,.04);}
+.upload-txt{font-size:11.5px;color:rgba(244,237,224,.3);line-height:1.75;}
+.upload-txt strong{color:var(--gold);font-weight:400;}
+.pfeat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.pfp{font-size:11px;font-weight:300;color:rgba(244,237,224,.42);padding:6px 12px;border:1px solid rgba(192,168,112,.12);border-radius:2px;cursor:pointer;background:transparent;font-family:var(--fb);transition:all .18s;user-select:none;}
+.pfp:hover{border-color:rgba(192,168,112,.3);}
+.pfp.on{border-color:var(--gold);color:var(--gold);background:rgba(192,168,112,.08);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* LOGIN */
+.login-wrap{width:380px;background:#0D1E30;border:1px solid rgba(192,168,112,.15);border-radius:4px;padding:44px 38px 38px;text-align:center;}
+.login-h{font-family:var(--fd);font-size:22px;color:var(--ivory);margin-bottom:6px;}
+.login-sub{font-size:12px;color:rgba(244,237,224,.28);margin-bottom:28px;}
+.login-lbl{display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;text-align:left;}
+.login-in{width:100%;background:rgba(11,27,53,.6);border:1px solid rgba(192,168,112,.13);border-radius:2px;outline:none;font-family:var(--fb);font-size:14px;font-weight:300;color:var(--ivory);padding:12px 14px;transition:border-color .2s;margin-bottom:14px;}
+.login-in::placeholder{color:#A3A3A3;}
+.login-in:focus{border-color:rgba(192,168,112,.42);}
+.login-btn{width:100%;padding:13px;background:var(--gold);color:var(--obs);font-size:10.5px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:filter .2s;}
+.login-btn:hover{filter:brightness(1.07);}
+.forgot{font-size:11px;color:rgba(192,168,112,.35);margin-top:12px;cursor:pointer;transition:color .2s;}
+.forgot:hover{color:var(--gold);}
+
+
+/* ─── TYPOGRAPHY SCALE ENFORCEMENT V2 (16px MIN, NO SCALE-DOWN) ─── */
+body{font-size:16px!important;line-height:1.6;}
+
+/* Hero headline 72-80px on 1440px desktop */
+.hero h1{font-size:clamp(56px,6vw,80px)!important;line-height:1.08;}
+.hero-h{font-size:clamp(48px,5.5vw,76px)!important;line-height:1.1;}
+
+/* Section headings — bumped */
+.sec-h{font-size:clamp(36px,3.2vw,50px)!important;line-height:1.15;}
+.pg-h{font-size:clamp(28px,2.8vw,36px)!important;}
+.pg-greeting{font-size:clamp(32px,3.2vw,44px)!important;line-height:1.15;}
+.ph-h{font-size:clamp(40px,4vw,58px)!important;line-height:1.1;}
+.page-title{font-size:clamp(40px,4vw,58px)!important;line-height:1.1;}
+.prop-name{font-size:clamp(40px,4vw,54px)!important;line-height:1.1;}
+.q-text{font-size:clamp(28px,3.4vw,44px)!important;line-height:1.18;}
+
+/* Body / paragraph text — 16-18px */
+p,.body-txt,.hero-sub,.story-p,.promise-sub,.pdesc,.prop-desc,.pg-sub,.greeting-sub,
+.fc-sub,.ph-sub,.sp-sub,.fs-sub,.card-sub,.form-sub,
+.empty-p,.es-sub,.tog-sub,.wp-desc,.psb-loc,
+.foot-tag,.suc-b,.cf-b,.confirm-body{font-size:17px!important;line-height:1.75;}
+.hero-sub{font-size:18px!important;}
+.q-sub{font-size:17px!important;line-height:1.7;}
+
+/* Property card text — readable sizes */
+.cname,.mini-name,.lcard-name{font-size:22px!important;}
+.cprice{font-size:18px!important;font-weight:500;}
+.mini-price,.lcard-price{font-size:16px!important;}
+.cloc{font-size:14px!important;}
+.cmeta,.cmeta span,.lcard-meta{font-size:14px!important;}
+.clink{font-size:13px!important;}
+
+/* List / table row content */
+.insp-name,.pr-name,.prop-name-cell,.pc-name,.lead-name,.lead-prop{font-size:16px;}
+
+/* Form inputs — minimum 16px */
+.fi,.fq-in,.f-in,.fq-input,.pfq-input,.t-in,.login-in,.dt-in,.fsel,.f-sel,.fq-sel,
+.pfq-select,.fta,.fq-ta,.t-area,.fq-textarea,.pfq-textarea{font-size:16px!important;}
+.t-in{font-size:clamp(22px,2.8vw,32px)!important;}
+.fq-lbl,.f-lbl,.pfq-lbl,.login-lbl{font-size:11px;letter-spacing:.28em;}
+
+/* Checkboxes & options */
+.chk-txt,.mf-txt,.feat-txt{font-size:15px!important;line-height:1.75;}
+.opt-lb{font-size:16px!important;}
+.mopt,.popt,.pill,.role-pill{font-size:14px!important;}
+
+/* Navigation */
+.nav-links a,.nav-cta{font-size:14px!important;letter-spacing:.18em;}
+.sb-link{font-size:14px!important;}
+.tab,.stab{font-size:14px!important;}
+.tn-mode{font-size:11px;}
+
+/* Buttons — body text minimum but uppercase tracking */
+.btn-gold,.btn-gold-full,.btn-gen,.btn-add,.btn-publish,.btn-submit,.btn-next,
+.btn-primary,.btn-outline,.btn-wa,.cf-btn,.cta-btn,.tb-btn,.btn-browse,
+.login-btn,.btn-otp,.btn-gold-sm,.ss-btn,.confirm-btn{font-size:13px!important;letter-spacing:.18em;}
+.btn-gold-full,.btn-submit,.btn-next{padding:18px!important;}
+
+/* Small buttons / links */
+.btn-sm,.btn-sm-outline,.btn-sm-g,.btn-copy,.btn-cancel-sm,.btn-cancel{font-size:12px!important;}
+.lcbtn,.ra-btn{font-size:11px!important;}
+.ir-link,.empty-cta,.link-gold,.sec-link{font-size:13px!important;}
+
+/* Notes & supporting copy */
+.cta-reassure,.sub-note,.form-note,.terms{font-size:13px!important;line-height:1.7;}
+.confirm-ref{font-size:13px;}
+.cf-si{font-size:18px!important;}
+
+/* Stats */
+.sc-num,.stat-n{font-size:42px!important;line-height:1;}
+.sc-lbl,.stat-l{font-size:13px!important;}
+.spec-val{font-size:22px!important;}
+.spec-lbl{font-size:11px;}
+
+/* Sidebar / footer details */
+.sb-uname,.sb-name{font-size:14px!important;}
+.sb-urole,.sb-role{font-size:11px;letter-spacing:.1em;}
+.foot-copy{font-size:13px!important;}
+.foot-tagline{font-size:16px!important;}
+.flinks a{font-size:14px!important;}
+
+/* Logo wordmarks — keep brand-defined sizes */
+.wm{font-size:18px;}
+.sm{font-size:10px;}
+.sb-wm{font-size:16px;}
+.sb-sm{font-size:9px;}
+
+@media(max-width:540px){
+  .hero h1,.hero-h{font-size:42px!important;}
+  .pg-greeting,.page-title,.prop-name,.ph-h{font-size:32px!important;}
+  .sec-h{font-size:28px!important;}
+}
+
+/* ─── MOBILE RESPONSIVE V3 (375px first) ─── */
+@media(max-width:768px){
+  /* GLOBAL */
+  body{font-size:16px;}
+  *,*::before,*::after{-webkit-tap-highlight-color:transparent;}
+
+  /* NAV — hide desktop links, show hamburger */
+  #nav,nav{padding:0 16px!important;height:64px!important;}
+  .nav-links{display:none!important;}
+  .nav-cta{display:none!important;}
+  .nav-cta-mobile{display:none!important;}
+  button[onclick="openLoginOverlay()"]{display:none!important;}
+  .nav-hamburger{display:flex!important;}
+
+  /* HERO */
+  .hero{min-height:540px!important;height:100vh!important;}
+  .hero h1{font-size:42px!important;line-height:1.1!important;}
+  .hero-sub{font-size:16px!important;margin-bottom:28px!important;padding:0 12px;}
+  .eyebrow{font-size:10px!important;margin-bottom:18px!important;}
+  .search-bar{flex-direction:column!important;max-width:calc(100% - 24px)!important;margin:0 12px!important;}
+  .sf{border-right:none!important;border-bottom:1px solid rgba(192,168,112,.12)!important;padding:14px 18px!important;width:100%;}
+  .btn-gold{width:100%;padding:16px!important;font-size:14px!important;min-height:52px;}
+  .scroll-ind{display:none!important;}
+
+  /* BRAND STRIP */
+  .strip{gap:14px!important;padding:14px 16px!important;overflow-x:auto;flex-wrap:nowrap!important;justify-content:flex-start!important;}
+  .strip span{font-size:9px!important;white-space:nowrap;}
+
+  /* CONTAINER */
+  .container,.page-hdr>div,.main>div{padding-left:16px!important;padding-right:16px!important;}
+  .container{padding:0 16px!important;}
+
+  /* SECTIONS */
+  .featured,.why{padding:56px 0!important;}
+  .feat-hdr{flex-direction:column;align-items:flex-start;gap:14px;margin-bottom:32px!important;}
+  .sec-h{font-size:30px!important;}
+
+  /* FEATURED PROPERTIES — horizontal scroll */
+  .pgrid{display:flex!important;grid-template-columns:none!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px!important;padding:0 16px 8px!important;margin:0 -16px!important;scrollbar-width:none;}
+  .pgrid::-webkit-scrollbar{display:none;}
+  .pgrid .pcard{min-width:82%;scroll-snap-align:start;flex-shrink:0;}
+
+  /* CATEGORIES — stacked */
+  .categories{display:flex!important;flex-direction:column!important;height:auto!important;grid-template-columns:none!important;}
+  .ctile{height:260px;}
+  .ctile-name{font-size:32px!important;}
+
+  /* WHY ROKHAVEN */
+  .pillars{grid-template-columns:1fr!important;gap:32px!important;}
+  .pillar{text-align:left;}
+  .pline{margin-left:0!important;}
+  .why-hdr{margin-bottom:40px!important;text-align:left;}
+
+  /* FOOTER */
+  .foot-grid{grid-template-columns:1fr 1fr!important;gap:32px 16px!important;}
+  footer .container{padding:0 16px!important;}
+
+  /* LISTINGS PAGE */
+  .page-hdr{padding:96px 16px 32px!important;}
+  .page-title{font-size:32px!important;}
+  .search-section{padding:14px 16px!important;}
+  .filter-wrap{position:relative!important;top:auto!important;}
+  .filter-row{padding:8px 16px!important;overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;}
+  .filter-row::-webkit-scrollbar{display:none;}
+  .filter-row > *{flex-shrink:0;}
+  .results-bar{padding:12px 16px!important;flex-wrap:wrap;gap:10px;}
+  .grid-section{padding:20px 16px 56px!important;}
+  .pcard{cursor:pointer;}
+
+  /* PROPERTY DETAIL */
+  .gallery-hero{height:280px!important;}
+  .gthumb{width:120px!important;height:70px!important;}
+  .page{display:block!important;padding:24px 16px 96px!important;grid-template-columns:1fr!important;gap:0!important;}
+  .left,.right{width:100%;}
+  .right{margin-top:32px;}
+  .cta-card{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;z-index:90;border-radius:0!important;background:#142236!important;box-shadow:0 -8px 24px rgba(0,0,0,.5);padding:14px 16px!important;display:flex;align-items:center;gap:12px;}
+  .cta-card .cta-thumb,.cta-card .cta-thumb-ov,.cta-card .cta-name,.cta-card .cta-price,.cta-card .cta-rule,.cta-card .cta-heading,.cta-card .cta-sub,.cta-card .cta-reassure{display:none!important;}
+  .cta-card .cta-body{padding:0!important;flex:1;display:flex;align-items:center;gap:12px;}
+  .cta-card .cta-btn{width:100%!important;padding:14px!important;font-size:13px!important;min-height:48px;margin:0!important;}
+  .vid-outer.pt{height:380px!important;}
+  .vid-outer.pt iframe,.vid-outer.pt .vid-pt-thumb{height:380px!important;width:calc(380px * 9/16)!important;}
+  .details{grid-template-columns:1fr 1fr!important;}
+  .prop-name{font-size:32px!important;}
+
+  /* FORMS — general */
+  .fq-input,.fq-in,.f-in,.fq-input,.pfq-input,.t-in,.login-in,.dt-in,.fsel,.f-sel,
+  .fq-sel,.pfq-select,.fta,.fq-ta,.t-area,.fq-textarea,.pfq-textarea,.fi{
+    font-size:16px!important;min-height:48px;padding:14px 16px!important;
+  }
+  textarea.fta,textarea.fq-ta,textarea.t-area,textarea.fq-textarea,textarea.pfq-textarea{min-height:100px;}
+
+  /* SCHEDULE INSPECTION */
+  .shell{flex-direction:column!important;}
+  .prop-col{width:100%!important;position:relative!important;height:auto!important;}
+  .psb-img{height:140px!important;}
+  .prop-inner{padding:14px 16px!important;}
+  .step-track{display:none!important;}
+  .step-track-lbl{display:none!important;}
+  .form-col{padding:24px 16px 84px!important;}
+  .progress-wrap{margin-bottom:24px!important;}
+  .form-h{font-size:28px!important;}
+  .btn-next{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:90;border-radius:0!important;min-height:56px;font-size:14px!important;}
+  .btn-row{padding-bottom:0;}
+  .btn-back{order:-1;margin-bottom:12px;}
+
+  /* ENQUIRY FORM */
+  #topNav{padding:0 12px!important;height:56px!important;}
+  #propSidebar{display:none!important;}
+  #progWrap{padding:12px 16px 0!important;}
+  .step{padding:24px 20px 100px!important;justify-content:flex-start!important;}
+  #botNav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;padding:14px 16px!important;background:rgba(11,27,53,.95);backdrop-filter:blur(10px);z-index:90;}
+  .q-text{font-size:26px!important;}
+  .q-sub{font-size:15px!important;}
+  .opts,.mopts,.t-wrap,.ph-row,.t-area{max-width:100%!important;width:100%;}
+  .opt{padding:16px!important;min-height:56px;}
+  .mopt{min-height:48px;padding:14px 18px!important;}
+  .dt-row{flex-direction:column!important;}
+  .btn-ok{padding:16px 24px!important;min-height:52px;}
+  .ack-card{padding:18px!important;}
+  .tn-mode{display:none!important;}
+
+  /* THANK YOU */
+  .heading{font-size:36px!important;}
+  .sub-italic{font-size:18px!important;}
+  .cta-row{flex-direction:column!important;gap:12px!important;}
+  .btn-primary,.btn-outline{max-width:100%!important;width:100%;min-height:52px;}
+  .prop-card{flex-direction:column!important;align-items:flex-start;gap:12px;}
+  .prop-thumb-sm{width:100%!important;height:120px!important;}
+
+  /* LOGIN / REGISTER PAGES */
+  nav.bg-nav,nav{padding:0 16px!important;}
+  .page{padding:32px 16px!important;}
+  .card{padding:32px 24px!important;border-radius:3px!important;width:100%!important;}
+  .card-h{font-size:30px!important;}
+  .card-logo{margin-bottom:24px!important;}
+  .btn-gold{min-height:52px;}
+  .btn-otp{min-height:48px;}
+  .login-wrap{padding:36px 24px!important;width:100%!important;}
+  .login-h{font-size:24px!important;}
+
+  /* LIST YOUR PROPERTY */
+  .main{padding:24px 16px 56px!important;grid-template-columns:1fr!important;gap:32px!important;display:block!important;}
+  .right-col{margin-top:32px;}
+  .fg-2{grid-template-columns:1fr!important;}
+  .chk-row{padding:18px 16px 20px!important;}
+  .btn-submit{min-height:52px;}
+
+  /* CONTACT */
+  .ph-h{font-size:36px!important;}
+
+  /* PORTALS — sidebar to bottom tabs */
+  .sb,aside.sb,aside.sidebar{display:none!important;}
+  .main{margin-left:0!important;padding-bottom:80px!important;}
+  .topbar{padding:0 16px!important;height:56px!important;}
+  .content{padding:24px 16px 80px!important;}
+  .stats{grid-template-columns:1fr 1fr!important;gap:12px!important;}
+  .stats .sc{padding:18px 18px!important;}
+  .sc-num{font-size:34px!important;}
+  .pg-greeting{font-size:28px!important;}
+  .pg-h{font-size:26px!important;}
+
+  /* Client/Principal mobile bottom tab bar visibility */
+  .mob-tabs,.btab-bar{display:flex!important;}
+
+  /* CLIENT PORTAL — inspection rows */
+  .insp-row{flex-direction:column!important;gap:12px!important;align-items:flex-start!important;padding:16px!important;}
+  .ir-thumb{width:100%!important;height:140px!important;}
+  .ir-dt{min-width:auto!important;}
+  .ir-actions{width:100%;}
+  .pgrid.saved-grid,.saved-grid{grid-template-columns:1fr!important;gap:14px!important;}
+  .qa-grid{grid-template-columns:1fr!important;}
+  .scroll-row{padding:0 0 8px!important;}
+  .mini-card{min-width:75%;flex-shrink:0;}
+  .prof-grid{grid-template-columns:1fr!important;gap:16px!important;}
+
+  /* PRINCIPAL PORTAL */
+  .prop-row{flex-direction:column!important;align-items:flex-start!important;gap:10px;padding:16px!important;}
+  .pr-stats{margin-left:0!important;width:100%;justify-content:space-between;}
+  .prop-card{flex-direction:column!important;}
+  .pc-img{width:100%!important;height:160px!important;}
+  .pc-stats{width:100%!important;flex-direction:row!important;border-left:none!important;border-top:1px solid rgba(192,168,112,.08)!important;justify-content:space-between!important;padding:14px 18px!important;}
+  .form-section{padding:20px 16px!important;}
+  .g2,.g3{grid-template-columns:1fr!important;}
+  .feat-grid{grid-template-columns:1fr 1fr!important;}
+  .cal-grid-hdr,.cal-grid{grid-template-columns:repeat(7,1fr)!important;}
+  .cal-day{min-height:54px!important;padding:4px!important;}
+  .cal-dn{font-size:10px!important;}
+  .cal-booking,.cal-slot-gold,.cal-slot-teal{font-size:7.5px!important;padding:2px 4px!important;}
+  .cal-month,.cal-month-lbl,.cal-controls .cal-month{font-size:18px!important;}
+  .insp-table-wrap table{font-size:13px;}
+  .insp-table-wrap th{padding:10px 12px!important;}
+  .insp-table-wrap td{padding:10px 12px!important;}
+
+  /* ADMIN DASHBOARD */
+  .stats{grid-template-columns:1fr 1fr!important;}
+  .lgrid,.lgrid-4{grid-template-columns:1fr!important;}
+  .leads-grid{grid-template-columns:1fr!important;}
+  .settings-layout{grid-template-columns:1fr!important;}
+  .gen-layout{grid-template-columns:1fr!important;}
+
+  /* LOGIN OVERLAY */
+  #loginOverlay > div[style*="display:flex"]:nth-of-type(2){flex-direction:column!important;align-items:stretch!important;padding:0 16px!important;}
+  #loginOverlay > div[style*="display:flex"]:nth-of-type(2) > div{width:100%!important;max-width:none!important;}
+
+  /* ROLE PILLS / FEATURE OPTS / CHECK ROWS — full-width tap */
+  .role-pill{width:100%;min-height:48px;text-align:center;}
+  #roleRow,#pRoleRow{flex-direction:column!important;}
+  .feat-opt{min-height:44px;}
+  .pref-pills{flex-direction:column!important;gap:8px!important;}
+  .pref-pill{width:100%;min-height:44px;text-align:center;}
+
+  /* TOUCH TARGETS — buttons / links */
+  button,.btn-sm,.btn-sm-outline,.btn-sm-g,.btn-cancel,.btn-cancel-sm,
+  .lcbtn,.ra-btn,.ir-link,.empty-cta,.link-gold,.sec-link{min-height:40px;display:inline-flex;align-items:center;}
+  .clink{min-height:auto;}
+}
+
+@media(max-width:380px){
+  .hero h1{font-size:38px!important;}
+  .sec-h{font-size:26px!important;}
+  .feat-grid{grid-template-columns:1fr!important;}
+  .stats{grid-template-columns:1fr!important;}
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="overlay on" id="loginOverlay">
+  <div class="login-wrap">
+    <div style="display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:26px;">
+      <svg width="26" height="26" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+      <div><div style="font-family:var(--fd);font-size:15px;color:var(--gold);letter-spacing:.22em;">ROKHAVEN</div><div style="font-size:7px;color:var(--gold);letter-spacing:.46em;opacity:.55;font-weight:200;margin-top:2px;">REALTY</div></div>
+    </div>
+    <div class="login-h">Admin Access</div>
+    <div class="login-sub">Authorised personnel only.</div>
+    <label class="login-lbl">Email Address</label>
+    <input class="login-in" type="email" placeholder="admin@rokhaven.com" id="loginEmail"/>
+    <label class="login-lbl">Password</label>
+    <input class="login-in" type="password" placeholder="••••••••••" id="loginPass"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="forgot">Forgot your password?</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:22px;font-size:9.5px;color:rgba(244,237,224,.18);">
+      <svg width="9" height="11" viewBox="0 0 10 12" fill="rgba(244,237,224,.25)"><path d="M5 0C3.34 0 2 1.34 2 3v1H1C.45 4 0 4.45 0 5v6c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1H8V3C8 1.34 6.66 0 5 0zm0 1.5c.83 0 1.5.67 1.5 1.5v1h-3V3c0-.83.67-1.5 1.5-1.5z"/></svg>
+      Secured connection
+    </div>
+  </div>
+</div>
+
+<!-- ADD LISTING PANEL -->
+<div class="overlay" id="addPanel">
+  <div class="panel-wrap">
+    <div class="panel-hdr"><div class="panel-title">Add New Listing</div><span class="panel-x" onclick="closeOverlay('addPanel')">×</span></div>
+    <div class="panel-body">
+      <div class="fg-block"><label>Property Title</label><input class="fi" type="text" placeholder="e.g. The Grand Arkadia, Banana Island"/></div>
+      <div class="g2 fg-block">
+        <div><label>Category</label><select class="fsel"><option>For Sale</option><option>For Rent</option><option>Shortlet</option></select></div>
+        <div><label>Property Type</label><select class="fsel"><option>Fully Detached</option><option>Apartment</option><option>Penthouse</option><option>Villa</option><option>Semi-Detached</option><option>Townhouse</option></select></div>
+      </div>
+      <div class="fg-block"><label>Listing Price (₦)</label><input class="fi" placeholder="e.g. 1,200,000,000"/></div>
+      <div class="fg-block"><label>Location / Address</label><input class="fi" placeholder="Street address or estate"/></div>
+      <div class="g3 fg-block">
+        <div><label>Bedrooms</label><select class="fsel"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+        <div><label>Bathrooms</label><select class="fsel"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+        <div><label>Size (sqm)</label><input class="fi" placeholder="e.g. 1200"/></div>
+      </div>
+      <div class="fg-block"><label>Description</label><textarea class="fta" placeholder="Write a compelling property description…"></textarea></div>
+      <div class="fg-block"><label>Features & Amenities</label>
+        <div class="pfeat-pills" id="featPills">
+          <div class="pfp on">Swimming Pool</div><div class="pfp on">Generator</div><div class="pfp">BQ / Staff Quarters</div><div class="pfp on">Smart Home</div><div class="pfp on">24/7 Security</div><div class="pfp">Gym</div><div class="pfp on">Gated Estate</div><div class="pfp">Home Theatre</div><div class="pfp">Parking (4+)</div>
+        </div>
+      </div>
+      <div class="fg-block"><label>Upload Photos</label><div class="upload-zone"><div style="font-size:22px;margin-bottom:7px;opacity:.4;">🖼</div><div class="upload-txt"><strong>Click to upload</strong> or drag & drop · JPEG, PNG, WebP · Max 15 MB · Up to 30 photos</div></div></div>
+      <div class="fg-block"><label>Video Tour URL <span>— Optional</span></label><input class="fi" placeholder="YouTube, Vimeo, Instagram Reels, TikTok, or direct URL"/></div>
+      <div class="fg-block"><label>Status</label><select class="fsel"><option>Active</option><option>Draft</option><option>Sold</option><option>Rented</option></select></div>
+    </div>
+    <div class="panel-footer"><button class="btn-cancel-sm" onclick="closeOverlay('addPanel')">Cancel</button><button class="btn-publish">Publish Listing</button></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <svg width="24" height="24" viewBox="0 0 60 60" fill="#C0A870"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+    <div><div class="sb-wm">ROKHAVEN</div><div class="sb-sm">REALTY</div></div>
+  </div>
+  <div class="sb-section">Navigation</div>
+  <div class="sb-nav">
+    <button class="sb-link active" onclick="nav('dashboard',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+    <button class="sb-link" onclick="nav('listings',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>Listings</button>
+    <button class="sb-link" onclick="nav('bookings',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bookings</button>
+    <button class="sb-link" onclick="nav('leads',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Leads</button>
+    <button class="sb-link" onclick="nav('reminders',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Reminders</button>
+    <button class="sb-link" onclick="nav('settings',this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
+  </div>
+  <div class="sb-foot">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div class="sb-avatar">AO</div>
+      <div><div class="sb-name">Amaka Osei</div><div class="sb-role">Super Admin</div></div>
+    </div>
+    <div class="sb-out" onclick="document.getElementById('loginOverlay').classList.add('on')">Sign out →</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="topTitle">Welcome back, Amaka.</div><div class="topbar-date">Friday, 23 May 2026 · Admin Command Centre</div></div>
+    <button class="btn-add" onclick="document.getElementById('addPanel').classList.add('on')">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add New Listing
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats">
+        <div class="sc"><span class="sc-delta up">↑ 3 this week</span><div class="sc-num">34</div><div class="sc-lbl">Active Listings</div></div>
+        <div class="sc"><span class="sc-delta pend">7 urgent</span><div class="sc-num">19</div><div class="sc-lbl">Pending Inspections</div></div>
+        <div class="sc"><span class="sc-delta up">↑ 42% MoM</span><div class="sc-num">47</div><div class="sc-lbl">Inspections This Month</div></div>
+        <div class="sc"><span class="sc-delta up">↑ 2 new</span><div class="sc-num">12</div><div class="sc-lbl">Properties Sold / Rented</div></div>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Recent Inspection Requests</div><span class="sec-link" onclick="nav('bookings',document.querySelectorAll('.sb-link')[2])">View all →</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Client</th><th>Phone</th><th>Property</th><th>Date</th><th>Status</th><th style="width:110px"></th></tr></thead>
+          <tbody>
+            <tr><td class="strong">Adaeze Okonkwo</td><td>+234 803 441 7829</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">The Grand Arkadia</div><div class="prop-loc-cell">Banana Island</div></div></div></td><td>Fri 22 May</td><td><span class="badge b-pending">Pending</span></td><td><div class="row-actions"><button class="ra-btn">Confirm</button><button class="ra-btn">View</button></div></td></tr>
+            <tr><td class="strong">Emeka Obiora</td><td>+234 816 902 3340</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">Oceanfront Penthouse</div><div class="prop-loc-cell">Victoria Island</div></div></div></td><td>Tue 19 May</td><td><span class="badge b-confirmed">Confirmed</span></td><td><div class="row-actions"><button class="ra-btn">View</button><button class="ra-btn">Reschedule</button></div></td></tr>
+            <tr><td class="strong">Chidinma Eze</td><td>+234 705 114 6682</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">Prestige Court, Ikoyi</div><div class="prop-loc-cell">Ikoyi</div></div></div></td><td>Mon 18 May</td><td><span class="badge b-completed">Completed</span></td><td><div class="row-actions"><button class="ra-btn">View</button><button class="ra-btn">Follow up</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Active Listings</div><span class="sec-link" onclick="nav('listings',document.querySelectorAll('.sb-link')[1])">Manage all →</span></div>
+      <div class="lgrid">
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=500&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">Featured</div></div><div class="lcard-body"><div class="lcard-name">The Grand Arkadia</div><div class="lcard-price">₦1,200,000,000</div><div class="lcard-meta">Banana Island · 6 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Mark Sold</button><button class="lcbtn">Delete</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">New</div></div><div class="lcard-body"><div class="lcard-name">Oceanfront Penthouse</div><div class="lcard-price">₦780,000,000</div><div class="lcard-meta">Victoria Island · 4 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Mark Sold</button><button class="lcbtn">Delete</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">Featured</div></div><div class="lcard-body"><div class="lcard-name">Prestige Court, Ikoyi</div><div class="lcard-price">₦450,000,000</div><div class="lcard-meta">Ikoyi · 5 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Mark Sold</button><button class="lcbtn">Delete</button></div></div></div>
+      </div>
+    </div>
+
+    <!-- LISTINGS -->
+    <div class="panel" id="panel-listings">
+      <div class="sec-hdr" style="margin-bottom:20px;"><div class="sec-title">All Listings</div><button class="btn-add" style="font-size:9.5px;padding:8px 16px;" onclick="document.getElementById('addPanel').classList.add('on')"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add New</button></div>
+      <div class="lgrid lgrid-4">
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">Featured</div></div><div class="lcard-body"><div class="lcard-name">The Grand Arkadia</div><div class="lcard-price">₦1,200,000,000</div><div class="lcard-meta">Banana Island · 6 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">New</div></div><div class="lcard-body"><div class="lcard-name">Oceanfront Penthouse</div><div class="lcard-price">₦780,000,000</div><div class="lcard-meta">Victoria Island · 4 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">Featured</div></div><div class="lcard-body"><div class="lcard-name">Prestige Court, Ikoyi</div><div class="lcard-price">₦450,000,000</div><div class="lcard-meta">Ikoyi · 5 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70&auto=format&fit=crop" alt=""/></div><div class="lcard-body"><div class="lcard-name">Eko Atlantic Residence</div><div class="lcard-price">₦920,000,000</div><div class="lcard-meta">Eko Atlantic · 5 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">New</div></div><div class="lcard-body"><div class="lcard-name">The Meridian, Lekki</div><div class="lcard-price">₦320,000,000</div><div class="lcard-meta">Lekki Phase 1 · 4 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+        <div class="lcard"><div class="lcard-img"><img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=70&auto=format&fit=crop" alt=""/><div class="lbadge">Featured</div></div><div class="lcard-body"><div class="lcard-name">Harbour View Estate</div><div class="lcard-price">₦580,000,000</div><div class="lcard-meta">Lekki Phase 2 · 6 Beds · For Sale</div><div class="lcard-actions"><button class="lcbtn">Edit</button><button class="lcbtn">Sold</button><button class="lcbtn">Del</button></div></div></div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="panel" id="panel-bookings">
+      <div class="sub-tabs">
+        <button class="stab on" onclick="showBTab('calendar',this)">📅 Calendar</button>
+        <button class="stab" onclick="showBTab('genlink',this)">🔗 Generate Booking Link</button>
+        <button class="stab" onclick="showBTab('allinspections',this)">📋 All Inspections</button>
+      </div>
+
+      <!-- CALENDAR -->
+      <div id="btab-calendar">
+        <div class="cal-controls">
+          <div class="cal-month" id="calLabel">May 2026</div>
+          <div class="cal-nav-btns">
+            <button class="cal-btn" onclick="navCal(-1)">‹</button>
+            <button class="cal-btn cal-today-btn" onclick="resetCal()">Today</button>
+            <button class="cal-btn" onclick="navCal(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-grid-hdr"><div class="cal-dh">Sun</div><div class="cal-dh">Mon</div><div class="cal-dh">Tue</div><div class="cal-dh">Wed</div><div class="cal-dh">Thu</div><div class="cal-dh">Fri</div><div class="cal-dh">Sat</div></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-li"><div class="cal-dot" style="background:rgba(192,168,112,.12);border:1px solid rgba(192,168,112,.28);"></div>Booked inspection</div>
+          <div class="cal-li"><div class="cal-dot" style="background:rgba(82,112,112,.18);border:1px solid rgba(82,112,112,.32);"></div>Available slots</div>
+          <div class="cal-li"><div class="cal-dot" style="border:1.5px solid var(--gold);"></div>Today</div>
+        </div>
+      </div>
+
+      <!-- GENERATE BOOKING LINK -->
+      <div id="btab-genlink" style="display:none;">
+        <div class="gen-layout">
+          <div class="form-card">
+            <div class="fc-title">Generate Booking Link</div>
+            <div class="fc-sub">Create a personalised, branded booking link to send directly to a client via WhatsApp, Instagram, or any channel.</div>
+            <div class="fg-block"><label>Select Property <span>— or leave blank for general enquiry</span></label>
+              <select class="fsel" id="glProp">
+                <option value="">General Enquiry (no specific property)</option>
+                <option value="grand-arkadia">The Grand Arkadia — Banana Island</option>
+                <option value="oceanfront-penthouse">Oceanfront Penthouse — Victoria Island</option>
+                <option value="prestige-court">Prestige Court, Ikoyi</option>
+                <option value="eko-atlantic">Eko Atlantic Residence</option>
+                <option value="meridian-lekki">The Meridian, Lekki</option>
+              </select>
+            </div>
+            <div class="fg-block"><label>Client Name <span>— Optional (pre-fills their form)</span></label><input class="fi" placeholder="e.g. Adaeze Okonkwo" id="glName"/></div>
+            <div class="fg-block"><label>Client Phone <span>— Optional</span></label><input class="fi" type="tel" placeholder="+234 — — — — —" id="glPhone"/></div>
+            <div class="fg-block"><label>Note to Client <span>— Optional</span></label><textarea class="fta" id="glNote" placeholder="e.g. Hi Adaeze, please use this link to schedule your viewing at your convenience." rows="3"></textarea></div>
+            <button class="btn-gen" onclick="generateLink()">Generate Booking Link →</button>
+          </div>
+          <div class="link-result" id="linkResult" style="opacity:.3;pointer-events:none;">
+            <div>
+              <div class="link-label">Generated Booking Link</div>
+              <div class="link-box">
+                <div class="link-url" id="linkUrl">rokhaven.com/book/——————</div>
+                <button class="btn-copy" id="copyBtn" onclick="copyLink()">Copy</button>
+              </div>
+              <div class="link-expiry" style="margin-top:9px;font-size:10.5px;color:rgba(244,237,224,.22);">
+                <svg width="11" height="11" fill="none" stroke="rgba(192,168,112,.3)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Expires in 7 days
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="btn-wa" onclick="shareWhatsApp()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                Share via WhatsApp
+              </button>
+              <button class="btn-outline-link" onclick="copyLink()">Copy Link Only</button>
+            </div>
+            <div>
+              <div class="link-label">QR Code</div>
+              <div class="qr-wrap"><div class="qr-inner" id="qrWrap"><canvas id="qrCanvas" width="100" height="100"></canvas></div><div class="qr-caption">Scan to open booking form</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL INSPECTIONS -->
+      <div id="btab-allinspections" style="display:none;">
+        <div class="sec-hdr" style="margin-bottom:16px;"><div class="sec-title">All Inspection Requests</div><span class="sec-link">Export CSV →</span></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Client</th><th>Phone</th><th>Property</th><th>Date & Time</th><th>Status</th><th>Source</th><th style="width:130px"></th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Adaeze Okonkwo</td><td>+234 803 441 7829</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">The Grand Arkadia</div><div class="prop-loc-cell">Banana Island</div></div></div></td><td>Fri 22 May · 11am</td><td><span class="badge b-pending">Pending</span></td><td style="font-size:10.5px;color:rgba(244,237,224,.28);">Website</td><td><div class="row-actions"><button class="ra-btn">Confirm</button><button class="ra-btn">Reschedule</button></div></td></tr>
+              <tr><td class="strong">Emeka Obiora</td><td>+234 816 902 3340</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">Oceanfront Penthouse</div><div class="prop-loc-cell">Victoria Island</div></div></div></td><td>Tue 19 May · 10am</td><td><span class="badge b-confirmed">Confirmed</span></td><td style="font-size:10.5px;color:rgba(244,237,224,.28);">WhatsApp Link</td><td><div class="row-actions"><button class="ra-btn">View</button><button class="ra-btn">Reschedule</button></div></td></tr>
+              <tr><td class="strong">Chidinma Eze</td><td>+234 705 114 6682</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">Prestige Court, Ikoyi</div><div class="prop-loc-cell">Ikoyi</div></div></div></td><td>Mon 18 May · 2pm</td><td><span class="badge b-completed">Completed</span></td><td style="font-size:10.5px;color:rgba(244,237,224,.28);">Website</td><td><div class="row-actions"><button class="ra-btn">View</button><button class="ra-btn">Follow up</button></div></td></tr>
+              <tr><td class="strong">Babatunde Afolabi</td><td>+234 901 557 2290</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">The Meridian, Lekki</div><div class="prop-loc-cell">Lekki Phase 1</div></div></div></td><td>Wed 20 May · 3pm</td><td><span class="badge b-pending">Pending</span></td><td style="font-size:10.5px;color:rgba(244,237,224,.28);">Instagram Link</td><td><div class="row-actions"><button class="ra-btn">Confirm</button><button class="ra-btn">View</button></div></td></tr>
+              <tr><td class="strong">Ngozi Okafor-Williams</td><td>+234 812 330 9954</td><td><div class="prop-row"><div class="prop-thumb"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=120&q=60&auto=format&fit=crop" alt=""/></div><div><div class="prop-name-cell">Eko Atlantic Residence</div><div class="prop-loc-cell">Eko Atlantic</div></div></div></td><td>Thu 21 May · 2pm</td><td><span class="badge b-confirmed">Confirmed</span></td><td style="font-size:10.5px;color:rgba(244,237,224,.28);">WhatsApp Link</td><td><div class="row-actions"><button class="ra-btn">View</button><button class="ra-btn">Reschedule</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="panel" id="panel-leads">
+      <div class="sec-hdr" style="margin-bottom:20px;"><div class="sec-title">Leads Pipeline</div><span class="sec-link">Export →</span></div>
+      <div class="leads-grid">
+        <div class="pipe-col"><div class="pipe-head">New Leads <span class="pipe-count">8</span></div>
+          <div class="lead-card"><div class="lead-name">Adaeze Okonkwo</div><div class="lead-prop">The Grand Arkadia</div><div class="lead-time">2 hours ago</div></div>
+          <div class="lead-card"><div class="lead-name">Tunde Adeyemi</div><div class="lead-prop">General Enquiry</div><div class="lead-time">5 hours ago</div></div>
+          <div class="lead-card"><div class="lead-name">Funke Balogun</div><div class="lead-prop">Oceanfront Penthouse</div><div class="lead-time">Yesterday</div></div>
+        </div>
+        <div class="pipe-col"><div class="pipe-head">Contacted <span class="pipe-count">12</span></div>
+          <div class="lead-card"><div class="lead-name">Emeka Obiora</div><div class="lead-prop">Oceanfront Penthouse</div><div class="lead-time">✓ Called · 2 days ago</div></div>
+          <div class="lead-card"><div class="lead-name">Ngozi Okafor-Williams</div><div class="lead-prop">Eko Atlantic Residence</div><div class="lead-time">✓ WhatsApp · Yesterday</div></div>
+        </div>
+        <div class="pipe-col"><div class="pipe-head">Inspection Booked <span class="pipe-count">6</span></div>
+          <div class="lead-card"><div class="lead-name">Babatunde Afolabi</div><div class="lead-prop">The Meridian, Lekki</div><div class="lead-time">📅 Wed 20 May, 3pm</div></div>
+          <div class="lead-card"><div class="lead-name">Chidinma Eze</div><div class="lead-prop">Prestige Court</div><div class="lead-time">📅 Mon 18 May (done)</div></div>
+        </div>
+        <div class="pipe-col"><div class="pipe-head">Closed <span class="pipe-count">12</span></div>
+          <div class="lead-card"><div class="lead-name">Adeola Sanni</div><div class="lead-prop">Harbour View Estate</div><div class="lead-time" style="color:#5DC882;">✓ Sale completed</div></div>
+          <div class="lead-card"><div class="lead-name">Rotimi Fashola</div><div class="lead-prop">Sky Manor, Ikeja GRA</div><div class="lead-time" style="color:#5DC882;">✓ Lease signed</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="panel" id="panel-reminders">
+      <div class="sec-hdr" style="margin-bottom:20px;"><div class="sec-title">Inspection Reminders</div></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Client</th><th>Property</th><th>Inspection Date</th><th>Reminders Sent</th><th style="width:180px">Actions</th></tr></thead>
+          <tbody>
+            <tr><td class="strong">Babatunde Afolabi<br><span style="font-size:10.5px;color:rgba(244,237,224,.3);font-weight:300;">+234 901 557 2290</span></td><td><div class="prop-name-cell">The Meridian, Lekki</div><div class="prop-loc-cell">Lekki Phase 1</div></td><td>Wed 20 May, 3:00pm</td><td><div class="rem-status"><span class="rem-pill rem-sent">48hr ✓</span><span class="rem-pill rem-pending">24hr ⏳</span><span class="rem-pill rem-pending">2hr ⏳</span></div></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Send Now</button><button class="ra-btn">Reschedule</button><button class="ra-btn ra-del">Cancel</button></div></td></tr>
+            <tr><td class="strong">Emeka Obiora<br><span style="font-size:10.5px;color:rgba(244,237,224,.3);font-weight:300;">+234 816 902 3340</span></td><td><div class="prop-name-cell">Oceanfront Penthouse</div><div class="prop-loc-cell">Victoria Island</div></td><td>Fri 22 May, 10:00am</td><td><div class="rem-status"><span class="rem-pill rem-sent">48hr ✓</span><span class="rem-pill rem-sent">24hr ✓</span><span class="rem-pill rem-pending">2hr ⏳</span></div></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Send Now</button><button class="ra-btn">Reschedule</button><button class="ra-btn ra-del">Cancel</button></div></td></tr>
+            <tr><td class="strong">Ngozi Okafor-Williams<br><span style="font-size:10.5px;color:rgba(244,237,224,.3);font-weight:300;">+234 812 330 9954</span></td><td><div class="prop-name-cell">Eko Atlantic Residence</div><div class="prop-loc-cell">Eko Atlantic</div></td><td>Mon 25 May, 2:00pm</td><td><div class="rem-status"><span class="rem-pill rem-pending">48hr ⏳</span><span class="rem-pill rem-pending">24hr ⏳</span><span class="rem-pill rem-pending">2hr ⏳</span></div></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Send Now</button><button class="ra-btn">Reschedule</button><button class="ra-btn ra-del">Cancel</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:20px 22px;">
+        <div style="font-size:8.5px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.28em;text-transform:uppercase;margin-bottom:14px;">Automated Reminder Schedule</div>
+        <div style="display:flex;gap:32px;">
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);"></div><div><div style="font-size:12.5px;color:var(--ivory);font-weight:400;">48 hours before</div><div style="font-size:11px;color:rgba(244,237,224,.3);">WhatsApp + Email + SMS</div></div></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);"></div><div><div style="font-size:12.5px;color:var(--ivory);font-weight:400;">24 hours before</div><div style="font-size:11px;color:rgba(244,237,224,.3);">WhatsApp + Email + SMS</div></div></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);"></div><div><div style="font-size:12.5px;color:var(--ivory);font-weight:400;">2 hours before</div><div style="font-size:11px;color:rgba(244,237,224,.3);">WhatsApp + SMS</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="sec-hdr" style="margin-bottom:24px;"><div class="sec-title">Settings</div></div>
+      <div class="settings-layout">
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <button class="snav-item on" onclick="showSettingsTab('integrations',this)">Integrations</button>
+          <button class="snav-item" onclick="showSettingsTab('team',this)">Team &amp; Access</button>
+          <button class="snav-item" onclick="showSettingsTab('notifications',this)">Notifications</button>
+          <button class="snav-item" onclick="showSettingsTab('account',this)">Account</button>
+        </div>
+
+        <!-- INTEGRATIONS -->
+        <div class="sp-panel" id="stab-integrations">
+          <div class="sp-title">Integrations</div>
+          <div class="sp-sub">Connect RokHaven to external services to automate your booking workflow, calendar sync, and client communications.</div>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:12px;">📅 Calendar</div>
+          <div class="int-card"><div class="int-icon" style="background:#4285F4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></div><div class="int-info"><div class="int-name">Google Calendar</div><div class="int-desc">Sync confirmed inspections automatically. New bookings appear as calendar events with full client and property details.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#0078D4;font-size:18px;">📅</div><div class="int-info"><div class="int-name">Microsoft Outlook / Office 365</div><div class="int-desc">Connect your Outlook calendar for automatic inspection scheduling and team-wide calendar visibility.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#1a73e8;font-size:18px;">📱</div><div class="int-info"><div class="int-name">Apple Calendar (iCal)</div><div class="int-desc">Sync inspections to Apple Calendar via iCal feed. Compatible with iOS and macOS Calendar apps.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin:20px 0 12px;">💬 Messaging</div>
+          <div class="int-card"><div class="int-icon" style="background:#25D366;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg></div><div class="int-info"><div class="int-name">WhatsApp Business API</div><div class="int-desc">Send automated inspection reminders, booking confirmations, and follow-up messages via WhatsApp.</div></div><button class="int-btn connected">✓ Connected</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#0088CC;font-size:18px;">✈️</div><div class="int-info"><div class="int-name">Telegram Bot</div><div class="int-desc">Send booking notifications and reminders via Telegram to clients who prefer it.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#E4405F;font-size:18px;">📸</div><div class="int-info"><div class="int-name">Instagram Direct (via Meta API)</div><div class="int-desc">Receive and reply to Instagram DM enquiries directly from the RokHaven dashboard.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin:20px 0 12px;">✉️ Email Provider</div>
+          <div style="background:rgba(11,27,53,.5);border:1px solid rgba(192,168,112,.1);border-radius:3px;padding:16px 18px;margin-bottom:12px;">
+            <div style="font-size:12px;color:rgba(244,237,224,.4);margin-bottom:12px;line-height:1.65;">Select your preferred email delivery provider. Only one email provider can be active at a time.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="emailProviders">
+              <div class="email-opt connected" data-p="sendgrid" onclick="selectEmail(this)"><div class="eo-name">SendGrid</div><div class="eo-desc">Twilio's reliable transactional email API</div><div class="eo-badge">✓ Active</div></div>
+              <div class="email-opt" data-p="mailgun" onclick="selectEmail(this)"><div class="eo-name">Mailgun</div><div class="eo-desc">High-deliverability email for developers</div></div>
+              <div class="email-opt" data-p="mailchimp" onclick="selectEmail(this)"><div class="eo-name">Mailchimp Transactional</div><div class="eo-desc">Mandrill — powerful email automation</div></div>
+              <div class="email-opt" data-p="ses" onclick="selectEmail(this)"><div class="eo-name">Amazon SES</div><div class="eo-desc">AWS scalable email infrastructure</div></div>
+              <div class="email-opt" data-p="postmark" onclick="selectEmail(this)"><div class="eo-name">Postmark</div><div class="eo-desc">Fast, developer-first transactional email</div></div>
+              <div class="email-opt" data-p="brevo" onclick="selectEmail(this)"><div class="eo-name">Brevo (Sendinblue)</div><div class="eo-desc">Email + SMS marketing in one platform</div></div>
+              <div class="email-opt" data-p="resend" onclick="selectEmail(this)"><div class="eo-name">Resend</div><div class="eo-desc">Modern email API built for developers</div></div>
+              <div class="email-opt" data-p="smtp" onclick="selectEmail(this)"><div class="eo-name">Custom SMTP</div><div class="eo-desc">Gmail, Zoho, Outlook, or any SMTP server</div></div>
+            </div>
+          </div>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin:20px 0 12px;">💳 CRM & Other</div>
+          <div class="int-card"><div class="int-icon" style="background:#00A1E0;font-size:18px;">☁️</div><div class="int-info"><div class="int-name">Salesforce CRM</div><div class="int-desc">Sync leads and client data to your Salesforce org automatically when new enquiries arrive.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#FF7A59;font-size:18px;">🔶</div><div class="int-info"><div class="int-name">HubSpot CRM</div><div class="int-desc">Push new leads and inspection bookings directly into your HubSpot pipeline.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+          <div class="int-card"><div class="int-icon" style="background:#6C47FF;font-size:18px;">⚡</div><div class="int-info"><div class="int-name">Zapier</div><div class="int-desc">Connect RokHaven to 6,000+ apps. Automate anything — Notion, Slack, Sheets, and more.</div></div><button class="int-btn" onclick="this.textContent='✓ Connected';this.classList.add('connected')">Connect →</button></div>
+        </div>
+
+        <!-- TEAM & ACCESS -->
+        <div class="sp-panel" id="stab-team" style="display:none;">
+          <div class="sp-title">Team &amp; Access</div>
+          <div class="sp-sub">Manage team members and their permission levels within the RokHaven admin.</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;">Team Members (4)</div>
+            <button class="int-btn" style="font-size:9.5px;padding:6px 14px;" onclick="this.textContent='Invite Sent ✓';this.classList.add('connected')">+ Invite Member</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th style="width:100px"></th></tr></thead>
+              <tbody>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="sb-avatar" style="width:30px;height:30px;font-size:10px;">AO</div><span class="strong">Amaka Osei</span></div></td><td style="font-size:12px;color:rgba(244,237,224,.5);">amaka@rokhaven.com</td><td><span class="badge b-confirmed" style="font-size:8.5px;">Super Admin</span></td><td><span class="badge b-confirmed" style="font-size:8.5px;">Active</span></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Edit</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="sb-avatar" style="width:30px;height:30px;font-size:10px;">TF</div><span class="strong">Tola Fashola</span></div></td><td style="font-size:12px;color:rgba(244,237,224,.5);">tola@rokhaven.com</td><td><span class="badge b-pending" style="font-size:8.5px;">Agent</span></td><td><span class="badge b-confirmed" style="font-size:8.5px;">Active</span></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Edit</button><button class="ra-btn ra-del">Remove</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="sb-avatar" style="width:30px;height:30px;font-size:10px;">KA</div><span class="strong">Kunle Adeyemi</span></div></td><td style="font-size:12px;color:rgba(244,237,224,.5);">kunle@rokhaven.com</td><td><span class="badge b-pending" style="font-size:8.5px;">Agent</span></td><td><span class="badge b-confirmed" style="font-size:8.5px;">Active</span></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Edit</button><button class="ra-btn ra-del">Remove</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="sb-avatar" style="width:30px;height:30px;font-size:10px;">BI</div><span class="strong">Blessing Ikenna</span></div></td><td style="font-size:12px;color:rgba(244,237,224,.5);">blessing@rokhaven.com</td><td><span class="badge" style="font-size:8.5px;color:var(--teal);background:rgba(82,112,112,.12);border:1px solid rgba(82,112,112,.3);">Viewer</span></td><td><span class="badge b-pending" style="font-size:8.5px;">Invited</span></td><td><div class="row-actions" style="opacity:1;"><button class="ra-btn">Resend</button><button class="ra-btn ra-del">Revoke</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:18px 20px;margin-top:8px;">
+            <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:12px;">Role Permissions</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div style="padding:12px 14px;background:rgba(11,27,53,.5);border:1px solid rgba(192,168,112,.1);border-radius:3px;"><div style="font-size:11.5px;font-weight:500;color:var(--gold);margin-bottom:6px;">Super Admin</div><div style="font-size:10.5px;color:rgba(244,237,224,.32);line-height:1.7;">Full access — manage listings, view all leads, configure settings, manage team.</div></div>
+              <div style="padding:12px 14px;background:rgba(11,27,53,.5);border:1px solid rgba(192,168,112,.1);border-radius:3px;"><div style="font-size:11.5px;font-weight:500;color:#E0B44A;margin-bottom:6px;">Agent</div><div style="font-size:10.5px;color:rgba(244,237,224,.32);line-height:1.7;">View and manage listings and bookings. Cannot access settings or billing.</div></div>
+              <div style="padding:12px 14px;background:rgba(11,27,53,.5);border:1px solid rgba(192,168,112,.1);border-radius:3px;"><div style="font-size:11.5px;font-weight:500;color:var(--teal);margin-bottom:6px;">Viewer</div><div style="font-size:10.5px;color:rgba(244,237,224,.32);line-height:1.7;">Read-only access to listings and dashboard. No editing or exporting.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="sp-panel" id="stab-notifications" style="display:none;">
+          <div class="sp-title">Notifications</div>
+          <div class="sp-sub">Choose when and how you receive notifications about new leads, bookings, and system events.</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:12px;">New Lead Alerts</div>
+            <div id="notif-rows">
+            </div>
+          </div>
+          <script>
+          const NOTIFS=[
+            {label:'New enquiry submitted via website',email:true,whatsapp:true,sms:false},
+            {label:'Inspection booking confirmed',email:true,whatsapp:true,sms:true},
+            {label:'Inspection rescheduled or cancelled',email:true,whatsapp:false,sms:false},
+            {label:'New listing goes live',email:true,whatsapp:false,sms:false},
+            {label:'Lead moved to a new pipeline stage',email:false,whatsapp:true,sms:false},
+            {label:'Automated reminder sent to client',email:true,whatsapp:false,sms:false},
+            {label:'Weekly leads summary report',email:true,whatsapp:false,sms:false},
+          ];
+          const nr=document.getElementById('notif-rows');
+          if(nr){nr.innerHTML=NOTIFS.map((n,i)=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+              <div style="font-size:12.5px;font-weight:300;color:rgba(244,237,224,.65);">${n.label}</div>
+              <div style="display:flex;gap:16px;flex-shrink:0;margin-left:20px;">
+                ${['email','whatsapp','sms'].map(ch=>`
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <div style="width:16px;height:16px;border-radius:2px;border:1px solid rgba(192,168,112,${n[ch]?'.45':'.18'});background:${n[ch]?'rgba(192,168,112,.15)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--gold);">${n[ch]?'✓':''}</div>
+                    <span style="font-size:9.5px;color:rgba(244,237,224,.32);letter-spacing:.08em;text-transform:uppercase;">${ch==='whatsapp'?'WA':ch}</span>
+                  </label>`).join('')}
+              </div>
+            </div>`).join('');}
+          </script>
+          <div style="margin-top:20px;padding:16px 18px;background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;">
+            <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:12px;">Quiet Hours</div>
+            <div style="font-size:12.5px;color:rgba(244,237,224,.5);margin-bottom:10px;">Suppress non-urgent notifications during these hours:</div>
+            <div style="display:flex;gap:14px;align-items:center;">
+              <select class="fsel" style="width:130px;padding:9px 12px;font-size:13px;"><option>10:00 PM</option><option>9:00 PM</option><option>11:00 PM</option></select>
+              <span style="color:rgba(244,237,224,.3);">to</span>
+              <select class="fsel" style="width:130px;padding:9px 12px;font-size:13px;"><option>7:00 AM</option><option>6:00 AM</option><option>8:00 AM</option></select>
+              <span style="font-size:11px;color:rgba(244,237,224,.25);">WAT (West Africa Time)</span>
+            </div>
+          </div>
+          <button class="btn-gen" style="width:auto;padding:11px 28px;margin-top:20px;">Save Notification Preferences</button>
+        </div>
+
+        <!-- ACCOUNT -->
+        <div class="sp-panel" id="stab-account" style="display:none;">
+          <div class="sp-title">Account</div>
+          <div class="sp-sub">Manage your personal profile, password, and account security settings.</div>
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:14px;">Profile</div>
+          <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:18px;background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;">
+            <div style="width:60px;height:60px;border-radius:50%;background:rgba(192,168,112,.12);border:1.5px solid rgba(192,168,112,.3);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:22px;color:var(--gold);flex-shrink:0;">AO</div>
+            <div style="flex:1;">
+              <div style="font-family:var(--fd);font-size:18px;color:var(--ivory);margin-bottom:3px;">Amaka Osei</div>
+              <div style="font-size:12px;color:rgba(244,237,224,.35);">amaka@rokhaven.com · Super Admin</div>
+            </div>
+            <button class="int-btn">Change Photo</button>
+          </div>
+          <div class="g2 fg-block"><div><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">First Name</label><input class="fi" value="Amaka"/></div><div><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">Last Name</label><input class="fi" value="Osei"/></div></div>
+          <div class="fg-block"><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">Email Address</label><input class="fi" value="amaka@rokhaven.com" type="email"/></div>
+          <div class="fg-block"><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">Phone</label><input class="fi" value="+234 916 761 9009" type="tel"/></div>
+          <button class="btn-gen" style="width:auto;padding:11px 28px;margin-bottom:28px;" onclick="this.textContent='Saved ✓';setTimeout(()=>this.textContent='Save Profile Changes',2000)">Save Profile Changes</button>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:14px;">Change Password</div>
+          <div class="fg-block"><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">Current Password</label><input class="fi" type="password" placeholder="••••••••••"/></div>
+          <div class="g2 fg-block"><div><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">New Password</label><input class="fi" type="password" placeholder="••••••••••"/></div><div><label style="display:block;font-size:8px;font-weight:500;color:rgba(192,168,112,.42);letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;">Confirm Password</label><input class="fi" type="password" placeholder="••••••••••"/></div></div>
+          <button class="btn-gen" style="width:auto;padding:11px 28px;margin-bottom:28px;">Update Password</button>
+
+          <div style="font-size:8px;font-weight:500;color:rgba(192,168,112,.38);letter-spacing:.3em;text-transform:uppercase;margin-bottom:14px;">Security</div>
+          <div style="background:var(--card);border:1px solid rgba(192,168,112,.09);border-radius:3px;padding:18px 20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+              <div><div style="font-size:13px;font-weight:400;color:var(--ivory);margin-bottom:3px;">Two-Factor Authentication</div><div style="font-size:11px;color:rgba(244,237,224,.32);">Add an extra layer of security to your account.</div></div>
+              <button class="int-btn" onclick="this.textContent='✓ Enabled';this.classList.add('connected')">Enable →</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
+              <div><div style="font-size:13px;font-weight:400;color:var(--ivory);margin-bottom:3px;">Active Sessions</div><div style="font-size:11px;color:rgba(244,237,224,.32);">1 active session — Chrome, Lagos NG</div></div>
+              <button class="int-btn" style="color:rgba(224,112,112,.6);border-color:rgba(224,112,112,.2);">Sign out all</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// SETTINGS TABS
+function showSettingsTab(name, btn) {
+  ['integrations','team','notifications','account'].forEach(t => {
+    const el = document.getElementById('stab-' + t);
+    if (el) el.style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.snav-item').forEach(s => s.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+}
+
+// EMAIL PROVIDER SELECT
+function selectEmail(el) {
+  document.querySelectorAll('.email-opt').forEach(e => {
+    e.classList.remove('connected');
+    const b = e.querySelector('.eo-badge');
+    if (b) b.remove();
+  });
+  el.classList.add('connected');
+  const badge = document.createElement('div');
+  badge.className = 'eo-badge';
+  badge.textContent = '✓ Active';
+  el.appendChild(badge);
+}
+
+// LOGIN
+function doLogin(){
+  const e=document.getElementById('loginEmail').value;
+  const p=document.getElementById('loginPass').value;
+  if(e&&p){document.getElementById('loginOverlay').classList.remove('on');renderCal();}
+  else{document.getElementById('loginEmail').style.borderColor='rgba(200,80,80,.5)';}
+}
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&document.getElementById('loginOverlay').classList.contains('on'))doLogin();});
+
+// OVERLAY
+function closeOverlay(id){document.getElementById(id).classList.remove('on');}
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){closeOverlay('addPanel');}});
+
+// NAV
+function nav(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const T={dashboard:'Welcome back, Amaka.',listings:'Listings',bookings:'Bookings',leads:'Leads Pipeline',reminders:'Reminders',settings:'Settings'};
+  document.getElementById('topTitle').textContent=T[name]||name;
+}
+
+// BOOKING TABS
+function showBTab(name,btn){
+  ['calendar','genlink','allinspections'].forEach(t=>{
+    const el=document.getElementById('btab-'+t);
+    if(el)el.style.display=t===name?'block':'none';
+  });
+  document.querySelectorAll('.stab').forEach(s=>s.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+}
+
+// FEATURE PILLS
+document.getElementById('featPills').addEventListener('click',e=>{const p=e.target.closest('.pfp');if(p)p.classList.toggle('on');});
+
+// CALENDAR
+const BOOKINGS={'2026-05-19':[{n:'Emeka Obiora',t:'10am'}],'2026-05-20':[{n:'Babatunde Afolabi',t:'3pm'}],'2026-05-21':[{n:'Ngozi O-W.',t:'2pm'}],'2026-05-22':[{n:'Adaeze Okonkwo',t:'11am'}],'2026-05-27':[{n:'Chidinma Eze',t:'11am'}]};
+let CY=2026,CM=4;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function resetCal(){CY=2026;CM=4;renderCal();}
+function navCal(d){CM+=d;if(CM>11){CM=0;CY++;}if(CM<0){CM=11;CY--;}renderCal();}
+function renderCal(){
+  document.getElementById('calLabel').textContent=MONTHS[CM]+' '+CY;
+  const g=document.getElementById('calGrid');g.innerHTML='';
+  const first=new Date(CY,CM,1).getDay();
+  const days=new Date(CY,CM+1,0).getDate();
+  const prevDays=new Date(CY,CM,0).getDate();
+  const today=new Date();
+  for(let i=first-1;i>=0;i--){const d=document.createElement('div');d.className='cal-day cal-other cal-we';d.innerHTML=`<div class="cal-dn">${prevDays-i}</div>`;g.appendChild(d);}
+  for(let day=1;day<=days;day++){
+    const dow=new Date(CY,CM,day).getDay();
+    const we=dow===0||dow===6;
+    const isToday=today.getFullYear()===CY&&today.getMonth()===CM&&today.getDate()===day;
+    const key=`${CY}-${String(CM+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const bk=BOOKINGS[key]||[];
+    const d=document.createElement('div');
+    d.className='cal-day'+(we?' cal-we':'')+(isToday?' cal-today':'');
+    let html=`<div class="cal-dn">${day}</div>`;
+    bk.forEach(b=>{html+=`<div class="cal-booking"><span style="font-weight:500;">${b.n}</span><br>${b.t}</div>`;});
+    if(!we&&bk.length===0)html+=`<div class="cal-slots">3 slots free</div>`;
+    d.innerHTML=html;
+    g.appendChild(d);
+  }
+  const remaining=(7-((first+days)%7))%7;
+  for(let i=1;i<=remaining;i++){const d=document.createElement('div');d.className='cal-day cal-other cal-we';d.innerHTML=`<div class="cal-dn">${i}</div>`;g.appendChild(d);}
+}
+
+// GENERATE LINK
+function generateLink(){
+  const prop=document.getElementById('glProp').value;
+  const name=document.getElementById('glName').value;
+  const base=prop?`Enquiry Form.html?entry=listing&propName=${encodeURIComponent(prop)}`:'Enquiry Form.html';
+  const full=`rokhaven.com/book/${prop||'general'}${name?'-'+name.split(' ')[0].toLowerCase():''}`;
+  document.getElementById('linkUrl').textContent=full;
+  document.getElementById('linkUrl').dataset.href=base;
+  const res=document.getElementById('linkResult');
+  res.style.opacity='1';res.style.pointerEvents='all';
+  drawQR(full);
+}
+function copyLink(){
+  const url=document.getElementById('linkUrl').textContent;
+  navigator.clipboard.writeText(url).catch(()=>{});
+  const btn=document.getElementById('copyBtn');
+  btn.textContent='Copied!';btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+}
+function shareWhatsApp(){
+  const url=document.getElementById('linkUrl').textContent;
+  const name=document.getElementById('glName').value;
+  const note=document.getElementById('glNote').value;
+  const msg=note||(name?`Hi ${name.split(' ')[0]}, please use this link to schedule your inspection: `:'Schedule your inspection: ')+url;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+function drawQR(text){
+  const c=document.getElementById('qrCanvas');
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,100,100);
+  ctx.fillStyle='#0B1B35';
+  const size=6;
+  for(let r=0;r<14;r++){for(let c2=0;c2<14;c2++){if(Math.random()>.45)ctx.fillRect(c2*size+5,r*size+5,size,size);}}
+  // Corner squares
+  [[0,0],[8,0],[0,8]].forEach(([x,y])=>{ctx.fillStyle='#0B1B35';ctx.fillRect(x*size+5,y*size+5,size*5,size*5);ctx.fillStyle='#fff';ctx.fillRect(x*size+5+size,y*size+5+size,size*3,size*3);ctx.fillStyle='#C0A870';ctx.fillRect(x*size+5+size*1.5,y*size+5+size*1.5,size*2,size*2);});
+}
+</script>
+</body>
+</html>
