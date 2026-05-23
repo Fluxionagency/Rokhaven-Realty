@@ -48,6 +48,7 @@ export default function Footer() {
               <li><Link href="/contact">Contact Us</Link></li>
               <li><Link href="/list-your-property">List Your Property</Link></li>
               <li><Link href="/enquiry">Schedule a Viewing</Link></li>
+              <li><Link href="/admin">Admin Portal</Link></li>
             </ul>
           </div>
           <div>
