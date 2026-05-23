@@ -5,7 +5,8 @@ import path from 'path'
 
 const dbPath = path.resolve(__dirname, '../dev.db')
 const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` })
-const prisma = new PrismaClient({ adapter } as ConstructorParameters<typeof PrismaClient>[0])
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const prisma = new PrismaClient({ adapter } as any)
 
 async function main() {
   const adminHash = await bcrypt.hash('admin123', 12)
