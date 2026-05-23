@@ -6,11 +6,38 @@ import Link from 'next/link';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 
+interface FeaturedProperty {
+  id: string;
+  title: string;
+  price: string;
+  location: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
+  images: string;
+  badge: string | null;
+}
+
+function firstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr[0] ? arr[0] : '';
+  } catch { return ''; }
+}
+
 export default function HomePage() {
   const router = useRouter();
   const [location, setLocation] = useState('');
   const [propertyType, setPropertyType] = useState('');
   const [category, setCategory] = useState('');
+  const [featured, setFeatured] = useState<FeaturedProperty[]>([]);
+
+  useEffect(() => {
+    fetch('/api/properties?limit=3')
+      .then((r) => r.json())
+      .then((data) => setFeatured(data.properties || []))
+      .catch(() => {});
+  }, []);
 
   // Hero zoom effect
   useEffect(() => {
@@ -157,68 +184,24 @@ export default function HomePage() {
           </div>
 
           <div className="pgrid fade" style={{ transitionDelay: '.1s' }}>
-            <Link href="/listings/arch-residences" className="pcard" style={{ textDecoration: 'none' }}>
-              <div className="cimg">
-                <img
-                  src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop"
-                  alt="The Arch Residences"
-                  loading="lazy"
-                />
-                <div className="badge">Featured</div>
-              </div>
-              <div className="cbody">
-                <div className="cname">The Arch Residences</div>
-                <div className="cprice">₦850,000,000</div>
-                <div className="cloc">Banana Island, Lagos</div>
-                <div className="cmeta">
-                  <span>5 Beds</span>
-                  <span>6 Baths</span>
-                  <span>850 sqm</span>
+            {featured.map((p) => (
+              <Link key={p.id} href={`/listings/${p.id}`} className="pcard" style={{ textDecoration: 'none' }}>
+                <div className="cimg">
+                  <img src={firstImage(p.images)} alt={p.title} loading="lazy" />
+                  {p.badge && <div className="badge">{p.badge}</div>}
                 </div>
-              </div>
-            </Link>
-
-            <Link href="/listings/prestige-towers" className="pcard" style={{ textDecoration: 'none' }}>
-              <div className="cimg">
-                <img
-                  src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80&auto=format&fit=crop"
-                  alt="Prestige Towers"
-                  loading="lazy"
-                />
-                <div className="badge">New</div>
-              </div>
-              <div className="cbody">
-                <div className="cname">Prestige Towers, Ikoyi</div>
-                <div className="cprice">₦420,000,000</div>
-                <div className="cloc">Ikoyi, Lagos</div>
-                <div className="cmeta">
-                  <span>4 Beds</span>
-                  <span>5 Baths</span>
-                  <span>560 sqm</span>
+                <div className="cbody">
+                  <div className="cname">{p.title}</div>
+                  <div className="cprice">{p.price}</div>
+                  <div className="cloc">{p.location}</div>
+                  <div className="cmeta">
+                    <span>{p.bedrooms} Beds</span>
+                    <span>{p.bathrooms} Baths</span>
+                    {p.sqm && <span>{p.sqm.toLocaleString()} sqm</span>}
+                  </div>
                 </div>
-              </div>
-            </Link>
-
-            <Link href="/listings/lekki-ocean-heights" className="pcard" style={{ textDecoration: 'none' }}>
-              <div className="cimg">
-                <img
-                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop"
-                  alt="Lekki Ocean Heights"
-                  loading="lazy"
-                />
-                <div className="badge">Featured</div>
-              </div>
-              <div className="cbody">
-                <div className="cname">Lekki Ocean Heights</div>
-                <div className="cprice">₦680,000,000</div>
-                <div className="cloc">Victoria Island, Lagos</div>
-                <div className="cmeta">
-                  <span>6 Beds</span>
-                  <span>7 Baths</span>
-                  <span>1,200 sqm</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            ))}
           </div>
 
           <div className="feat-cta fade" style={{ transitionDelay: '.22s' }}>

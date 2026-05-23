@@ -9,33 +9,25 @@ import styles from './page.module.css';
 
 interface Property {
   id: string;
-  slug: string;
   title: string;
   price: string;
   location: string;
-  beds: number;
-  baths: number;
-  sqm: number;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
   category: 'SALE' | 'RENT' | 'SHORTLET';
   type: string;
   badge: string | null;
-  img: string;
+  images: string;
 }
 
-const ALL_PROPERTIES: Property[] = [
-  { id: '1', slug: 'arch-residences', title: 'The Arch Residences', price: '₦850,000,000', location: 'Banana Island, Lagos', beds: 5, baths: 6, sqm: 850, category: 'SALE', type: 'Fully Detached', badge: 'Featured', img: 'photo-1613490493576-7fde63acd811' },
-  { id: '2', slug: 'prestige-towers', title: 'Prestige Towers, Ikoyi', price: '₦420,000,000', location: 'Ikoyi, Lagos', beds: 4, baths: 5, sqm: 560, category: 'SALE', type: 'Penthouse', badge: 'New', img: 'photo-1600596542815-ffad4c1539a9' },
-  { id: '3', slug: 'lekki-ocean-heights', title: 'Lekki Ocean Heights', price: '₦680,000,000', location: 'Victoria Island, Lagos', beds: 6, baths: 7, sqm: 1200, category: 'SALE', type: 'Villa', badge: 'Featured', img: 'photo-1600585154340-be6161a56a0c' },
-  { id: '4', slug: 'eko-atlantic-pearl', title: 'Eko Atlantic Pearl', price: '₦250,000,000', location: 'Eko Atlantic, Lagos', beds: 3, baths: 4, sqm: 320, category: 'SALE', type: 'Apartment', badge: 'New', img: 'photo-1512917774080-9991f1c4c750' },
-  { id: '5', slug: 'maitama-heritage', title: 'Maitama Heritage Estate', price: '₦18,000,000/yr', location: 'Lekki Phase 1, Lagos', beds: 4, baths: 4, sqm: 380, category: 'RENT', type: 'Apartment', badge: 'Featured', img: 'photo-1560448204-e02f11c3d0e2' },
-  { id: '6', slug: 'victoria-crown', title: 'Victoria Crown Shortlet', price: '₦450,000/night', location: 'Victoria Island, Lagos', beds: 2, baths: 2, sqm: 180, category: 'SHORTLET', type: 'Apartment', badge: 'New', img: 'photo-1564013799919-ab600027ffc6' },
-  { id: '7', slug: 'ikoyi-ridge', title: 'Ikoyi Ridge Duplex', price: '₦520,000,000', location: 'Ikoyi, Lagos', beds: 5, baths: 5, sqm: 680, category: 'SALE', type: 'Semi-Detached', badge: null, img: 'photo-1613490493576-7fde63acd811' },
-  { id: '8', slug: 'island-terrace', title: 'Island Terrace Apartments', price: '₦12,500,000/yr', location: 'Victoria Island, Lagos', beds: 3, baths: 3, sqm: 290, category: 'RENT', type: 'Apartment', badge: 'New', img: 'photo-1600596542815-ffad4c1539a9' },
-  { id: '9', slug: 'banana-island-suite', title: 'Banana Island Suite', price: '₦280,000/night', location: 'Banana Island, Lagos', beds: 1, baths: 1, sqm: 95, category: 'SHORTLET', type: 'Apartment', badge: 'New', img: 'photo-1600585154340-be6161a56a0c' },
-];
-
-function imgUrl(photo: string) {
-  return `https://images.unsplash.com/${photo}?w=800&q=80&auto=format&fit=crop`;
+function firstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr[0] ? arr[0] : 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop';
+  } catch {
+    return 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop';
+  }
 }
 
 function ListingsContent() {
@@ -43,6 +35,8 @@ function ListingsContent() {
   const router = useRouter();
   const cat = searchParams.get('cat') || '';
 
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selLoc, setSelLoc] = useState('');
   const [selType, setSelType] = useState('');
@@ -51,6 +45,14 @@ function ListingsContent() {
   const [openDrop, setOpenDrop] = useState<string | null>(null);
   const [isListView, setIsListView] = useState(false);
   const [activePage, setActivePage] = useState(1);
+
+  useEffect(() => {
+    fetch('/api/properties?limit=100')
+      .then((r) => r.json())
+      .then((data) => setAllProperties(data.properties || []))
+      .catch(() => setAllProperties([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   // Determine title and breadcrumb from ?cat
   const catConfig: Record<string, { title: string; breadcrumb: string }> = {
@@ -61,7 +63,7 @@ function ListingsContent() {
   const { title: pageTitle, breadcrumb } = catConfig[cat] || catConfig[''];
 
   // Filter properties client-side
-  const filtered = ALL_PROPERTIES.filter((p) => {
+  const filtered = allProperties.filter((p) => {
     // Category filter
     if (cat === 'rent' && p.category !== 'RENT') return false;
     if (cat === 'shortlet' && p.category !== 'SHORTLET') return false;
@@ -81,14 +83,14 @@ function ListingsContent() {
 
     // Beds filter
     if (selBeds !== 'any') {
-      if (selBeds === '5+') { if (p.beds < 5) return false; }
-      else { if (p.beds !== parseInt(selBeds)) return false; }
+      if (selBeds === '5+') { if (p.bedrooms < 5) return false; }
+      else { if (p.bedrooms !== parseInt(selBeds)) return false; }
     }
 
     // Baths filter
     if (selBaths !== 'any') {
-      if (selBaths === '4+') { if (p.baths < 4) return false; }
-      else { if (p.baths !== parseInt(selBaths)) return false; }
+      if (selBaths === '4+') { if (p.bathrooms < 4) return false; }
+      else { if (p.bathrooms !== parseInt(selBaths)) return false; }
     }
 
     return true;
@@ -143,7 +145,7 @@ function ListingsContent() {
           <span>{breadcrumb}</span>
         </div>
         <h1 className={styles.pageTitle}>{pageTitle}</h1>
-        <div className={styles.pageCount}>{filtered.length} properties available</div>
+        <div className={styles.pageCount}>{loading ? '…' : `${filtered.length} properties available`}</div>
       </div>
 
       {/* ── SEARCH BAR ── */}
@@ -318,12 +320,16 @@ function ListingsContent() {
 
       {/* ── PROPERTY GRID ── */}
       <div className={styles.gridSection}>
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '80px 0', color: 'rgba(244,237,224,.35)', fontSize: '14px', letterSpacing: '0.15em' }}>
+            LOADING PROPERTIES…
+          </div>
+        ) : filtered.length > 0 ? (
           <div className={`${styles.pgrid} ${isListView ? styles.pgridList : ''}`}>
             {filtered.map((p) => (
-              <Link key={p.id} href={`/listings/${p.slug}`} className="pcard" style={{ textDecoration: 'none' }}>
+              <Link key={p.id} href={`/listings/${p.id}`} className="pcard" style={{ textDecoration: 'none' }}>
                 <div className="cimg">
-                  <img src={imgUrl(p.img)} alt={p.title} loading="lazy" />
+                  <img src={firstImage(p.images)} alt={p.title} loading="lazy" />
                   {p.badge && <div className="badge">{p.badge}</div>}
                 </div>
                 <div className="cbody">
@@ -331,9 +337,9 @@ function ListingsContent() {
                   <div className="cprice">{p.price}</div>
                   <div className="cloc">{p.location}</div>
                   <div className="cmeta">
-                    <span>{p.beds} Bed{p.beds !== 1 ? 's' : ''}</span>
-                    <span>{p.baths} Bath{p.baths !== 1 ? 's' : ''}</span>
-                    <span>{p.sqm.toLocaleString()} sqm</span>
+                    <span>{p.bedrooms} Bed{p.bedrooms !== 1 ? 's' : ''}</span>
+                    <span>{p.bathrooms} Bath{p.bathrooms !== 1 ? 's' : ''}</span>
+                    {p.sqm && <span>{p.sqm.toLocaleString()} sqm</span>}
                   </div>
                   <span className={styles.clink}>View Property →</span>
                 </div>

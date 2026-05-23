@@ -6,57 +6,89 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import styles from './page.module.css';
 
-const PHOTOS = [
-  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=90&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=90&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=90&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=90&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=90&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1600&q=90&auto=format&fit=crop',
-];
-
-const THUMB_PHOTOS = [
-  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=70&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=70&auto=format&fit=crop',
-];
-
-const SIMILAR = [
-  { slug: 'prestige-towers', title: 'Prestige Towers, Ikoyi', price: '₦420,000,000', location: 'Ikoyi, Lagos', beds: 4, baths: 5, sqm: 560, badge: 'New', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80&auto=format&fit=crop' },
-  { slug: 'lekki-ocean-heights', title: 'Lekki Ocean Heights', price: '₦680,000,000', location: 'Victoria Island, Lagos', beds: 6, baths: 7, sqm: 1200, badge: 'Featured', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop' },
-  { slug: 'eko-atlantic-pearl', title: 'Eko Atlantic Pearl', price: '₦250,000,000', location: 'Eko Atlantic, Lagos', beds: 3, baths: 4, sqm: 320, badge: 'New', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80&auto=format&fit=crop' },
-];
+interface DbProperty {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  location: string;
+  neighbourhood: string | null;
+  type: string;
+  category: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
+  features: string;
+  images: string;
+  video: string | null;
+  badge: string | null;
+  status: string;
+}
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function PropertyDetailPage({ params }: PageProps) {
-  const slug = params.id;
-
+  const [id, setId] = useState('');
+  const [property, setProperty] = useState<DbProperty | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [lbOpen, setLbOpen] = useState(false);
   const [lbIdx, setLbIdx] = useState(0);
+
+  useEffect(() => {
+    params.then((p) => setId(p.id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/properties/${id}`)
+      .then((r) => r.json())
+      .then((data: DbProperty) => {
+        setProperty(data);
+        try {
+          const imgs = JSON.parse(data.images);
+          setPhotos(Array.isArray(imgs) && imgs.length > 0 ? imgs : []);
+        } catch {
+          setPhotos([]);
+        }
+      })
+      .catch(() => setProperty(null))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   // Lightbox keyboard navigation
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (!lbOpen) return;
-      if (e.key === 'ArrowLeft') setLbIdx((i) => (i - 1 + PHOTOS.length) % PHOTOS.length);
-      if (e.key === 'ArrowRight') setLbIdx((i) => (i + 1) % PHOTOS.length);
+      if (e.key === 'ArrowLeft') setLbIdx((i) => (i - 1 + photos.length) % photos.length);
+      if (e.key === 'ArrowRight') setLbIdx((i) => (i + 1) % photos.length);
       if (e.key === 'Escape') setLbOpen(false);
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [lbOpen]);
+  }, [lbOpen, photos.length]);
 
   function openLb(i: number) {
     setLbIdx(i);
     setLbOpen(true);
   }
+
+  if (loading) return (
+    <div style={{ background: '#0B1B35', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(244,237,224,.35)', letterSpacing: '0.15em', fontSize: '13px' }}>
+      LOADING…
+    </div>
+  );
+
+  if (!property) return (
+    <div style={{ background: '#0B1B35', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(244,237,224,.5)' }}>
+      Property not found. <a href="/listings" style={{ color: '#C0A870', marginLeft: 8 }}>Back to listings</a>
+    </div>
+  );
+
+  const features: string[] = (() => { try { return JSON.parse(property.features); } catch { return []; } })();
 
   return (
     <>
@@ -65,7 +97,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
       {/* ── GALLERY ── */}
       <div className={styles.gallery}>
         <div className={styles.galleryHero} onClick={() => openLb(heroIdx)}>
-          <img src={PHOTOS[heroIdx]} alt="The Arch Residences" />
+          <img src={photos[heroIdx] || ''} alt={property.title} />
           <button
             className={styles.viewAll}
             onClick={(e) => { e.stopPropagation(); openLb(heroIdx); }}
@@ -75,11 +107,11 @@ export default function PropertyDetailPage({ params }: PageProps) {
               <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
               <path d="m21 15-5-5L5 21" />
             </svg>
-            View All Photos <em>· {PHOTOS.length}</em>
+            View All Photos <em>· {photos.length}</em>
           </button>
         </div>
         <div className={styles.galleryStrip}>
-          {THUMB_PHOTOS.map((src, i) => (
+          {photos.map((src, i) => (
             <div
               key={i}
               className={`${styles.gthumb} ${heroIdx === i ? styles.gthumbOn : ''}`}
@@ -99,18 +131,18 @@ export default function PropertyDetailPage({ params }: PageProps) {
         <button className={styles.lbX} onClick={() => setLbOpen(false)}>×</button>
         <div
           className={`${styles.lbArr} ${styles.lbPrev}`}
-          onClick={() => setLbIdx((i) => (i - 1 + PHOTOS.length) % PHOTOS.length)}
+          onClick={() => setLbIdx((i) => (i - 1 + photos.length) % photos.length)}
         >
           ‹
         </div>
-        <img className={styles.lbImg} src={PHOTOS[lbIdx]} alt="" />
+        <img className={styles.lbImg} src={photos[lbIdx] || ''} alt="" />
         <div
           className={`${styles.lbArr} ${styles.lbNext}`}
-          onClick={() => setLbIdx((i) => (i + 1) % PHOTOS.length)}
+          onClick={() => setLbIdx((i) => (i + 1) % photos.length)}
         >
           ›
         </div>
-        <div className={styles.lbCtr}>{lbIdx + 1} / {PHOTOS.length}</div>
+        <div className={styles.lbCtr}>{lbIdx + 1} / {photos.length}</div>
       </div>
 
       {/* ── PAGE CONTENT ── */}
@@ -123,21 +155,20 @@ export default function PropertyDetailPage({ params }: PageProps) {
             <span style={{ opacity: 0.35 }}>›</span>
             <Link href="/listings">Listings</Link>
             <span style={{ opacity: 0.35 }}>›</span>
-            <span>The Arch Residences</span>
+            <span>{property.title}</span>
           </div>
 
           {/* Property Header */}
           <div className={styles.propHdr}>
-            <h1 className={styles.propName}>The Arch Residences</h1>
+            <h1 className={styles.propName}>{property.title}</h1>
             <div className={styles.propPrice}>
-              ₦850,000,000
-              <span className={styles.propPriceSub}>· ₦1,000,000/sqm</span>
+              {property.price}
             </div>
             <div className={styles.propLoc}>
               <svg width="12" height="15" viewBox="0 0 12 15" fill="none">
                 <path d="M6 0C2.686 0 0 2.686 0 6c0 4.5 6 9 6 9s6-4.5 6-9c0-3.314-2.686-6-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="rgba(192,168,112,.55)" />
               </svg>
-              Banana Island, Lagos Island, Lagos
+              {property.location}
             </div>
           </div>
 
@@ -146,22 +177,24 @@ export default function PropertyDetailPage({ params }: PageProps) {
             <div className={styles.spec}>
               <span className={styles.specIcon}>🛏</span>
               <div className={styles.specLbl}>Bedrooms</div>
-              <div className={styles.specVal}>5</div>
+              <div className={styles.specVal}>{property.bedrooms}</div>
             </div>
             <div className={styles.spec}>
               <span className={styles.specIcon}>🚿</span>
               <div className={styles.specLbl}>Bathrooms</div>
-              <div className={styles.specVal}>6</div>
+              <div className={styles.specVal}>{property.bathrooms}</div>
             </div>
-            <div className={styles.spec}>
-              <span className={styles.specIcon}>📐</span>
-              <div className={styles.specLbl}>Size</div>
-              <div className={styles.specVal}>850 sqm</div>
-            </div>
+            {property.sqm && (
+              <div className={styles.spec}>
+                <span className={styles.specIcon}>📐</span>
+                <div className={styles.specLbl}>Size</div>
+                <div className={styles.specVal}>{property.sqm} sqm</div>
+              </div>
+            )}
             <div className={styles.spec}>
               <span className={styles.specIcon}>🏛</span>
               <div className={styles.specLbl}>Type</div>
-              <div className={styles.specVal}>Fully Detached</div>
+              <div className={styles.specVal}>{property.type}</div>
             </div>
             <div className={styles.spec}>
               <span className={styles.specIcon}>✅</span>
@@ -173,25 +206,20 @@ export default function PropertyDetailPage({ params }: PageProps) {
           {/* Description */}
           <h2 className={styles.secHeading}>About This Property</h2>
           <div className={styles.propDesc}>
-            <p>The Arch Residences is a masterpiece of contemporary Nigerian luxury — a fully detached mansion set on a prime 850 sqm plot on the prestigious Banana Island, Lagos. Designed by award-winning architects and finished to the highest international standards, every detail speaks of quiet, enduring sophistication.</p>
-            <p>The residence features five en-suite bedrooms across three floors, each with floor-to-ceiling windows that draw in sweeping views of the Lagos Lagoon. The double-height living area opens onto a landscaped courtyard and infinity pool, creating a seamless flow between interior elegance and outdoor serenity.</p>
-            <p>A full BQ with private access, a home theatre, Gaggenau-appointed kitchen, and a dedicated home office complete the offering. The estate is fully gated, with 24/7 biometric security and generator backup. This is not just a home — it is a legacy asset.</p>
+            <p>{property.description}</p>
           </div>
 
           {/* Features */}
-          <div className={styles.features}>
-            <h2 className={styles.secHeading}>Features &amp; Amenities</h2>
-            <div className={styles.featPills}>
-              {['Infinity Pool', 'Generator', 'BQ / Staff Quarters', 'Smart Home System', 'Gated Estate', 'Home Theatre', 'Gym', '24/7 Security', 'Parking — 4 Cars', 'Lagoon View', 'Biometric Access', 'Landscaped Garden'].map((f) => (
-                <div key={f} className={styles.fp}>{f}</div>
-              ))}
+          {features.length > 0 && (
+            <div className={styles.features}>
+              <h2 className={styles.secHeading}>Features &amp; Amenities</h2>
+              <div className={styles.featPills}>
+                {features.map((f: string) => (
+                  <div key={f} className={styles.fp}>{f}</div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Location Note */}
-          <div className={styles.locationNote}>
-            <strong style={{ color: 'rgba(244,237,224,.65)', fontWeight: 400 }}>Location:</strong> Banana Island is Lagos&#39; most prestigious address, a man-made island with ultra-high-end residential development, excellent infrastructure, and 24/7 estate security. Minutes from Ikoyi, Victoria Island, and the Lekki-Epe Expressway.
-          </div>
+          )}
         </div>
 
         {/* ── STICKY CTA SIDEBAR ── */}
@@ -199,21 +227,21 @@ export default function PropertyDetailPage({ params }: PageProps) {
           <div className={styles.ctaCard}>
             <div className={styles.ctaThumb}>
               <img
-                src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=700&q=80&auto=format&fit=crop"
-                alt="The Arch Residences"
+                src={photos[0] || ''}
+                alt={property.title}
               />
               <div className={styles.ctaThumbOv}></div>
             </div>
             <div className={styles.ctaBody}>
-              <div className={styles.ctaName}>The Arch Residences</div>
-              <div className={styles.ctaPrice}>₦850,000,000</div>
+              <div className={styles.ctaName}>{property.title}</div>
+              <div className={styles.ctaPrice}>{property.price}</div>
               <div className={styles.ctaRule}></div>
               <div className={styles.ctaHeading}>Interested in this property?</div>
               <div className={styles.ctaSub}>
                 Schedule a professional inspection with our expert team. We&#39;ll handle every detail from start to finish.
               </div>
               <Link
-                href={`/schedule-inspection?propertyId=${slug}`}
+                href={`/schedule-inspection?propertyId=${id}`}
                 className={styles.ctaBtn}
               >
                 Arrange an Inspection →
