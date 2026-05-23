@@ -20,23 +20,31 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
-        })
-
-        if (!user) return null
-
+        const email = credentials.email.toLowerCase()
         const expectedRole = credentials.role || 'CLIENT'
-        if (user.role !== expectedRole && user.role !== 'ADMIN') return null
 
-        const valid = await bcrypt.compare(credentials.password, user.passwordHash)
-        if (!valid) return null
+        // Hardcoded test accounts (work without a database)
+        const testAccounts: Record<string, { name: string; role: string; password: string }> = {
+          'client@rokhaven.com':    { name: 'Test Client',    role: 'CLIENT',    password: 'client123' },
+          'principal@rokhaven.com': { name: 'Test Principal', role: 'PRINCIPAL', password: 'principal123' },
+        }
+        const test = testAccounts[email]
+        if (test && credentials.password === test.password) {
+          if (test.role === expectedRole || expectedRole === 'CLIENT') {
+            return { id: 'test-' + test.role.toLowerCase(), email, name: test.name, role: test.role }
+          }
+        }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+        // Database lookup
+        try {
+          const user = await prisma.user.findUnique({ where: { email } })
+          if (!user) return null
+          if (user.role !== expectedRole && user.role !== 'ADMIN') return null
+          const valid = await bcrypt.compare(credentials.password, user.passwordHash)
+          if (!valid) return null
+          return { id: user.id, email: user.email, name: user.name, role: user.role }
+        } catch {
+          return null
         }
       },
     }),
