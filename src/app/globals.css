@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&display=swap');
+
+:root {
+  --navy:    #0B1B35;
+  --gold:    #C0A870;
+  --teal:    #527070;
+  --ivory:   #F4EDE0;
+  --deep:    #2A3F5C;
+  --obsidian:#060F1C;
+  --card:    #132032;
+  --fd: 'DM Serif Display', serif;
+  --fb: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--obsidian);
+  color: var(--ivory);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-size: 16px;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; }
+input, select, textarea, button { font-family: inherit; }
+
+/* ── NAV ─────────────────────────────────────── */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 80px; padding: 0 60px;
+  display: flex; align-items: center; gap: 32px;
+  transition: background .45s ease, backdrop-filter .45s ease, border-color .45s ease;
+  border-bottom: 1px solid transparent;
+}
+#nav.scrolled {
+  background: rgba(11,27,53,.97);
+  backdrop-filter: blur(14px);
+  border-color: rgba(192,168,112,.1);
+}
+.nav-logo { display: flex; align-items: center; gap: 13px; }
+.nav-logo .wm { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--gold); letter-spacing: .22em; line-height: 1; opacity: 1; }
+.nav-logo .sm { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 200; color: var(--gold); letter-spacing: .46em; opacity: .6; margin-top: 4px; }
+.nav-links { flex: 1; display: flex; align-items: center; justify-content: center; gap: 36px; }
+.nav-links a { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 400; color: rgba(244,237,224,.72); letter-spacing: .2em; text-transform: uppercase; transition: color .2s; }
+.nav-links a:hover { color: var(--ivory); }
+.nav-links a.active { color: var(--gold) !important; border-bottom: 1px solid rgba(192,168,112,.5); padding-bottom: 2px; }
+.nav-links a.nav-list { color: var(--gold); opacity: .85; }
+.nav-links a.nav-list:hover { opacity: 1; }
+.nav-login-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
+  color: rgba(244,237,224,.65); letter-spacing: .06em;
+  transition: color .2s; padding: 0; margin-right: 4px;
+}
+.nav-login-btn:hover { color: var(--gold); }
+.nav-cta {
+  font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 400;
+  color: var(--gold); letter-spacing: .16em; text-transform: uppercase;
+  padding: 10px 24px; border: 1px solid var(--gold); border-radius: 2px;
+  white-space: nowrap; transition: background .25s, color .25s;
+}
+.nav-cta:hover { background: var(--gold); color: var(--obsidian); }
+.nav-hamburger {
+  display: none; background: transparent; border: none; cursor: pointer;
+  padding: 8px; margin-left: auto; align-items: center; justify-content: center;
+  width: 44px; height: 44px; color: var(--gold);
+}
+
+/* ── SHARED ───────────────────────────────────── */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 60px; }
+.slbl { font-family: 'DM Sans', sans-serif; font-size: 9.5px; font-weight: 500; color: var(--gold); letter-spacing: .44em; text-transform: uppercase; margin-bottom: 14px; }
+.sec-h { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 3vw, 46px); color: var(--ivory); line-height: 1.15; }
+.fade { opacity: 0; transform: translateY(24px); transition: opacity .75s ease, transform .75s ease; }
+.fade.vis { opacity: 1; transform: none; }
+.link-gold { font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 400; color: var(--gold); letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid rgba(192,168,112,.3); padding-bottom: 2px; transition: border-color .2s; }
+.link-gold:hover { border-color: var(--gold); }
+.btn-gold {
+  font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 500;
+  color: var(--obsidian); letter-spacing: .2em; text-transform: uppercase;
+  background: var(--gold); border: none; padding: 0 40px; cursor: pointer;
+  transition: filter .2s; white-space: nowrap;
+}
+.btn-gold:hover { filter: brightness(1.07); }
+
+/* ── PROPERTY CARDS ───────────────────────────── */
+.pcard {
+  background: var(--card); border: 1px solid rgba(192,168,112,.08); border-radius: 3px;
+  overflow: hidden; cursor: pointer;
+  transition: transform .38s cubic-bezier(.2,.7,.3,1), box-shadow .38s ease, border-color .38s ease;
+}
+.pcard:hover { transform: translateY(-8px); box-shadow: 0 28px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(192,168,112,.28); border-color: rgba(192,168,112,.28); }
+.cimg { position: relative; height: 248px; overflow: hidden; }
+.cimg img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
+.pcard:hover .cimg img { transform: scale(1.05); }
+.badge { position: absolute; top: 16px; left: 16px; font-family: 'DM Sans', sans-serif; font-size: 8px; font-weight: 500; color: var(--obsidian); letter-spacing: .25em; text-transform: uppercase; background: var(--gold); padding: 4px 10px; border-radius: 1px; }
+.cbody { padding: 22px 24px 26px; }
+.cname { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ivory); margin-bottom: 7px; line-height: 1.2; }
+.cprice { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--gold); letter-spacing: .03em; margin-bottom: 10px; }
+.cloc { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; color: rgba(244,237,224,.65); margin-bottom: 16px; }
+.cmeta { display: flex; gap: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.06); font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 300; color: rgba(244,237,224,.60); }
+
+/* ── FOOTER ───────────────────────────────────── */
+footer { background: var(--obsidian); border-top: 1px solid rgba(192,168,112,.1); padding: 72px 0 0; }
+.foot-grid { display: grid; grid-template-columns: 1.9fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,.055); }
+.foot-tagline { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 15px; color: rgba(244,237,224,.3); margin-top: 18px; }
+.fcol-title { font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500; color: var(--gold); letter-spacing: .38em; text-transform: uppercase; margin-bottom: 22px; }
+.flinks { list-style: none; }
+.flinks li { margin-bottom: 13px; }
+.flinks a { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; color: rgba(244,237,224,.4); transition: color .2s; }
+.flinks a:hover { color: var(--gold); }
+.sicons { display: flex; gap: 10px; }
+.sicon { width: 36px; height: 36px; border: 1px solid rgba(192,168,112,.18); border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background .2s; }
+.sicon:hover { border-color: var(--gold); background: rgba(192,168,112,.07); }
+.sicon svg { fill: rgba(244,237,224,.42); transition: fill .2s; }
+.sicon:hover svg { fill: var(--gold); }
+.foot-btm { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
+.foot-btm p { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300; color: rgba(244,237,224,.5); letter-spacing: .04em; }
+
+/* ── LOGIN OVERLAY ─────────────────────────────── */
+.login-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(6,15,28,.96); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; flex-direction: column;
+}
+.login-overlay.open { display: flex; }
+
+/* ── MOBILE HAMBURGER DRAWER ─────────────────── */
+#mobDrawer { position: fixed; inset: 0; z-index: 9500; display: none; }
+#mobDrawer.open { display: block; }
+@keyframes slideIn { from { transform: translateX(100%) } to { transform: none } }
+
+/* ── MOBILE RESPONSIVE ──────────────────────── */
+@media (max-width: 768px) {
+  #nav, nav { padding: 0 16px !important; height: 64px !important; }
+  .nav-links { display: none !important; }
+  .nav-cta { display: none !important; }
+  .nav-login-btn { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+  .container { padding: 0 16px !important; }
+  .foot-grid { grid-template-columns: 1fr 1fr !important; gap: 32px 16px !important; }
+  .pgrid { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px !important; }
+  .pgrid .pcard { min-width: 82%; scroll-snap-align: start; flex-shrink: 0; }
+}
+@media (max-width: 540px) {
+  .foot-grid { grid-template-columns: 1fr !important; }
+}

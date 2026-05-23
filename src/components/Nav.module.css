@@ -1,0 +1,55 @@
+.nav {
+  height: 72px;
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(192, 168, 112, 0.1);
+  background: rgba(11, 27, 53, 0.97);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.wm {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  color: #C0A870;
+  letter-spacing: 0.22em;
+}
+
+.sm {
+  font-size: 7px;
+  font-weight: 200;
+  color: #C0A870;
+  letter-spacing: 0.46em;
+  opacity: 0.55;
+  margin-top: 3px;
+}
+
+.navBack {
+  font-size: 11px;
+  font-weight: 300;
+  color: rgba(244, 237, 224, 0.35);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.navBack:hover {
+  color: #C0A870;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 0 16px;
+    height: 64px;
+  }
+}

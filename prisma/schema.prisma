@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  phone        String?
+  whatsapp     String?
+  role         Role      @default(CLIENT)
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  inspections  Inspection[]
+  enquiries    Enquiry[]
+  properties   Property[]
+  submissions  PropertySubmission[]
+}
+
+enum Role {
+  CLIENT
+  PRINCIPAL
+  ADMIN
+}
+
+model Property {
+  id            String          @id @default(cuid())
+  title         String
+  description   String
+  price         String
+  location      String
+  neighbourhood String?
+  type          String
+  category      Category        @default(SALE)
+  bedrooms      Int
+  bathrooms     Int
+  sqm           Float?
+  features      String          @default("[]")
+  images        String          @default("[]")
+  video         String?
+  badge         String?
+  status        PropertyStatus  @default(ACTIVE)
+  principalId   String?
+  principal     User?           @relation(fields: [principalId], references: [id])
+  inspections   Inspection[]
+  enquiries     Enquiry[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+enum Category {
+  SALE
+  RENT
+  SHORTLET
+  JV
+}
+
+enum PropertyStatus {
+  ACTIVE
+  PENDING
+  RENTED
+  SOLD
+  INACTIVE
+}
+
+model Inspection {
+  id            String            @id @default(cuid())
+  propertyId    String
+  property      Property          @relation(fields: [propertyId], references: [id])
+  clientId      String?
+  client        User?             @relation(fields: [clientId], references: [id])
+  clientName    String
+  clientEmail   String
+  clientPhone   String
+  preferredDate String
+  preferredTime String
+  principal     Boolean           @default(true)
+  budget        String?
+  mustHaves     String?
+  timeline      String?
+  contactTime   String?
+  howHeard      String?
+  notes         String?
+  status        InspectionStatus  @default(PENDING)
+  source        String            @default("WEBSITE")
+  referenceNo   String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+enum InspectionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Enquiry {
+  id              String        @id @default(cuid())
+  propertyId      String?
+  property        Property?     @relation(fields: [propertyId], references: [id])
+  clientId        String?
+  client          User?         @relation(fields: [clientId], references: [id])
+  name            String
+  email           String
+  phone           String
+  intent          String?
+  transactionType String?
+  propertyType    String?
+  bedrooms        String?
+  locations       String?
+  budget          String?
+  mustHaves       String?
+  timeline        String?
+  contactTime     String?
+  howHeard        String?
+  notes           String?
+  brokerageAgreed Boolean       @default(false)
+  marketingConsent Boolean      @default(false)
+  status          EnquiryStatus @default(NEW)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  CLOSED
+}
+
+model PropertySubmission {
+  id             String    @id @default(cuid())
+  principalId    String
+  principal      User      @relation(fields: [principalId], references: [id])
+  relationship   String
+  title          String
+  category       String
+  type           String
+  price          String
+  location       String
+  neighbourhood  String?
+  bedrooms       Int
+  bathrooms      Int
+  sqm            Float?
+  yearBuilt      String?
+  description    String
+  features       String    @default("[]")
+  images         String?
+  video          String?
+  notes          String?
+  status         String    @default("PENDING")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model BookingLink {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  propertyId  String?
+  clientName  String?
+  clientPhone String?
+  note        String?
+  expiresAt   DateTime
+  used        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
