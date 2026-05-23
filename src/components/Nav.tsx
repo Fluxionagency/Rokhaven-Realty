@@ -32,6 +32,15 @@ export default function Nav({ backHref, backLabel }: NavProps) {
     return () => { document.body.style.overflow = ''; };
   }, [loginOpen, drawerOpen]);
 
+  function openLoginFromDrawer() {
+    setDrawerOpen(false);
+    // wait for drawer slide-out to finish, then scroll top and open overlay
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      setLoginOpen(true);
+    }, 260);
+  }
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setLoginOpen(false); setDrawerOpen(false); }
@@ -146,7 +155,7 @@ export default function Nav({ backHref, backLabel }: NavProps) {
           <Link href="/list-your-property" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#C0A870', padding: '14px 0' }}>List a Property</Link>
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 24, borderTop: '1px solid rgba(192,168,112,.1)' }}>
             <button
-              onClick={() => { setDrawerOpen(false); setLoginOpen(true); }}
+              onClick={openLoginFromDrawer}
               style={{ background: 'transparent', border: '1px solid rgba(192,168,112,.35)', color: '#C0A870', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 400, letterSpacing: '.16em', textTransform: 'uppercase', padding: 14, borderRadius: 2, cursor: 'pointer', minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
             >
               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
