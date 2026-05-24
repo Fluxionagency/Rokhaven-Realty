@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-)
-
 export async function POST(request: NextRequest) {
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })
+  }
+  const supabase = createClient(supabaseUrl, supabaseKey)
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
