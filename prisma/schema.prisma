@@ -14,6 +14,7 @@ model User {
   whatsapp          String?
   role              Role      @default(CLIENT)
   title             String?
+  googleRefreshToken String?
   passwordHash      String
   resetToken        String?
   resetTokenExpiry  DateTime?

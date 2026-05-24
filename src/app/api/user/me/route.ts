@@ -10,10 +10,11 @@ export async function GET() {
   if (!email) return NextResponse.json({ error: 'No email in session' }, { status: 400 })
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, name: true, email: true, phone: true, role: true },
+    select: { id: true, name: true, email: true, phone: true, whatsapp: true, role: true, googleRefreshToken: true },
   })
   if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(user)
+  const { googleRefreshToken, ...rest } = user
+  return NextResponse.json({ ...rest, googleCalendarConnected: !!googleRefreshToken })
 }
 
 export async function PATCH(request: NextRequest) {
@@ -25,8 +26,8 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const user = await prisma.user.update({
       where: { email },
-      data: { name: body.name, phone: body.phone ?? undefined },
-      select: { id: true, name: true, email: true, phone: true, role: true },
+      data: { name: body.name, phone: body.phone ?? undefined, whatsapp: body.whatsapp ?? undefined },
+      select: { id: true, name: true, email: true, phone: true, whatsapp: true, role: true },
     })
     return NextResponse.json(user)
   } catch (error) {
