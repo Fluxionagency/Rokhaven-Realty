@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const page = parseInt(searchParams.get('page') || '1')
 
-    const where: Record<string, unknown> = { status: 'ACTIVE' }
+    const admin = searchParams.get('admin')
+    const where: Record<string, unknown> = admin ? {} : { status: 'ACTIVE' }
     if (category && category !== 'ALL') where.category = category
     if (location && location !== 'any') where.neighbourhood = { contains: location }
     if (type && type !== 'any') where.type = { contains: type }

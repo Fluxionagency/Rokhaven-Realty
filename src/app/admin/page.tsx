@@ -24,6 +24,8 @@ interface AdminProperty {
   status: string;
   badge: string | null;
   category: string;
+  type: string;
+  neighbourhood: string | null;
 }
 
 interface AdminInspection {
@@ -321,6 +323,10 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
 
   const doAction = async (p: AdminProperty, action: string) => {
     setOpenMenu(null);
+    if (action === 'Edit') {
+      openModal(p);
+      return;
+    }
     if (action === 'Mark as Rented') {
       await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'RENTED' }) });
       onRefresh();
@@ -340,8 +346,8 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
     if (p) {
       setEditingProp(p);
       setFTitle(p.title); setFDesc(''); setFPrice(p.price);
-      setFLocation(p.location); setFNbh(''); setFType(p.category || 'Fully Detached');
-      setFCat('SALE'); setFBeds(p.bedrooms); setFBaths(p.bathrooms);
+      setFLocation(p.location); setFNbh(p.neighbourhood || ''); setFType(p.type || 'Fully Detached');
+      setFCat(p.category || 'SALE'); setFBeds(p.bedrooms); setFBaths(p.bathrooms);
       setFSqm(p.sqm ? String(p.sqm) : ''); setFBadge(p.badge || '');
       setFImages(p.images || '[]'); setFStatus(p.status);
     } else {
@@ -391,11 +397,106 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
     setSaving(false);
   };
 
+  const lbl: React.CSSProperties = { display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.5)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 6 };
+
   return (
     <div>
+      {modalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(6,15,28,0.85)', zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '40px 16px' }}
+          onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
+          <div style={{ background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, padding: 32, width: '100%', maxWidth: 620 }}>
+            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: '#F4EDE0', marginBottom: 6 }}>
+              {editingProp ? 'Edit Listing' : 'Add New Listing'}
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(244,237,224,0.3)', marginBottom: 24 }}>
+              {editingProp ? 'Update the listing details below.' : 'Fill in the details to create a new property listing.'}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+              <div style={{ gridColumn: '1/-1' }}>
+                <label style={lbl}>Property Title *</label>
+                <input className={styles.fi} value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder="e.g. 4-Bedroom Duplex in Lekki Phase 1" />
+              </div>
+              <div>
+                <label style={lbl}>Price *</label>
+                <input className={styles.fi} value={fPrice} onChange={e => setFPrice(e.target.value)} placeholder="e.g. ₦450,000,000" />
+              </div>
+              <div>
+                <label style={lbl}>Category</label>
+                <select className={styles.fsel} value={fCat} onChange={e => setFCat(e.target.value)}>
+                  <option value="SALE">For Sale</option>
+                  <option value="RENT">For Rent</option>
+                  <option value="SHORTLET">Shortlet</option>
+                  <option value="JV">Joint Venture</option>
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>Property Type</label>
+                <select className={styles.fsel} value={fType} onChange={e => setFType(e.target.value)}>
+                  {['Fully Detached','Apartment','Semi-Detached','Penthouse','Villa','Townhouse','Maisonette'].map(t => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>Full Address *</label>
+                <input className={styles.fi} value={fLocation} onChange={e => setFLocation(e.target.value)} placeholder="Street address, estate name" />
+              </div>
+              <div>
+                <label style={lbl}>Neighbourhood</label>
+                <select className={styles.fsel} value={fNbh} onChange={e => setFNbh(e.target.value)}>
+                  <option value="">Select…</option>
+                  {['Banana Island','Ikoyi','Victoria Island','Eko Atlantic','Lekki Phase 1','Lekki Phase 2','Ajah','Ikeja GRA','Magodo','Other'].map(n => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>Bedrooms</label>
+                <input className={styles.fi} type="number" min={1} max={20} value={fBeds} onChange={e => setFBeds(parseInt(e.target.value) || 1)} />
+              </div>
+              <div>
+                <label style={lbl}>Bathrooms</label>
+                <input className={styles.fi} type="number" min={1} max={20} value={fBaths} onChange={e => setFBaths(parseInt(e.target.value) || 1)} />
+              </div>
+              <div>
+                <label style={lbl}>Size (sqm)</label>
+                <input className={styles.fi} value={fSqm} onChange={e => setFSqm(e.target.value)} placeholder="e.g. 650" />
+              </div>
+              <div>
+                <label style={lbl}>Badge</label>
+                <input className={styles.fi} value={fBadge} onChange={e => setFBadge(e.target.value)} placeholder="e.g. New, Hot, Featured" />
+              </div>
+              <div>
+                <label style={lbl}>Status</label>
+                <select className={styles.fsel} value={fStatus} onChange={e => setFStatus(e.target.value)}>
+                  <option value="ACTIVE">Active</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="RENTED">Rented</option>
+                  <option value="SOLD">Sold</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+              <div style={{ gridColumn: '1/-1' }}>
+                <label style={lbl}>Description</label>
+                <textarea className={styles.fta} rows={3} value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Describe the property…" />
+              </div>
+              <div style={{ gridColumn: '1/-1' }}>
+                <label style={lbl}>Image URLs — JSON array</label>
+                <textarea className={styles.fta} rows={2} value={fImages} onChange={e => setFImages(e.target.value)} placeholder='["https://...jpg","https://...jpg"]' />
+                <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.2)', marginTop: 4 }}>Paste direct image URLs as a JSON array</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '10px 20px', color: 'rgba(244,237,224,0.5)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--fb)' }}>
+                Cancel
+              </button>
+              <button onClick={handleSave} disabled={saving} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+                {saving ? 'Saving…' : editingProp ? 'Save Changes →' : 'Create Listing →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.secHdr} style={{ marginBottom: 20 }}>
         <div className={styles.secTitle}>All Listings</div>
-        <button className={styles.btnAdd} style={{ fontSize: 11, padding: '8px 16px' }}>
+        <button className={styles.btnAdd} style={{ fontSize: 11, padding: '8px 16px' }} onClick={() => openModal()}>
           <IconPlus /> Add New
         </button>
       </div>
@@ -457,7 +558,7 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                         background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)',
                         borderRadius: 3, minWidth: 160, overflow: 'hidden',
                       }}>
-                        {['Mark as Rented', 'Mark as Sold', 'Deactivate', 'Delete'].map(action => (
+                        {['Edit', 'Mark as Rented', 'Mark as Sold', 'Deactivate', 'Delete'].map(action => (
                           <button
                             key={action}
                             onClick={() => doAction(p, action)}
@@ -494,9 +595,9 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
               <div className={styles.lcardPrice}>{p.price}</div>
               <div className={styles.lcardMeta}>{p.location} · {p.bedrooms} Beds · For Sale</div>
               <div className={styles.lcardActions}>
-                <button className={styles.lcbtn}>Edit</button>
-                <button className={styles.lcbtn}>Sold</button>
-                <button className={styles.lcbtn}>Del</button>
+                <button className={styles.lcbtn} onClick={() => openModal(p)}>Edit</button>
+                <button className={styles.lcbtn} onClick={() => doAction(p, 'Mark as Sold')}>Sold</button>
+                <button className={styles.lcbtn} onClick={() => doAction(p, 'Delete')}>Del</button>
               </div>
             </div>
           </div>
@@ -1463,7 +1564,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const fetchAll = useCallback(async () => {
     try {
       const [propRes, inspRes, enqRes] = await Promise.all([
-        fetch('/api/properties?limit=100'),
+        fetch('/api/properties?limit=100&admin=1'),
         fetch('/api/inspections'),
         fetch('/api/enquiries'),
       ]);
