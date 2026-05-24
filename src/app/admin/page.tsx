@@ -301,6 +301,7 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
   const [filter, setFilter] = useState<ListingFilter>('All');
   const filters: ListingFilter[] = ['All', 'Active', 'Rented', 'Sold', 'Pending'];
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [acting, setActing] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProp, setEditingProp] = useState<AdminProperty | null>(null);
   const [saving, setSaving] = useState(false);
@@ -327,19 +328,31 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       openModal(p);
       return;
     }
-    if (action === 'Mark as Rented') {
-      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'RENTED' }) });
-      onRefresh();
-    } else if (action === 'Mark as Sold') {
-      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'SOLD' }) });
-      onRefresh();
-    } else if (action === 'Deactivate') {
-      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'INACTIVE' }) });
-      onRefresh();
-    } else if (action === 'Delete') {
-      await fetch('/api/properties/' + p.id, { method: 'DELETE' });
-      onRefresh();
+    if (action === 'Delete') {
+      if (!window.confirm(`Delete "${p.title}"? This cannot be undone.`)) return;
     }
+    setActing(p.id + action);
+    try {
+      let res: Response;
+      if (action === 'Mark as Rented') {
+        res = await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'RENTED' }) });
+      } else if (action === 'Mark as Sold') {
+        res = await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'SOLD' }) });
+      } else if (action === 'Deactivate') {
+        res = await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'INACTIVE' }) });
+      } else {
+        res = await fetch('/api/properties/' + p.id, { method: 'DELETE' });
+      }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Action failed: ' + (err.error || res.status));
+      } else {
+        await onRefresh();
+      }
+    } catch {
+      alert('Network error — please try again.');
+    }
+    setActing(null);
   };
 
   const openModal = (p?: AdminProperty) => {
@@ -548,9 +561,10 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                     <button
                       className={styles.raBtn}
                       style={{ opacity: 1 }}
+                      disabled={acting !== null}
                       onClick={() => setOpenMenu(openMenu === p.id ? null : p.id)}
                     >
-                      Actions ▾
+                      {acting && acting.startsWith(p.id) ? '…' : 'Actions ▾'}
                     </button>
                     {openMenu === p.id && (
                       <div style={{
