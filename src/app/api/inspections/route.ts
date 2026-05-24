@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const inspection = await prisma.inspection.create({
       data: {
-        propertyId: body.propertyId,
+        propertyId: body.propertyId || null,
         clientName: body.name || body.clientName || '',
         clientEmail: body.email || body.clientEmail || '',
         clientPhone: body.phone || body.clientPhone || '',
@@ -42,10 +42,18 @@ export async function POST(request: NextRequest) {
         contactTime: body.contactTime || null,
         howHeard: body.referral || body.howHeard || null,
         notes: body.notes || null,
-        source: 'WEBSITE',
+        source: body.bookingLinkCode ? 'BOOKING_LINK' : 'WEBSITE',
         referenceNo: refNo,
       },
     })
+
+    if (body.bookingLinkCode) {
+      await prisma.bookingLink.updateMany({
+        where: { code: body.bookingLinkCode },
+        data: { used: true },
+      })
+    }
+
     return NextResponse.json(inspection, { status: 201 })
   } catch (error) {
     console.error(error)
