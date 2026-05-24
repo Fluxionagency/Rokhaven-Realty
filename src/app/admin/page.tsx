@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
@@ -11,65 +12,55 @@ type SettingsTab = 'integration' | 'team' | 'notifications' | 'account';
 type ListingFilter = 'All' | 'Active' | 'Rented' | 'Sold' | 'Pending';
 type LeadStatus = 'New' | 'Contacted' | 'Booked' | 'Closed';
 
-// ─── MOCK DATA ──────────────────────────────────────────────────────────────
-
-const IMGS = {
-  a: 'photo-1613490493576-7fde63acd811',
-  b: 'photo-1600596542815-ffad4c1539a9',
-  c: 'photo-1600585154340-be6161a56a0c',
-  d: 'photo-1512917774080-9991f1c4c750',
-  e: 'photo-1560448204-e02f11c3d0e2',
-  f: 'photo-1564013799919-ab600027ffc6',
-};
-
-function img(id: string, w = 200) {
-  return `https://images.unsplash.com/${id}?w=${w}&q=80&auto=format&fit=crop`;
+interface AdminProperty {
+  id: string;
+  title: string;
+  location: string;
+  price: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
+  images: string;
+  status: string;
+  badge: string | null;
+  category: string;
 }
 
-const PROPERTIES = [
-  { id: 'grand-arkadia', name: 'The Grand Arkadia', loc: 'Banana Island', price: '₦1,200,000,000', beds: 6, baths: 6, sqm: 1800, img: IMGS.a, status: 'Active', badge: 'Featured' },
-  { id: 'oceanfront-penthouse', name: 'Oceanfront Penthouse', loc: 'Victoria Island', price: '₦780,000,000', beds: 4, baths: 4, sqm: 950, img: IMGS.b, status: 'Active', badge: 'New' },
-  { id: 'prestige-court', name: 'Prestige Court, Ikoyi', loc: 'Ikoyi', price: '₦450,000,000', beds: 5, baths: 5, sqm: 1200, img: IMGS.c, status: 'Active', badge: 'Featured' },
-  { id: 'eko-atlantic', name: 'Eko Atlantic Residence', loc: 'Eko Atlantic', price: '₦920,000,000', beds: 5, baths: 5, sqm: 1350, img: IMGS.d, status: 'Active', badge: '' },
-  { id: 'meridian-lekki', name: 'The Meridian, Lekki', loc: 'Lekki Phase 1', price: '₦320,000,000', beds: 4, baths: 4, sqm: 750, img: IMGS.e, status: 'Pending', badge: 'New' },
-  { id: 'harbour-view', name: 'Harbour View Estate', loc: 'Lekki Phase 2', price: '₦580,000,000', beds: 6, baths: 5, sqm: 1600, img: IMGS.f, status: 'Active', badge: 'Featured' },
-];
+interface AdminInspection {
+  id: string;
+  referenceNo: string | null;
+  clientName: string;
+  clientPhone: string;
+  propertyId: string;
+  property: { title: string; location: string } | null;
+  preferredDate: string;
+  preferredTime: string;
+  status: string;
+  notes: string | null;
+}
 
-const INSPECTIONS = [
-  { ref: 'RH-001', client: 'Adaeze Okonkwo', phone: '+234 803 441 7829', property: 'The Grand Arkadia', loc: 'Banana Island', date: 'Fri 22 May', time: '11:00 AM', status: 'Pending', notes: 'Client prefers morning slots', img: IMGS.a },
-  { ref: 'RH-002', client: 'Emeka Obiora', phone: '+234 816 902 3340', property: 'Oceanfront Penthouse', loc: 'Victoria Island', date: 'Tue 19 May', time: '10:00 AM', status: 'Confirmed', notes: 'Confirmed via WhatsApp', img: IMGS.b },
-  { ref: 'RH-003', client: 'Chidinma Eze', phone: '+234 705 114 6682', property: 'Prestige Court, Ikoyi', loc: 'Ikoyi', date: 'Mon 18 May', time: '2:00 PM', status: 'Completed', notes: 'Interested, awaiting decision', img: IMGS.c },
-  { ref: 'RH-004', client: 'Babatunde Afolabi', phone: '+234 901 557 2290', property: 'The Meridian, Lekki', loc: 'Lekki Phase 1', date: 'Wed 20 May', time: '3:00 PM', status: 'Pending', notes: 'Referred by a friend', img: IMGS.f },
-  { ref: 'RH-005', client: 'Ngozi Okafor-Williams', phone: '+234 812 330 9954', property: 'Eko Atlantic Residence', loc: 'Eko Atlantic', date: 'Thu 21 May', time: '2:00 PM', status: 'Confirmed', notes: 'Cash buyer, serious interest', img: IMGS.d },
-  { ref: 'RH-006', client: 'Adeola Sanni', phone: '+234 703 882 5501', property: 'Harbour View Estate', loc: 'Lekki Phase 2', date: 'Fri 23 May', time: '9:00 AM', status: 'Pending', notes: '', img: IMGS.e },
-];
+interface AdminEnquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  property: { title: string } | null;
+  status: string;
+  createdAt: string;
+  budget: string | null;
+  intent: string | null;
+}
 
-type Lead = { name: string; property: string; date: string; status: LeadStatus };
-const LEADS: Lead[] = [
-  { name: 'Adaeze Okonkwo', property: 'The Grand Arkadia', date: '2 hours ago', status: 'New' },
-  { name: 'Tunde Adeyemi', property: 'General Enquiry', date: '5 hours ago', status: 'New' },
-  { name: 'Funke Balogun', property: 'Oceanfront Penthouse', date: 'Yesterday', status: 'New' },
-  { name: 'Emeka Obiora', property: 'Oceanfront Penthouse', date: '✓ Called · 2 days ago', status: 'Contacted' },
-  { name: 'Ngozi Okafor-Williams', property: 'Eko Atlantic Residence', date: '✓ WhatsApp · Yesterday', status: 'Contacted' },
-  { name: 'Babatunde Afolabi', property: 'The Meridian, Lekki', date: '📅 Wed 20 May, 3pm', status: 'Booked' },
-  { name: 'Chidinma Eze', property: 'Prestige Court', date: '📅 Mon 18 May (done)', status: 'Booked' },
-  { name: 'Adeola Sanni', property: 'Harbour View Estate', date: '✓ Sale completed', status: 'Closed' },
-  { name: 'Rotimi Fashola', property: 'Sky Manor, Ikeja GRA', date: '✓ Lease signed', status: 'Closed' },
-];
+// ─── HELPERS ────────────────────────────────────────────────────────────────
 
-const REMINDERS = [
-  { client: 'Babatunde Afolabi', phone: '+234 901 557 2290', property: 'The Meridian, Lekki', loc: 'Lekki Phase 1', date: 'Wed 20 May, 3:00pm', h48: 'sent', h24: 'pending', h2: 'pending' },
-  { client: 'Emeka Obiora', phone: '+234 816 902 3340', property: 'Oceanfront Penthouse', loc: 'Victoria Island', date: 'Fri 22 May, 10:00am', h48: 'sent', h24: 'sent', h2: 'pending' },
-  { client: 'Ngozi Okafor-Williams', phone: '+234 812 330 9954', property: 'Eko Atlantic Residence', loc: 'Eko Atlantic', date: 'Mon 25 May, 2:00pm', h48: 'pending', h24: 'pending', h2: 'pending' },
-];
-
-const CALENDAR_BOOKINGS: Record<string, { n: string; t: string }[]> = {
-  '2026-05-19': [{ n: 'Emeka Obiora', t: '10am' }],
-  '2026-05-20': [{ n: 'Babatunde Afolabi', t: '3pm' }],
-  '2026-05-21': [{ n: 'Ngozi O-W.', t: '2pm' }],
-  '2026-05-22': [{ n: 'Adaeze Okonkwo', t: '11am' }],
-  '2026-05-27': [{ n: 'Chidinma Eze', t: '11am' }],
-};
+function firstPropImage(images: string, w = 200): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr[0] ? arr[0] + `?w=${w}&q=80&auto=format&fit=crop` : `https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=${w}&q=80&auto=format&fit=crop`;
+  } catch {
+    return `https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=${w}&q=80&auto=format&fit=crop`;
+  }
+}
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -97,15 +88,16 @@ const NOTIFS = [
 // ─── SMALL REUSABLE COMPONENTS ──────────────────────────────────────────────
 
 function Badge({ status }: { status: string }) {
-  const cls = status === 'Confirmed' ? styles.bConfirmed : status === 'Completed' ? styles.bCompleted : styles.bPending;
-  return <span className={`${styles.badge} ${cls}`}>{status}</span>;
+  const norm = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  const cls = norm === 'Confirmed' ? styles.bConfirmed : norm === 'Completed' ? styles.bCompleted : styles.bPending;
+  return <span className={`${styles.badge} ${cls}`}>{norm}</span>;
 }
 
-function PropThumbRow({ imgId, name, loc }: { imgId: string; name: string; loc: string }) {
+function PropThumbRow({ imgUrl, name, loc }: { imgUrl: string; name: string; loc: string }) {
   return (
     <div className={styles.propRow}>
       <div className={styles.propThumb}>
-        <img src={img(imgId, 120)} alt={name} />
+        <img src={imgUrl} alt={name} />
       </div>
       <div>
         <div className={styles.propNameCell}>{name}</div>
@@ -195,94 +187,27 @@ const IconPlus = () => (
   </svg>
 );
 
-// ─── LOGIN SCREEN ───────────────────────────────────────────────────────────
-
-function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [emailErr, setEmailErr] = useState(false);
-  const [passErr, setPassErr] = useState(false);
-
-  const handleLogin = () => {
-    setError('');
-    setEmailErr(false);
-    setPassErr(false);
-    if (email === 'admin@rokhaven.com' && password === 'admin123') {
-      onLogin();
-    } else {
-      setError('Invalid email or password. Please try again.');
-      setEmailErr(true);
-      setPassErr(true);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleLogin();
-  };
-
-  return (
-    <div className={styles.loginOverlay}>
-      <div className={styles.loginWrap}>
-        <div className={styles.loginLogo}>
-          <svg width="26" height="26" viewBox="0 0 60 60" fill="#C0A870">
-            <path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z" />
-          </svg>
-          <div>
-            <div className={styles.loginLogoWm}>ROKHAVEN</div>
-            <div className={styles.loginLogoSm}>REALTY</div>
-          </div>
-        </div>
-        <div className={styles.loginH}>Admin Access</div>
-        <div className={styles.loginSub}>Authorised personnel only.</div>
-        <label className={styles.loginLbl}>Email Address</label>
-        <input
-          className={`${styles.loginIn} ${emailErr ? styles.loginInError : ''}`}
-          type="email"
-          placeholder="admin@rokhaven.com"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <label className={styles.loginLbl}>Password</label>
-        <input
-          className={`${styles.loginIn} ${passErr ? styles.loginInError : ''}`}
-          type="password"
-          placeholder="••••••••••"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        {error && <div className={styles.loginError}>{error}</div>}
-        <button className={styles.loginBtn} onClick={handleLogin} style={{ marginTop: error ? 12 : 0 }}>
-          Sign In →
-        </button>
-        <div className={styles.loginForgot}>Forgot your password?</div>
-        <div className={styles.loginSecure}>
-          <svg width="9" height="11" viewBox="0 0 10 12" fill="rgba(244,237,224,.25)">
-            <path d="M5 0C3.34 0 2 1.34 2 3v1H1C.45 4 0 4.45 0 5v6c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1H8V3C8 1.34 6.66 0 5 0zm0 1.5c.83 0 1.5.67 1.5 1.5v1h-3V3c0-.83.67-1.5 1.5-1.5z" />
-          </svg>
-          Secured connection
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── DASHBOARD SECTION ──────────────────────────────────────────────────────
 
-function DashboardSection({ onNav }: { onNav: (section: Section) => void }) {
+function DashboardSection({ onNav, properties, inspections }: {
+  onNav: (section: Section) => void;
+  properties: AdminProperty[];
+  inspections: AdminInspection[];
+}) {
+  const activeListings = properties.filter(p => p.status === 'ACTIVE').length;
+  const pendingInspections = inspections.filter(i => i.status === 'PENDING').length;
+
   return (
     <div>
       <div className={styles.stats}>
         <div className={styles.sc}>
           <span className={`${styles.scDelta} ${styles.up}`}>↑ 3 this week</span>
-          <div className={styles.scNum}>12</div>
+          <div className={styles.scNum}>{activeListings}</div>
           <div className={styles.scLbl}>Active Listings</div>
         </div>
         <div className={styles.sc}>
-          <span className={`${styles.scDelta} ${styles.pend}`}>3 today</span>
-          <div className={styles.scNum}>3</div>
+          <span className={`${styles.scDelta} ${styles.pend}`}>{pendingInspections} today</span>
+          <div className={styles.scNum}>{pendingInspections}</div>
           <div className={styles.scLbl}>Inspections Today</div>
         </div>
         <div className={styles.sc}>
@@ -313,34 +238,29 @@ function DashboardSection({ onNav }: { onNav: (section: Section) => void }) {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><PropThumbRow imgId={IMGS.a} name="The Grand Arkadia" loc="Banana Island" /></td>
-              <td className={styles.strong}>Adaeze Okonkwo</td>
-              <td>Fri 22 May</td>
-              <td><Badge status="Pending" /></td>
-              <td><div className={styles.rowActions}><button className={styles.raBtn}>Confirm</button><button className={styles.raBtn}>View</button></div></td>
-            </tr>
-            <tr>
-              <td><PropThumbRow imgId={IMGS.b} name="Oceanfront Penthouse" loc="Victoria Island" /></td>
-              <td className={styles.strong}>Emeka Obiora</td>
-              <td>Tue 19 May</td>
-              <td><Badge status="Confirmed" /></td>
-              <td><div className={styles.rowActions}><button className={styles.raBtn}>View</button><button className={styles.raBtn}>Reschedule</button></div></td>
-            </tr>
-            <tr>
-              <td><PropThumbRow imgId={IMGS.c} name="Prestige Court, Ikoyi" loc="Ikoyi" /></td>
-              <td className={styles.strong}>Chidinma Eze</td>
-              <td>Mon 18 May</td>
-              <td><Badge status="Completed" /></td>
-              <td><div className={styles.rowActions}><button className={styles.raBtn}>View</button><button className={styles.raBtn}>Follow up</button></div></td>
-            </tr>
-            <tr>
-              <td><PropThumbRow imgId={IMGS.f} name="The Meridian, Lekki" loc="Lekki Phase 1" /></td>
-              <td className={styles.strong}>Babatunde Afolabi</td>
-              <td>Wed 20 May</td>
-              <td><Badge status="Pending" /></td>
-              <td><div className={styles.rowActions}><button className={styles.raBtn}>Confirm</button><button className={styles.raBtn}>View</button></div></td>
-            </tr>
+            {inspections.slice(0, 4).map(insp => (
+              <tr key={insp.id}>
+                <td>
+                  <div className={styles.propRow}>
+                    <div>
+                      <div className={styles.propNameCell}>{insp.property?.title || 'Unknown'}</div>
+                      <div className={styles.propLocCell}>{insp.property?.location || ''}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className={styles.strong}>{insp.clientName}</td>
+                <td>{insp.preferredDate}</td>
+                <td><Badge status={insp.status} /></td>
+                <td>
+                  <div className={styles.rowActions}>
+                    {insp.status === 'PENDING' && <button className={styles.raBtn}>Confirm</button>}
+                    <button className={styles.raBtn}>View</button>
+                    {insp.status === 'CONFIRMED' && <button className={styles.raBtn}>Reschedule</button>}
+                    {insp.status === 'COMPLETED' && <button className={styles.raBtn}>Follow up</button>}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -350,16 +270,16 @@ function DashboardSection({ onNav }: { onNav: (section: Section) => void }) {
         <button className={styles.secLink} onClick={() => onNav('listings')}>Manage all →</button>
       </div>
       <div className={styles.lgrid}>
-        {PROPERTIES.slice(0, 6).map(p => (
+        {properties.slice(0, 6).map(p => (
           <div key={p.id} className={styles.lcard}>
             <div className={styles.lcardImg}>
-              <img src={img(p.img, 400)} alt={p.name} />
+              <img src={firstPropImage(p.images, 400)} alt={p.title} />
               {p.badge && <div className={styles.lbadge}>{p.badge}</div>}
             </div>
             <div className={styles.lcardBody}>
-              <div className={styles.lcardName}>{p.name}</div>
+              <div className={styles.lcardName}>{p.title}</div>
               <div className={styles.lcardPrice}>{p.price}</div>
-              <div className={styles.lcardMeta}>{p.loc} · {p.beds} Beds · For Sale</div>
+              <div className={styles.lcardMeta}>{p.location} · {p.bedrooms} Beds · For Sale</div>
               <div className={styles.lcardActions}>
                 <button className={styles.lcbtn}>Edit</button>
                 <button className={styles.lcbtn}>Mark Sold</button>
@@ -375,12 +295,29 @@ function DashboardSection({ onNav }: { onNav: (section: Section) => void }) {
 
 // ─── LISTINGS SECTION ───────────────────────────────────────────────────────
 
-function ListingsSection() {
+function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[]; onRefresh: () => void }) {
   const [filter, setFilter] = useState<ListingFilter>('All');
   const filters: ListingFilter[] = ['All', 'Active', 'Rented', 'Sold', 'Pending'];
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  const filtered = filter === 'All' ? PROPERTIES : PROPERTIES.filter(p => p.status === filter);
+  const filtered = filter === 'All' ? properties : properties.filter(p => p.status.toLowerCase() === filter.toLowerCase());
+
+  const doAction = async (p: AdminProperty, action: string) => {
+    setOpenMenu(null);
+    if (action === 'Mark as Rented') {
+      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'RENTED' }) });
+      onRefresh();
+    } else if (action === 'Mark as Sold') {
+      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'SOLD' }) });
+      onRefresh();
+    } else if (action === 'Deactivate') {
+      await fetch('/api/properties/' + p.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'INACTIVE' }) });
+      onRefresh();
+    } else if (action === 'Delete') {
+      await fetch('/api/properties/' + p.id, { method: 'DELETE' });
+      onRefresh();
+    }
+  };
 
   return (
     <div>
@@ -417,21 +354,21 @@ function ListingsSection() {
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div className={styles.propThumb} style={{ width: 56, height: 40 }}>
-                      <img src={img(p.img, 200)} alt={p.name} />
+                      <img src={firstPropImage(p.images, 200)} alt={p.title} />
                     </div>
                     <div>
-                      <div className={styles.propNameCell}>{p.name}</div>
-                      <div className={styles.propLocCell}>{p.loc}</div>
+                      <div className={styles.propNameCell}>{p.title}</div>
+                      <div className={styles.propLocCell}>{p.location}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span className={`${styles.badge} ${p.status === 'Active' ? styles.bConfirmed : p.status === 'Pending' ? styles.bPending : styles.bCompleted}`}>
-                    {p.status}
+                  <span className={`${styles.badge} ${p.status === 'ACTIVE' ? styles.bConfirmed : p.status === 'PENDING' ? styles.bPending : styles.bCompleted}`}>
+                    {p.status.charAt(0) + p.status.slice(1).toLowerCase()}
                   </span>
                 </td>
                 <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.45)' }}>
-                  {p.beds} Beds · {p.baths} Baths · {p.sqm} sqm
+                  {p.bedrooms} Beds · {p.bathrooms} Baths · {p.sqm} sqm
                 </td>
                 <td>
                   <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -451,7 +388,7 @@ function ListingsSection() {
                         {['Mark as Rented', 'Mark as Sold', 'Deactivate', 'Delete'].map(action => (
                           <button
                             key={action}
-                            onClick={() => setOpenMenu(null)}
+                            onClick={() => doAction(p, action)}
                             style={{
                               display: 'block', width: '100%', textAlign: 'left',
                               padding: '10px 14px', background: 'none', border: 'none',
@@ -477,13 +414,13 @@ function ListingsSection() {
         {filtered.map(p => (
           <div key={p.id} className={styles.lcard}>
             <div className={styles.lcardImg}>
-              <img src={img(p.img, 400)} alt={p.name} />
+              <img src={firstPropImage(p.images, 400)} alt={p.title} />
               {p.badge && <div className={styles.lbadge}>{p.badge}</div>}
             </div>
             <div className={styles.lcardBody}>
-              <div className={styles.lcardName}>{p.name}</div>
+              <div className={styles.lcardName}>{p.title}</div>
               <div className={styles.lcardPrice}>{p.price}</div>
-              <div className={styles.lcardMeta}>{p.loc} · {p.beds} Beds · For Sale</div>
+              <div className={styles.lcardMeta}>{p.location} · {p.bedrooms} Beds · For Sale</div>
               <div className={styles.lcardActions}>
                 <button className={styles.lcbtn}>Edit</button>
                 <button className={styles.lcbtn}>Sold</button>
@@ -499,7 +436,7 @@ function ListingsSection() {
 
 // ─── CALENDAR TAB ───────────────────────────────────────────────────────────
 
-function CalendarTab() {
+function CalendarTab({ properties }: { properties: AdminProperty[] }) {
   const [calYear, setCalYear] = useState(2026);
   const [calMonth, setCalMonth] = useState(4); // May = index 4
 
@@ -531,18 +468,11 @@ function CalendarTab() {
     const dow = new Date(calYear, calMonth, day).getDay();
     const isWe = dow === 0 || dow === 6;
     const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day;
-    const key = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const bookings = CALENDAR_BOOKINGS[key] || [];
     const classes = [styles.calDay, isWe ? styles.calWe : '', isToday ? styles.calToday : ''].filter(Boolean).join(' ');
     calCells.push(
       <div key={day} className={classes}>
         <div className={styles.calDn}>{day}</div>
-        {bookings.map((b, bi) => (
-          <div key={bi} className={styles.calBooking}>
-            <span style={{ fontWeight: 500 }}>{b.n}</span><br />{b.t}
-          </div>
-        ))}
-        {!isWe && bookings.length === 0 && (
+        {!isWe && (
           <div style={{ fontSize: 9, color: 'rgba(82,112,112,0.65)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--teal)', display: 'inline-block', flexShrink: 0 }} />
             3 slots free
@@ -569,7 +499,7 @@ function CalendarTab() {
         </label>
         <select className={styles.fsel} style={{ width: 240, padding: '7px 12px', fontSize: 13 }}>
           <option value="">All Properties</option>
-          {PROPERTIES.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {properties.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
         </select>
       </div>
       <div className={styles.calControls}>
@@ -606,7 +536,7 @@ function CalendarTab() {
 
 // ─── GENERATE LINK TAB ──────────────────────────────────────────────────────
 
-function GenerateLinkTab() {
+function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
   const [propVal, setPropVal] = useState('');
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -642,7 +572,7 @@ function GenerateLinkTab() {
           <label>Select Property <span style={{ color: 'rgba(192,168,112,0.3)', fontWeight: 300 }}>— or leave blank for general enquiry</span></label>
           <select className={styles.fsel} value={propVal} onChange={e => setPropVal(e.target.value)}>
             <option value="">General Enquiry (no specific property)</option>
-            {PROPERTIES.map(p => <option key={p.id} value={p.id}>{p.name} — {p.loc}</option>)}
+            {properties.map(p => <option key={p.id} value={p.id}>{p.title} — {p.location}</option>)}
           </select>
         </div>
         <div className={styles.fgBlock}>
@@ -727,10 +657,15 @@ function GenerateLinkTab() {
 
 // ─── ALL INSPECTIONS TAB ────────────────────────────────────────────────────
 
-function InspectionsTab() {
+function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspection[]; onRefresh: () => void }) {
   const [statusFilter, setStatusFilter] = useState('All');
   const statuses = ['All', 'Pending', 'Confirmed', 'Completed'];
-  const filtered = statusFilter === 'All' ? INSPECTIONS : INSPECTIONS.filter(i => i.status === statusFilter);
+  const filtered = statusFilter === 'All' ? inspections : inspections.filter(i => i.status.toUpperCase() === statusFilter.toUpperCase());
+
+  const confirmInspection = async (id: string) => {
+    await fetch('/api/inspections/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'CONFIRMED' }) });
+    onRefresh();
+  };
 
   return (
     <div>
@@ -759,20 +694,25 @@ function InspectionsTab() {
           </thead>
           <tbody>
             {filtered.map(insp => (
-              <tr key={insp.ref}>
-                <td style={{ color: 'rgba(192,168,112,0.5)', fontSize: 11 }}>{insp.ref}</td>
+              <tr key={insp.id}>
+                <td style={{ color: 'rgba(192,168,112,0.5)', fontSize: 11 }}>{insp.referenceNo || insp.id.slice(0, 8)}</td>
                 <td className={styles.strong}>
-                  {insp.client}<br />
-                  <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', fontWeight: 300 }}>{insp.phone}</span>
+                  {insp.clientName}<br />
+                  <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', fontWeight: 300 }}>{insp.clientPhone}</span>
                 </td>
-                <td><PropThumbRow imgId={insp.img} name={insp.property} loc={insp.loc} /></td>
-                <td>{insp.date}</td>
-                <td>{insp.time}</td>
+                <td>
+                  <div>
+                    <div className={styles.propNameCell}>{insp.property?.title || 'Unknown'}</div>
+                    <div className={styles.propLocCell}>{insp.property?.location || ''}</div>
+                  </div>
+                </td>
+                <td>{insp.preferredDate}</td>
+                <td>{insp.preferredTime}</td>
                 <td><Badge status={insp.status} /></td>
                 <td style={{ fontSize: 11, color: 'rgba(244,237,224,0.35)', maxWidth: 140 }}>{insp.notes || '—'}</td>
                 <td>
                   <div className={styles.rowActions}>
-                    {insp.status === 'Pending' && <button className={styles.raBtn}>Confirm</button>}
+                    {insp.status === 'PENDING' && <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>}
                     <button className={styles.raBtn}>View</button>
                     <button className={styles.raBtn}>Reschedule</button>
                   </div>
@@ -788,7 +728,11 @@ function InspectionsTab() {
 
 // ─── BOOKINGS SECTION ───────────────────────────────────────────────────────
 
-function BookingsSection() {
+function BookingsSection({ properties, inspections, onRefresh }: {
+  properties: AdminProperty[];
+  inspections: AdminInspection[];
+  onRefresh: () => void;
+}) {
   const [tab, setTab] = useState<BookingTab>('calendar');
 
   return (
@@ -798,17 +742,41 @@ function BookingsSection() {
         <button className={`${styles.stab} ${tab === 'link' ? styles.stabOn : ''}`} onClick={() => setTab('link')}>🔗 Generate Booking Link</button>
         <button className={`${styles.stab} ${tab === 'inspections' ? styles.stabOn : ''}`} onClick={() => setTab('inspections')}>📋 All Inspections</button>
       </div>
-      {tab === 'calendar' && <CalendarTab />}
-      {tab === 'link' && <GenerateLinkTab />}
-      {tab === 'inspections' && <InspectionsTab />}
+      {tab === 'calendar' && <CalendarTab properties={properties} />}
+      {tab === 'link' && <GenerateLinkTab properties={properties} />}
+      {tab === 'inspections' && <InspectionsTab inspections={inspections} onRefresh={onRefresh} />}
     </div>
   );
 }
 
 // ─── LEADS SECTION ──────────────────────────────────────────────────────────
 
-function LeadsSection() {
-  const [leads, setLeads] = useState<Lead[]>(LEADS);
+type Lead = { name: string; property: string; date: string; status: LeadStatus };
+
+function toLeadStatus(s: string): LeadStatus {
+  if (s === 'NEW') return 'New';
+  if (s === 'CONTACTED') return 'Contacted';
+  if (s === 'IN_PROGRESS') return 'Booked';
+  return 'Closed';
+}
+
+function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onRefresh: () => void }) {
+  const [leads, setLeads] = useState<Lead[]>(() => enquiries.map(e => ({
+    name: e.name,
+    property: e.property?.title || 'General Enquiry',
+    date: new Date(e.createdAt).toLocaleDateString(),
+    status: toLeadStatus(e.status),
+  })));
+
+  useEffect(() => {
+    setLeads(enquiries.map(e => ({
+      name: e.name,
+      property: e.property?.title || 'General Enquiry',
+      date: new Date(e.createdAt).toLocaleDateString(),
+      status: toLeadStatus(e.status),
+    })));
+  }, [enquiries]);
+
   const columns: { key: LeadStatus; label: string }[] = [
     { key: 'New', label: 'New Leads' },
     { key: 'Contacted', label: 'Contacted' },
@@ -864,9 +832,15 @@ function LeadsSection() {
 
 // ─── REMINDERS SECTION ──────────────────────────────────────────────────────
 
-function RemindersSection() {
-  const [emailToggles, setEmailToggles] = useState<boolean[]>(REMINDERS.map(() => true));
-  const [waToggles, setWaToggles] = useState<boolean[]>(REMINDERS.map(() => true));
+function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
+  const reminders = inspections.filter(i => i.status === 'PENDING' || i.status === 'CONFIRMED').slice(0, 10);
+  const [emailToggles, setEmailToggles] = useState<boolean[]>(() => reminders.map(() => true));
+  const [waToggles, setWaToggles] = useState<boolean[]>(() => reminders.map(() => true));
+
+  useEffect(() => {
+    setEmailToggles(reminders.map(() => true));
+    setWaToggles(reminders.map(() => true));
+  }, [inspections]);
 
   return (
     <div>
@@ -887,35 +861,35 @@ function RemindersSection() {
             </tr>
           </thead>
           <tbody>
-            {REMINDERS.map((r, i) => (
-              <tr key={i}>
+            {reminders.map((insp, i) => (
+              <tr key={insp.id}>
                 <td className={styles.strong}>
-                  {r.client}<br />
-                  <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', fontWeight: 300 }}>{r.phone}</span>
+                  {insp.clientName}<br />
+                  <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', fontWeight: 300 }}>{insp.clientPhone}</span>
                 </td>
                 <td>
-                  <div className={styles.propNameCell}>{r.property}</div>
-                  <div className={styles.propLocCell}>{r.loc}</div>
+                  <div className={styles.propNameCell}>{insp.property?.title || 'Unknown'}</div>
+                  <div className={styles.propLocCell}>{insp.property?.location || ''}</div>
                 </td>
-                <td>{r.date}</td>
+                <td>{insp.preferredDate + ' ' + insp.preferredTime}</td>
                 <td>
                   <div className={styles.remStatus}>
-                    <span className={`${styles.remPill} ${r.h48 === 'sent' ? styles.remSent : styles.remPending}`}>
-                      48hr {r.h48 === 'sent' ? '✓' : '⏳'}
+                    <span className={`${styles.remPill} ${styles.remPending}`}>
+                      48hr ⏳
                     </span>
-                    <span className={`${styles.remPill} ${r.h24 === 'sent' ? styles.remSent : styles.remPending}`}>
-                      24hr {r.h24 === 'sent' ? '✓' : '⏳'}
+                    <span className={`${styles.remPill} ${styles.remPending}`}>
+                      24hr ⏳
                     </span>
-                    <span className={`${styles.remPill} ${r.h2 === 'sent' ? styles.remSent : styles.remPending}`}>
-                      2hr {r.h2 === 'sent' ? '✓' : '⏳'}
+                    <span className={`${styles.remPill} ${styles.remPending}`}>
+                      2hr ⏳
                     </span>
                   </div>
                 </td>
                 <td>
-                  <Toggle on={emailToggles[i]} onToggle={() => setEmailToggles(prev => prev.map((v, idx) => idx === i ? !v : v))} />
+                  <Toggle on={emailToggles[i] ?? true} onToggle={() => setEmailToggles(prev => prev.map((v, idx) => idx === i ? !v : v))} />
                 </td>
                 <td>
-                  <Toggle on={waToggles[i]} onToggle={() => setWaToggles(prev => prev.map((v, idx) => idx === i ? !v : v))} />
+                  <Toggle on={waToggles[i] ?? true} onToggle={() => setWaToggles(prev => prev.map((v, idx) => idx === i ? !v : v))} />
                 </td>
                 <td>
                   <div className={styles.rowActions} style={{ opacity: 1 }}>
@@ -1383,6 +1357,31 @@ const SECTION_TITLES: Record<Section, string> = {
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [section, setSection] = useState<Section>('dashboard');
+  const [properties, setProperties] = useState<AdminProperty[]>([]);
+  const [inspections, setInspections] = useState<AdminInspection[]>([]);
+  const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
+
+  const fetchAll = useCallback(async () => {
+    try {
+      const [propRes, inspRes, enqRes] = await Promise.all([
+        fetch('/api/properties?limit=100'),
+        fetch('/api/inspections'),
+        fetch('/api/enquiries'),
+      ]);
+      const propData = await propRes.json();
+      const inspData = await inspRes.json();
+      const enqData = await enqRes.json();
+      setProperties(propData.properties || []);
+      setInspections(Array.isArray(inspData) ? inspData : []);
+      setEnquiries(Array.isArray(enqData) ? enqData : []);
+    } catch {
+      // silently fail — UI shows empty state
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   return (
     <div className={styles.adminWrap}>
@@ -1428,7 +1427,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className={styles.topbar}>
           <div>
             <div className={styles.topbarTitle}>{SECTION_TITLES[section]}</div>
-            <div className={styles.topbarDate}>Friday, 23 May 2026 · Admin Command Centre</div>
+            <div className={styles.topbarDate}>
+              {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · Admin Command Centre'}
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(244,237,224,0.4)', position: 'relative', padding: 4 }}>
@@ -1441,11 +1442,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         {/* CONTENT */}
         <div className={styles.content}>
-          {section === 'dashboard' && <DashboardSection onNav={setSection} />}
-          {section === 'listings' && <ListingsSection />}
-          {section === 'bookings' && <BookingsSection />}
-          {section === 'leads' && <LeadsSection />}
-          {section === 'reminders' && <RemindersSection />}
+          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} />}
+          {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
+          {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
+          {section === 'leads' && <LeadsSection enquiries={enquiries} onRefresh={fetchAll} />}
+          {section === 'reminders' && <RemindersSection inspections={inspections} />}
           {section === 'settings' && <SettingsSection />}
         </div>
       </div>
@@ -1456,11 +1457,5 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 // ─── ROOT PAGE ───────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
-  }
-
-  return <Dashboard onLogout={() => setIsLoggedIn(false)} />;
+  return <Dashboard onLogout={() => signOut({ callbackUrl: '/' })} />;
 }
