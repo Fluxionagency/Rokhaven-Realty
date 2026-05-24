@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -12,98 +12,49 @@ type TabId = 'dashboard' | 'inspections' | 'saved' | 'enquiries' | 'profile';
 type InspFilterId = 'all' | 'upcoming' | 'completed' | 'cancelled';
 type ContactPref = 'WhatsApp' | 'SMS' | 'Email';
 
-const MOCK_INSPECTIONS = [
-  {
-    id: 1,
-    name: 'The Grand Arkadia',
-    location: 'Banana Island, Lagos',
-    date: 'Fri 30 May 2026',
-    time: '11:00 AM',
-    status: 'confirmed' as const,
-    img: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&q=70&auto=format&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'The Meridian, Lekki',
-    location: 'Lekki Phase 1, Lagos',
-    date: 'Wed 4 Jun 2026',
-    time: '2:00 PM',
-    status: 'pending' as const,
-    img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&q=70&auto=format&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Prestige Court, Ikoyi',
-    location: 'Ikoyi, Lagos',
-    date: 'Mon 18 May 2026',
-    time: '2:00 PM',
-    status: 'completed' as const,
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&q=70&auto=format&fit=crop',
-  },
-];
+interface PortalInspection {
+  id: number | string;
+  name: string;
+  location: string;
+  date: string;
+  time: string;
+  status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
+  img: string;
+}
 
-const MOCK_SAVED = [
-  {
-    id: 1,
-    name: 'The Grand Arkadia',
-    price: '₦1,200,000,000',
-    location: 'Banana Island, Lagos',
-    beds: 6,
-    baths: 7,
-    sqm: '1,200',
-    img: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=700&q=80&auto=format&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'Prestige Court, Ikoyi',
-    price: '₦450,000,000',
-    location: 'Ikoyi, Lagos',
-    beds: 5,
-    baths: 6,
-    sqm: '820',
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=700&q=80&auto=format&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Eko Atlantic Residence',
-    price: '₦920,000,000',
-    location: 'Eko Atlantic, Lagos',
-    beds: 5,
-    baths: 5,
-    sqm: '950',
-    img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=700&q=80&auto=format&fit=crop',
-  },
-];
+interface PortalEnquiry {
+  id: number | string;
+  name: string;
+  type: string;
+  date: string;
+  status: 'prog' | 'recv' | 'closed';
+  fields: { label: string; value: string; full?: boolean }[];
+}
 
-const MOCK_ENQUIRIES = [
-  {
-    id: 1,
-    name: 'The Grand Arkadia',
-    type: 'Inspection Request',
-    date: '17 May 2026',
-    status: 'prog' as const,
-    fields: [
-      { label: 'Property', value: 'The Grand Arkadia, Banana Island' },
-      { label: 'Inspection Date', value: 'Friday 30 May 2026, 11am' },
-      { label: 'Budget', value: 'Above ₦1B' },
-      { label: 'Timeline', value: 'Within 1–3 months' },
-      { label: 'Must-Haves', value: 'Swimming Pool · Generator · Smart Home · 24/7 Security · Gated Estate', full: true },
-    ],
-  },
-  {
-    id: 2,
-    name: 'The Meridian, Lekki',
-    type: 'Inspection Request',
-    date: '20 May 2026',
-    status: 'recv' as const,
-    fields: [
-      { label: 'Property', value: 'The Meridian, Lekki Phase 1' },
-      { label: 'Preferred Date', value: 'Wednesday 4 June 2026, 2pm' },
-      { label: 'Budget', value: '₦300M – ₦700M' },
-      { label: 'Timeline', value: 'Within 3 months' },
-    ],
-  },
-];
+function firstImg(images: string, w = 200): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr[0]
+      ? arr[0]
+      : `https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=${w}&q=70&auto=format&fit=crop`;
+  } catch {
+    return `https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=${w}&q=70&auto=format&fit=crop`;
+  }
+}
+
+function mapInspStatus(s: string): PortalInspection['status'] {
+  const u = s.toUpperCase();
+  if (u === 'CONFIRMED') return 'confirmed';
+  if (u === 'COMPLETED') return 'completed';
+  if (u === 'CANCELLED') return 'cancelled';
+  return 'pending';
+}
+
+function mapEnqStatus(s: string): PortalEnquiry['status'] {
+  if (s === 'CLOSED') return 'closed';
+  if (s === 'CONTACTED' || s === 'IN_PROGRESS') return 'prog';
+  return 'recv';
+}
 
 function getInitials(name?: string | null): string {
   if (!name) return 'U';
@@ -130,13 +81,64 @@ export default function ClientPortalPage() {
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [inspFilter, setInspFilter] = useState<InspFilterId>('all');
-  const [expandedEnq, setExpandedEnq] = useState<number | null>(null);
-  const [savedIds, setSavedIds] = useState<number[]>([1, 2, 3]);
+  const [expandedEnq, setExpandedEnq] = useState<number | string | null>(null);
   const [contactPref, setContactPref] = useState<ContactPref>('WhatsApp');
   const [notifInspection, setNotifInspection] = useState(true);
   const [notifListings, setNotifListings] = useState(true);
   const [notifMarket, setNotifMarket] = useState(false);
   const [saveMsg, setSaveMsg] = useState('Save Changes');
+
+  const [inspections, setInspections] = useState<PortalInspection[]>([]);
+  const [enquiries, setEnquiries] = useState<PortalEnquiry[]>([]);
+
+  const userEmail = session?.user?.email;
+
+  useEffect(() => {
+    if (!userEmail) return;
+    fetch(`/api/inspections?email=${encodeURIComponent(userEmail)}`)
+      .then(r => r.json())
+      .then((data: { id: string; preferredDate: string; preferredTime: string; status: string; property?: { title: string; location: string; images: string } }[]) => {
+        if (!Array.isArray(data)) return;
+        setInspections(data.map(insp => ({
+          id: insp.id,
+          name: insp.property?.title || 'Property',
+          location: insp.property?.location || '',
+          date: insp.preferredDate,
+          time: insp.preferredTime,
+          status: mapInspStatus(insp.status),
+          img: firstImg(insp.property?.images || '[]'),
+        })));
+      })
+      .catch(() => {});
+
+    fetch(`/api/enquiries?email=${encodeURIComponent(userEmail)}`)
+      .then(r => r.json())
+      .then((data: { id: string; property?: { title: string } | null; status: string; createdAt: string; budget?: string; timeline?: string; mustHaves?: string; notes?: string }[]) => {
+        if (!Array.isArray(data)) return;
+        setEnquiries(data.map(enq => {
+          const fields: { label: string; value: string; full?: boolean }[] = [];
+          if (enq.property?.title) fields.push({ label: 'Property', value: enq.property.title });
+          if (enq.budget) fields.push({ label: 'Budget', value: enq.budget });
+          if (enq.timeline) fields.push({ label: 'Timeline', value: enq.timeline });
+          if (enq.mustHaves) {
+            try {
+              const mh = JSON.parse(enq.mustHaves);
+              if (Array.isArray(mh) && mh.length) fields.push({ label: 'Must-Haves', value: mh.join(' · '), full: true });
+            } catch { /* ignore */ }
+          }
+          if (enq.notes) fields.push({ label: 'Notes', value: enq.notes, full: true });
+          return {
+            id: enq.id,
+            name: enq.property?.title || 'General Enquiry',
+            type: enq.property ? 'Property Enquiry' : 'General Enquiry',
+            date: new Date(enq.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            status: mapEnqStatus(enq.status),
+            fields,
+          };
+        }));
+      })
+      .catch(() => {});
+  }, [userEmail]);
 
   const topLabels: Record<TabId, string> = {
     dashboard: 'Client Dashboard',
@@ -150,11 +152,11 @@ export default function ClientPortalPage() {
   const userInitials = getInitials(session?.user?.name);
   const greeting = getGreeting();
 
-  const filteredInspections = MOCK_INSPECTIONS.filter((i) => {
+  const filteredInspections = inspections.filter((i) => {
     if (inspFilter === 'all') return true;
     if (inspFilter === 'upcoming') return i.status === 'confirmed' || i.status === 'pending';
     if (inspFilter === 'completed') return i.status === 'completed';
-    if (inspFilter === 'cancelled') return (i.status as string) === 'cancelled';
+    if (inspFilter === 'cancelled') return i.status === 'cancelled';
     return true;
   });
 
@@ -263,48 +265,54 @@ export default function ClientPortalPage() {
 
               <div className={styles.stats}>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>1</div>
+                  <div className={styles.scNum}>{inspections.filter(i => i.status === 'confirmed' || i.status === 'pending').length || 0}</div>
                   <div className={styles.scLbl}>Upcoming Inspections</div>
                 </div>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>3</div>
-                  <div className={styles.scLbl}>Saved Properties</div>
+                  <div className={styles.scNum}>{enquiries.length || 0}</div>
+                  <div className={styles.scLbl}>Enquiries Submitted</div>
                 </div>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>2</div>
-                  <div className={styles.scLbl}>Enquiries Submitted</div>
+                  <div className={styles.scNum}>{inspections.filter(i => i.status === 'completed').length || 0}</div>
+                  <div className={styles.scLbl}>Completed Viewings</div>
                 </div>
               </div>
 
               {/* Next Inspection */}
-              <span className={styles.slbl}>Next Inspection</span>
-              <div className={styles.inspCard}>
-                <div className={styles.inspImg}>
-                  <img
-                    src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80&auto=format&fit=crop"
-                    alt="The Grand Arkadia"
-                  />
-                </div>
-                <div className={styles.inspBody}>
-                  <div className={styles.inspLabel}>Confirmed Inspection</div>
-                  <div className={styles.inspName}>The Grand Arkadia</div>
-                  <div className={styles.inspLoc}>
-                    <svg width="10" height="12" viewBox="0 0 12 15" fill="rgba(192,168,112,.4)">
-                      <path d="M6 0C2.686 0 0 2.686 0 6c0 4.5 6 9 6 9s6-4.5 6-9c0-3.314-2.686-6-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
-                    </svg>
-                    Banana Island, Lagos
-                  </div>
-                  <div className={styles.inspDt}>Friday, 30 May 2026</div>
-                  <div className={styles.inspTime}>11:00 AM · In-Person Viewing</div>
-                  <div className={styles.inspActions}>
-                    <span className={styles.badgeConf}>Confirmed</span>
-                    <button className={styles.btnSmOutline}>+ Add to Calendar</button>
-                    <button className={styles.linkGold} onClick={() => setActiveTab('inspections')}>
-                      View Details →
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {inspections.filter(i => i.status === 'confirmed' || i.status === 'pending').length > 0 && (() => {
+                const next = inspections.find(i => i.status === 'confirmed' || i.status === 'pending');
+                if (!next) return null;
+                return (
+                  <>
+                    <span className={styles.slbl}>Next Inspection</span>
+                    <div className={styles.inspCard}>
+                      <div className={styles.inspImg}>
+                        <img src={next.img} alt={next.name} />
+                      </div>
+                      <div className={styles.inspBody}>
+                        <div className={styles.inspLabel}>{next.status === 'confirmed' ? 'Confirmed Inspection' : 'Pending Confirmation'}</div>
+                        <div className={styles.inspName}>{next.name}</div>
+                        <div className={styles.inspLoc}>
+                          <svg width="10" height="12" viewBox="0 0 12 15" fill="rgba(192,168,112,.4)">
+                            <path d="M6 0C2.686 0 0 2.686 0 6c0 4.5 6 9 6 9s6-4.5 6-9c0-3.314-2.686-6-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+                          </svg>
+                          {next.location}
+                        </div>
+                        <div className={styles.inspDt}>{next.date}</div>
+                        <div className={styles.inspTime}>{next.time} · In-Person Viewing</div>
+                        <div className={styles.inspActions}>
+                          <span className={next.status === 'confirmed' ? styles.badgeConf : styles.badgePend}>
+                            {next.status === 'confirmed' ? 'Confirmed' : 'Pending'}
+                          </span>
+                          <button className={styles.linkGold} onClick={() => setActiveTab('inspections')}>
+                            View Details →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               {/* Recently Viewed */}
               <div className={styles.secHdr}>
@@ -450,47 +458,16 @@ export default function ClientPortalPage() {
                   Explore More →
                 </Link>
               </div>
-              <p style={{ fontSize: '12.5px', color: 'rgba(244,237,224,.3)', marginBottom: '24px' }}>
-                {savedIds.length} {savedIds.length === 1 ? 'property' : 'properties'} saved
-              </p>
-              <div className={styles.pgrid}>
-                {MOCK_SAVED.filter((p) => savedIds.includes(p.id)).map((p) => (
-                  <div key={p.id} className={styles.pcard}>
-                    <div className={styles.cimg}>
-                      <img src={p.img} alt={p.name} />
-                      <button
-                        className={`${styles.saveBtn} ${styles.saveBtnSaved}`}
-                        onClick={() => setSavedIds((prev) => prev.filter((id) => id !== p.id))}
-                        aria-label="Remove from saved"
-                      >
-                        🔖
-                      </button>
-                    </div>
-                    <div className={styles.cbody}>
-                      <div className={styles.cname}>{p.name}</div>
-                      <div className={styles.cprice}>{p.price}</div>
-                      <div className={styles.cloc}>{p.location}</div>
-                      <div className={styles.cmeta}>
-                        <span>{p.beds} Beds</span>
-                        <span>{p.baths} Baths</span>
-                        <span>{p.sqm} sqm</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {savedIds.length === 0 && (
-                <div className={styles.empty}>
-                  <div className={styles.emptyIcon}>
-                    <svg width="22" height="22" fill="none" stroke="rgba(192,168,112,.4)" strokeWidth="1.4" viewBox="0 0 24 24">
-                      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-                    </svg>
-                  </div>
-                  <div className={styles.emptyH}>No saved properties</div>
-                  <p className={styles.emptyP}>Bookmark properties you like to view them here.</p>
-                  <Link href="/listings" className={styles.emptyCta}>Browse Listings →</Link>
+              <div className={styles.empty}>
+                <div className={styles.emptyIcon}>
+                  <svg width="22" height="22" fill="none" stroke="rgba(192,168,112,.4)" strokeWidth="1.4" viewBox="0 0 24 24">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                  </svg>
                 </div>
-              )}
+                <div className={styles.emptyH}>No saved properties yet</div>
+                <p className={styles.emptyP}>Browse our listings and save the properties you love.</p>
+                <Link href="/listings" className={styles.emptyCta}>Browse Listings →</Link>
+              </div>
             </div>
           )}
 
@@ -499,10 +476,18 @@ export default function ClientPortalPage() {
             <div>
               <div className={styles.pgH}>My Enquiries</div>
               <p style={{ fontSize: '12.5px', color: 'rgba(244,237,224,.3)', marginBottom: '20px' }}>
-                {MOCK_ENQUIRIES.length} enquiries submitted
+                {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'} submitted
               </p>
 
-              {MOCK_ENQUIRIES.map((enq) => (
+              {enquiries.length === 0 && (
+                <div className={styles.empty}>
+                  <div className={styles.emptyH}>No enquiries yet</div>
+                  <p className={styles.emptyP}>Submit an enquiry to get started.</p>
+                  <Link href="/enquiry" className={styles.linkGold}>Submit an Enquiry →</Link>
+                </div>
+              )}
+
+              {enquiries.map((enq) => (
                 <div key={enq.id} className={styles.enqCard}>
                   <div
                     className={styles.enqHdr}

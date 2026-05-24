@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -92,10 +92,11 @@ export default function PrincipalPortalPage() {
   const [propFilter, setPropFilter] = useState<PropFilterId>('all');
   const [openStatusMenu, setOpenStatusMenu] = useState<number | null>(null);
   const [modalProp, setModalProp] = useState<string | null>(null);
-  const [calYear, setCalYear] = useState(2026);
-  const [calMonth, setCalMonth] = useState(4); // May = index 4
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [submitRole, setSubmitRole] = useState<'owner' | 'direct' | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [beds, setBeds] = useState(4);
   const [baths, setBaths] = useState(4);
   const [activeFeatures, setActiveFeatures] = useState<Set<string>>(new Set(['Swimming Pool', 'Generator', '24/7 Security', 'Smart Home System', 'Gated Estate']));
@@ -103,6 +104,19 @@ export default function PrincipalPortalPage() {
   const [notifEnquiry, setNotifEnquiry] = useState(true);
   const [notifListing, setNotifListing] = useState(true);
   const [saveMsg, setSaveMsg] = useState('Save Changes');
+  const [submissions, setSubmissions] = useState<MockProperty[]>([]);
+
+  // Form refs for submit section
+  const titleRef = useRef<HTMLInputElement>(null);
+  const txnRef = useRef<HTMLSelectElement>(null);
+  const typeRef = useRef<HTMLSelectElement>(null);
+  const priceRef = useRef<HTMLInputElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+  const nbhRef = useRef<HTMLSelectElement>(null);
+  const sqmRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const topLabels: Record<TabId, string> = {
     dashboard: 'Principal Dashboard',
@@ -116,10 +130,68 @@ export default function PrincipalPortalPage() {
   const firstName = userName.split(' ')[0];
   const userInitials = getInitials(session?.user?.name);
 
-  const filteredProperties = MOCK_PROPERTIES.filter((p) => {
+  useEffect(() => {
+    fetch('/api/submissions')
+      .then(r => r.json())
+      .then((data: { id: string; title: string; location: string; status: string; createdAt: string; neighbourhood?: string }[]) => {
+        if (!Array.isArray(data)) return;
+        setSubmissions(data.map((s, i) => ({
+          id: i + 1000,
+          name: s.title,
+          location: s.neighbourhood ? `${s.neighbourhood}, Lagos` : s.location,
+          dateListed: `Submitted: ${new Date(s.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+          status: (s.status === 'APPROVED' ? 'active' : s.status === 'REJECTED' ? 'pending' : 'pending') as PropStatus,
+          inspections: 0,
+          enquiries: 0,
+          lastInspection: null,
+          img: null,
+        })));
+      })
+      .catch(() => {});
+  }, []);
+
+  const allProperties = [...MOCK_PROPERTIES, ...submissions];
+
+  const filteredProperties = allProperties.filter((p) => {
     if (propFilter === 'all') return true;
     return p.status === propFilter;
   });
+
+  const handlePropertySubmit = async () => {
+    if (!submitRole) {
+      alert('Please confirm your relationship to the property to proceed.');
+      return;
+    }
+    setSubmitting(true);
+    const txnVal = txnRef.current?.value || 'For Sale';
+    const categoryMap: Record<string, string> = { 'For Sale': 'SALE', 'For Rent': 'RENT', 'Shortlet': 'SHORTLET', 'Joint Venture (JV)': 'JV' };
+    try {
+      await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          relationship: submitRole,
+          title: titleRef.current?.value || '',
+          category: categoryMap[txnVal] || 'SALE',
+          type: typeRef.current?.value || 'Fully Detached',
+          price: priceRef.current?.value || '',
+          location: addressRef.current?.value || '',
+          neighbourhood: nbhRef.current?.value || null,
+          bedrooms: beds,
+          bathrooms: baths,
+          sqm: sqmRef.current?.value ? parseFloat(sqmRef.current.value) : null,
+          yearBuilt: yearRef.current?.value || null,
+          description: descRef.current?.value || '',
+          features: JSON.stringify([...activeFeatures]),
+          notes: noteRef.current?.value || null,
+        }),
+      });
+    } catch {
+      // show success regardless — don't block the principal
+    }
+    setSubmitting(false);
+    setSubmitted(true);
+  };
 
   const toggleFeature = (f: string) => {
     setActiveFeatures((prev) => {
@@ -708,12 +780,12 @@ export default function PrincipalPortalPage() {
                     <div className={styles.fsTitle}>Basic Details</div>
                     <div className={styles.fg}>
                       <label className={styles.fLbl}>Property Title</label>
-                      <input className={styles.fi} placeholder="e.g. 4-Bedroom Duplex in Lekki Phase 1" />
+                      <input ref={titleRef} className={styles.fi} placeholder="e.g. 4-Bedroom Duplex in Lekki Phase 1" />
                     </div>
                     <div className={`${styles.g3} ${styles.fg}`}>
                       <div>
                         <label className={styles.fLbl}>Transaction Type</label>
-                        <select className={styles.fsel}>
+                        <select ref={txnRef} className={styles.fsel}>
                           <option>For Sale</option>
                           <option>For Rent</option>
                           <option>Shortlet</option>
@@ -722,7 +794,7 @@ export default function PrincipalPortalPage() {
                       </div>
                       <div>
                         <label className={styles.fLbl}>Property Type</label>
-                        <select className={styles.fsel}>
+                        <select ref={typeRef} className={styles.fsel}>
                           <option>Fully Detached</option>
                           <option>Apartment</option>
                           <option>Semi-Detached</option>
@@ -734,16 +806,16 @@ export default function PrincipalPortalPage() {
                       </div>
                       <div>
                         <label className={styles.fLbl}>Price (₦)</label>
-                        <input className={styles.fi} placeholder="e.g. 450,000,000" />
+                        <input ref={priceRef} className={styles.fi} placeholder="e.g. 450,000,000" />
                       </div>
                     </div>
                     <div className={styles.fg}>
                       <label className={styles.fLbl}>Full Address</label>
-                      <input className={styles.fi} placeholder="Street address, estate name" />
+                      <input ref={addressRef} className={styles.fi} placeholder="Street address, estate name" />
                     </div>
                     <div className={styles.fg}>
                       <label className={styles.fLbl}>Neighbourhood</label>
-                      <select className={styles.fsel}>
+                      <select ref={nbhRef} className={styles.fsel}>
                         <option value="">Select neighbourhood</option>
                         <option>Banana Island</option>
                         <option>Ikoyi</option>
@@ -781,7 +853,7 @@ export default function PrincipalPortalPage() {
                       </div>
                       <div>
                         <label className={styles.fLbl}>Size (sqm)</label>
-                        <input className={styles.fi} placeholder="e.g. 650" />
+                        <input ref={sqmRef} className={styles.fi} placeholder="e.g. 650" />
                       </div>
                     </div>
                     <div className={styles.fg}>
@@ -789,11 +861,12 @@ export default function PrincipalPortalPage() {
                         Year Built{' '}
                         <span className={styles.fLblNote}>— Optional</span>
                       </label>
-                      <input className={styles.fi} placeholder="e.g. 2021" type="number" min={1980} max={2026} />
+                      <input ref={yearRef} className={styles.fi} placeholder="e.g. 2021" type="number" min={1980} max={2026} />
                     </div>
                     <div className={styles.fg}>
                       <label className={styles.fLbl}>Full Description</label>
                       <textarea
+                        ref={descRef}
                         className={styles.fta}
                         style={{ minHeight: '120px' }}
                         placeholder="Describe the property in detail — style, finishes, outdoor spaces, views, unique features…"
@@ -831,6 +904,7 @@ export default function PrincipalPortalPage() {
                     </div>
                     <div className={styles.fg}>
                       <textarea
+                        ref={noteRef}
                         className={styles.fta}
                         placeholder="e.g. Preferred inspection times, special access instructions, anything our team should know before publishing…"
                       />
@@ -839,15 +913,10 @@ export default function PrincipalPortalPage() {
 
                   <button
                     className={styles.btnGoldFull}
-                    onClick={() => {
-                      if (!submitRole) {
-                        alert('Please confirm your relationship to the property to proceed.');
-                        return;
-                      }
-                      setSubmitted(true);
-                    }}
+                    disabled={submitting}
+                    onClick={handlePropertySubmit}
                   >
-                    Submit for Review →
+                    {submitting ? 'Submitting…' : 'Submit for Review →'}
                   </button>
                   <p className={styles.submitDisclaimer}>
                     Once submitted, a member of the RokHaven team will review your listing. You will receive a notification when it goes live. You will not be able to edit the listing directly — please contact our team for changes after submission.

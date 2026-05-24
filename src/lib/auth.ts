@@ -25,6 +25,7 @@ export const authOptions: NextAuthOptions = {
 
         // Hardcoded test accounts (work without a database)
         const testAccounts: Record<string, { name: string; role: string; password: string }> = {
+          'admin@rokhaven.com':     { name: 'Admin',          role: 'ADMIN',     password: 'admin123' },
           'client@rokhaven.com':    { name: 'Test Client',    role: 'CLIENT',    password: 'client123' },
           'principal@rokhaven.com': { name: 'Test Principal', role: 'PRINCIPAL', password: 'principal123' },
         }
