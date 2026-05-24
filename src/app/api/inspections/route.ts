@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { autoCreateProfile } from '@/lib/autoProfile'
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,6 +53,12 @@ export async function POST(request: NextRequest) {
         where: { code: body.bookingLinkCode },
         data: { used: true },
       })
+    }
+
+    const email = body.email || body.clientEmail
+    const name = body.name || body.clientName
+    if (email && name) {
+      await autoCreateProfile(email, name, body.phone || body.clientPhone || '', 'CLIENT').catch(console.error)
     }
 
     return NextResponse.json(inspection, { status: 201 })

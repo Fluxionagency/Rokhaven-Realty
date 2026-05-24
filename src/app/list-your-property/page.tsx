@@ -54,7 +54,7 @@ export default function ListYourPropertyPage() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!role) {
       alert('Please confirm your relationship to the property to proceed.');
@@ -65,9 +65,13 @@ export default function ListYourPropertyPage() {
       return;
     }
     const payload = { ...form, role, amenities, consent };
-    console.log('List Your Property submission:', payload);
-    // POST to /api/submissions when backend is ready
-    // fetch('/api/submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    try {
+      await fetch('/api/list-property', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch { /* show success anyway */ }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

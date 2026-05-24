@@ -189,7 +189,7 @@ function ScheduleInspectionContent() {
                 <div className={styles.stepPaneVisible}>
                   <div className={styles.formEyebrow}>Step 1 of 3</div>
                   <h1 className={styles.formH}>Your Details</h1>
-                  <p className={styles.formSub}>We just need a few details to confirm your inspection.</p>
+                  <p className={styles.formSub}>We just need a few details to confirm your inspection. A secure client portal will be created for you automatically so you can track your bookings.</p>
                   <div className={styles.fq}>
                     <label className={styles.fqLbl}>Full Name</label>
                     <input
