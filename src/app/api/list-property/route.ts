@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { autoCreateProfile } from '@/lib/autoProfile'
+import { sendAdminPropertyAlert } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +30,12 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
       },
     })
+
+    await sendAdminPropertyAlert({
+      name: body.name, email: body.email, phone: body.phone || '',
+      propertyType: body.propertyType || '', location: body.location || '',
+      listingType: body.listingType || '',
+    }).catch(console.error)
 
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (error) {

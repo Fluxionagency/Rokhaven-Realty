@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { autoCreateProfile } from '@/lib/autoProfile'
+import { sendAdminInspectionAlert } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,9 +58,16 @@ export async function POST(request: NextRequest) {
 
     const email = body.email || body.clientEmail
     const name = body.name || body.clientName
+    const phone = body.phone || body.clientPhone || ''
     if (email && name) {
-      await autoCreateProfile(email, name, body.phone || body.clientPhone || '', 'CLIENT').catch(console.error)
+      await autoCreateProfile(email, name, phone, 'CLIENT').catch(console.error)
     }
+    await sendAdminInspectionAlert({
+      name: name || '', email: email || '', phone,
+      propertyName: body.propertyName || inspection.propertyId || '',
+      date: inspection.preferredDate,
+      time: inspection.preferredTime,
+    }).catch(console.error)
 
     return NextResponse.json(inspection, { status: 201 })
   } catch (error) {

@@ -3,6 +3,100 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM = 'RokHaven Realty <noreply@rokhaven.com>'
+const ADMIN_EMAIL = 'info@rokhaven.com'
+
+export async function sendAdminInspectionAlert(data: {
+  name: string; email: string; phone: string;
+  propertyName: string; date: string; time: string;
+}) {
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `New Inspection Booking — ${data.propertyName}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
+        <div style="margin-bottom:20px;">
+          <span style="font-size:20px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
+          <span style="font-size:10px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
+        </div>
+        <h2 style="font-size:20px;font-weight:400;margin:0 0 20px;color:#C0A870;">New Inspection Booking</h2>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PROPERTY</td><td style="padding:8px 0;color:#f4ede0;">${data.propertyName}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">NAME</td><td style="padding:8px 0;color:#f4ede0;">${data.name}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:8px 0;color:#f4ede0;">${data.email}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PHONE</td><td style="padding:8px 0;color:#f4ede0;">${data.phone}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">DATE</td><td style="padding:8px 0;color:#f4ede0;">${data.date}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">TIME</td><td style="padding:8px 0;color:#f4ede0;">${data.time || 'Any time'}</td></tr>
+        </table>
+        <div style="margin-top:24px;">
+          <a href="https://rokhaven.com/admin" style="background:#C0A870;color:#060F1C;padding:10px 20px;text-decoration:none;font-size:13px;letter-spacing:1px;">VIEW IN ADMIN →</a>
+        </div>
+      </div>
+    `,
+  })
+}
+
+export async function sendAdminEnquiryAlert(data: {
+  name: string; email: string; phone: string;
+  subject?: string; message?: string; propertyName?: string;
+}) {
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `New Enquiry — ${data.subject || data.propertyName || 'General'}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
+        <div style="margin-bottom:20px;">
+          <span style="font-size:20px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
+          <span style="font-size:10px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
+        </div>
+        <h2 style="font-size:20px;font-weight:400;margin:0 0 20px;color:#C0A870;">New Enquiry Received</h2>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">NAME</td><td style="padding:8px 0;color:#f4ede0;">${data.name}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:8px 0;color:#f4ede0;">${data.email}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PHONE</td><td style="padding:8px 0;color:#f4ede0;">${data.phone}</td></tr>
+          ${data.subject ? `<tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">SUBJECT</td><td style="padding:8px 0;color:#f4ede0;">${data.subject}</td></tr>` : ''}
+          ${data.propertyName ? `<tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PROPERTY</td><td style="padding:8px 0;color:#f4ede0;">${data.propertyName}</td></tr>` : ''}
+          ${data.message ? `<tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">MESSAGE</td><td style="padding:8px 0;color:#f4ede0;">${data.message}</td></tr>` : ''}
+        </table>
+        <div style="margin-top:24px;">
+          <a href="https://rokhaven.com/admin" style="background:#C0A870;color:#060F1C;padding:10px 20px;text-decoration:none;font-size:13px;letter-spacing:1px;">VIEW IN ADMIN →</a>
+        </div>
+      </div>
+    `,
+  })
+}
+
+export async function sendAdminPropertyAlert(data: {
+  name: string; email: string; phone: string;
+  propertyType: string; location: string; listingType: string;
+}) {
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `New Property Listing Request — ${data.propertyType}, ${data.location}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
+        <div style="margin-bottom:20px;">
+          <span style="font-size:20px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
+          <span style="font-size:10px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
+        </div>
+        <h2 style="font-size:20px;font-weight:400;margin:0 0 20px;color:#C0A870;">New Property Listing Request</h2>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">NAME</td><td style="padding:8px 0;color:#f4ede0;">${data.name}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">EMAIL</td><td style="padding:8px 0;color:#f4ede0;">${data.email}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PHONE</td><td style="padding:8px 0;color:#f4ede0;">${data.phone}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">PROPERTY</td><td style="padding:8px 0;color:#f4ede0;">${data.propertyType}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">LOCATION</td><td style="padding:8px 0;color:#f4ede0;">${data.location}</td></tr>
+          <tr><td style="padding:8px 0;color:rgba(244,237,224,.5);font-size:12px;letter-spacing:1px;">LISTING TYPE</td><td style="padding:8px 0;color:#f4ede0;">${data.listingType}</td></tr>
+        </table>
+        <div style="margin-top:24px;">
+          <a href="https://rokhaven.com/admin" style="background:#C0A870;color:#060F1C;padding:10px 20px;text-decoration:none;font-size:13px;letter-spacing:1px;">VIEW IN ADMIN →</a>
+        </div>
+      </div>
+    `,
+  })
+}
 
 export async function sendClientWelcome(to: string, name: string, password: string) {
   await resend.emails.send({
