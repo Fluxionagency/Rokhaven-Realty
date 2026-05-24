@@ -14,6 +14,7 @@ interface PropertyInfo {
   location: string;
   image: string;
   tags: string[];
+  category: string;
 }
 
 const FALLBACK_PROPERTY: PropertyInfo = {
@@ -22,6 +23,7 @@ const FALLBACK_PROPERTY: PropertyInfo = {
   location: 'Lagos, Nigeria',
   image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80&auto=format&fit=crop',
   tags: [],
+  category: '',
 };
 
 const TOTAL_STEPS = 12;
@@ -74,7 +76,7 @@ function ScheduleInspectionContent() {
         else if (data.category === 'RENT') tags.push('For Rent');
         else if (data.category === 'SHORTLET') tags.push('Shortlet');
         if (data.neighbourhood || data.location) tags.push(data.neighbourhood || data.location.split(',')[0]);
-        setProperty({ name: data.title, price: data.price, location: data.location, image, tags });
+        setProperty({ name: data.title, price: data.price, location: data.location, image, tags, category: data.category || '' });
       })
       .catch(() => { /* keep fallback */ });
   }, [propertyId]);
@@ -157,13 +159,21 @@ function ScheduleInspectionContent() {
       return;
     }
 
-    setCurrentStep(s => s + 1);
-  }, [currentStep, validate, name, email, phone, principal, budget, mustHaves, timeline, inspDate, inspTime, contactTime, referral, notes, propertyId, property.name, router]);
+    const isSaleOnly = (s: number) => s === 6 && property.category !== 'SALE' && property.category !== 'JV';
+    setCurrentStep(s => {
+      const next = s + 1;
+      return isSaleOnly(next) ? next + 1 : next;
+    });
+  }, [currentStep, validate, name, email, phone, principal, budget, mustHaves, timeline, inspDate, inspTime, contactTime, referral, notes, propertyId, property.name, property.category, router]);
 
   const handleBack = useCallback(() => {
     if (currentStep === 0) return;
-    setCurrentStep(s => s - 1);
-  }, [currentStep]);
+    const isSaleOnly = (s: number) => s === 6 && property.category !== 'SALE' && property.category !== 'JV';
+    setCurrentStep(s => {
+      const prev = s - 1;
+      return isSaleOnly(prev) ? prev - 1 : prev;
+    });
+  }, [currentStep, property.category]);
 
   const toggleMustHave = (v: string) => {
     setMustHaves(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]);
@@ -436,8 +446,8 @@ function ScheduleInspectionContent() {
                 </div>
               )}
 
-              {/* ═══ STEP 6: Timeline ═══ */}
-              {currentStep === 6 && (
+              {/* ═══ STEP 6: Timeline (sale only) ═══ */}
+              {currentStep === 6 && property.category !== 'RENT' && property.category !== 'SHORTLET' && (
                 <div className={styles.stepPaneVisible}>
                   <div className={styles.formEyebrow}>Step 6 of 12</div>
                   <h2 className={styles.formH}>What is your purchase timeline?</h2>
