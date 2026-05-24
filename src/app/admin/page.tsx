@@ -191,13 +191,23 @@ const IconPlus = () => (
 
 // ─── DASHBOARD SECTION ──────────────────────────────────────────────────────
 
-function DashboardSection({ onNav, properties, inspections }: {
+function DashboardSection({ onNav, properties, inspections, onRefresh }: {
   onNav: (section: Section) => void;
   properties: AdminProperty[];
   inspections: AdminInspection[];
+  onRefresh: () => void;
 }) {
   const activeListings = properties.filter(p => p.status === 'ACTIVE').length;
   const pendingInspections = inspections.filter(i => i.status === 'PENDING').length;
+
+  const confirmInspection = async (id: string) => {
+    await fetch('/api/inspections/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'CONFIRMED' }),
+    });
+    onRefresh();
+  };
 
   return (
     <div>
@@ -255,8 +265,10 @@ function DashboardSection({ onNav, properties, inspections }: {
                 <td><Badge status={insp.status} /></td>
                 <td>
                   <div className={styles.rowActions}>
-                    {insp.status === 'PENDING' && <button className={styles.raBtn}>Confirm</button>}
-                    <button className={styles.raBtn}>View</button>
+                    {insp.status === 'PENDING' && (
+                      <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>
+                    )}
+                    <button className={styles.raBtn} onClick={() => onNav('bookings')}>View</button>
                     {insp.status === 'CONFIRMED' && <button className={styles.raBtn}>Reschedule</button>}
                     {insp.status === 'COMPLETED' && <button className={styles.raBtn}>Follow up</button>}
                   </div>
@@ -1144,6 +1156,95 @@ function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onR
   );
 }
 
+// ─── EDITABLE REMINDER SCHEDULE ─────────────────────────────────────────────
+
+type ReminderSlot = { timing: string; email: boolean; whatsapp: boolean; sms: boolean };
+
+function ReminderScheduleCard() {
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [slots, setSlots] = useState<ReminderSlot[]>([
+    { timing: '48', email: true, whatsapp: true, sms: true },
+    { timing: '24', email: true, whatsapp: true, sms: true },
+    { timing: '2',  email: false, whatsapp: true, sms: true },
+  ]);
+  const [staged, setStaged] = useState<ReminderSlot[]>(slots);
+
+  const startEdit = () => { setStaged(slots.map(s => ({ ...s }))); setEditing(true); setSaved(false); };
+  const cancel = () => setEditing(false);
+  const save = () => { setSlots(staged); setEditing(false); setSaved(true); setTimeout(() => setSaved(false), 2500); };
+
+  const toggle = (i: number, ch: 'email' | 'whatsapp' | 'sms') => {
+    setStaged(prev => prev.map((s, idx) => idx === i ? { ...s, [ch]: !s[ch] } : s));
+  };
+
+  const channelLabel = (s: ReminderSlot) =>
+    [s.email && 'Email', s.whatsapp && 'WhatsApp', s.sms && 'SMS'].filter(Boolean).join(' + ') || 'None';
+
+  return (
+    <div className={styles.reminderSchedule}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div className={styles.intSectionLabel} style={{ marginBottom: 0 }}>Automated Reminder Schedule</div>
+        {!editing ? (
+          <button className={styles.raBtn} style={{ opacity: 1 }} onClick={startEdit}>Edit Schedule</button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className={styles.raBtn} style={{ opacity: 1 }} onClick={cancel}>Cancel</button>
+            <button className={styles.raBtn} style={{ opacity: 1, background: 'var(--gold)', color: '#060F1C' }} onClick={save}>Save</button>
+          </div>
+        )}
+      </div>
+      {saved && <div style={{ fontSize: 12, color: '#5DC882', marginBottom: 10 }}>Schedule saved ✓</div>}
+      {!editing ? (
+        <div className={styles.reminderScheduleRow}>
+          {slots.map((s, i) => (
+            <div key={i} className={styles.reminderItem}>
+              <div className={styles.reminderDot} />
+              <div>
+                <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400 }}>{s.timing} hours before</div>
+                <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)' }}>{channelLabel(s)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {staged.map((s, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 3, padding: '14px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 160 }}>
+                  <input
+                    type="number"
+                    min={1}
+                    max={168}
+                    value={s.timing}
+                    onChange={e => setStaged(prev => prev.map((sl, idx) => idx === i ? { ...sl, timing: e.target.value } : sl))}
+                    style={{ width: 56, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(192,168,112,0.2)', color: '#f4ede0', padding: '6px 10px', fontSize: 13, borderRadius: 2, outline: 'none' }}
+                  />
+                  <span style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)' }}>hours before</span>
+                </div>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  {(['email', 'whatsapp', 'sms'] as const).map(ch => (
+                    <label key={ch} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, color: s[ch] ? 'var(--gold)' : 'rgba(244,237,224,0.3)' }}>
+                      <input
+                        type="checkbox"
+                        checked={s[ch]}
+                        onChange={() => toggle(i, ch)}
+                        style={{ accentColor: '#C0A870', cursor: 'pointer' }}
+                      />
+                      {ch === 'whatsapp' ? 'WhatsApp' : ch.charAt(0).toUpperCase() + ch.slice(1)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── REMINDERS SECTION ──────────────────────────────────────────────────────
 
 function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
@@ -1217,24 +1318,7 @@ function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
           </tbody>
         </table>
       </div>
-      <div className={styles.reminderSchedule}>
-        <div className={styles.intSectionLabel}>Automated Reminder Schedule</div>
-        <div className={styles.reminderScheduleRow}>
-          {[
-            { label: '48 hours before', channels: 'WhatsApp + Email + SMS' },
-            { label: '24 hours before', channels: 'WhatsApp + Email + SMS' },
-            { label: '2 hours before', channels: 'WhatsApp + SMS' },
-          ].map(r => (
-            <div key={r.label} className={styles.reminderItem}>
-              <div className={styles.reminderDot} />
-              <div>
-                <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400 }}>{r.label}</div>
-                <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)' }}>{r.channels}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ReminderScheduleCard />
     </div>
   );
 }
@@ -1242,13 +1326,23 @@ function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
 // ─── SETTINGS: INTEGRATION TAB ──────────────────────────────────────────────
 
 function IntegrationTab() {
-  const [calConnected, setCalConnected] = useState<Record<string, boolean>>({ google: false, outlook: false, apple: false });
-  const [msgConnected, setMsgConnected] = useState<Record<string, boolean>>({ whatsapp: true, telegram: false, instagram: false });
-  const [crmConnected, setCrmConnected] = useState<Record<string, boolean>>({ salesforce: false, hubspot: false, zapier: false });
-  const [activeEmail, setActiveEmail] = useState('sendgrid');
+  const [activeEmail, setActiveEmail] = useState('resend');
+  const [setupModal, setSetupModal] = useState<{ name: string; instructions: string } | null>(null);
 
-  function IntCard({ icon, iconBg, name, desc, connected, onConnect }: {
-    icon: React.ReactNode; iconBg: string; name: string; desc: string; connected: boolean; onConnect: () => void;
+  const SETUP_INSTRUCTIONS: Record<string, string> = {
+    'Google Calendar': 'To connect Google Calendar, enable the Google Calendar API in Google Cloud Console, create OAuth credentials, and add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your environment variables.',
+    'Microsoft Outlook / Office 365': 'Register an app in Azure Active Directory, grant Calendar.ReadWrite permissions, and add AZURE_CLIENT_ID and AZURE_CLIENT_SECRET to your environment variables.',
+    'Apple Calendar (iCal)': 'Apple Calendar sync works via iCal feed URL. Generate a secret iCal URL from your calendar settings and add it to your environment as ICAL_FEED_URL.',
+    'WhatsApp Business API': 'Apply for WhatsApp Business API access via Meta for Developers. Once approved, add WHATSAPP_API_TOKEN and WHATSAPP_PHONE_ID to your environment variables.',
+    'Telegram Bot': 'Create a bot via @BotFather on Telegram, copy the bot token, and add TELEGRAM_BOT_TOKEN to your environment variables.',
+    'Instagram Direct (via Meta API)': 'Enable Instagram Messaging in your Meta App settings, connect your Instagram Business account, and add META_ACCESS_TOKEN to your environment variables.',
+    'Salesforce CRM': 'Create a connected app in Salesforce Setup, copy the Consumer Key and Secret, and add SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET to your environment variables.',
+    'HubSpot CRM': 'Create a private app in your HubSpot account, grant CRM contacts and deals scopes, and add HUBSPOT_API_KEY to your environment variables.',
+    'Zapier': 'In Zapier, create a new Zap with a Webhook trigger. Copy the webhook URL and add it as ZAPIER_WEBHOOK_URL to your environment variables.',
+  };
+
+  function IntCard({ icon, iconBg, name, desc, active, comingSoon }: {
+    icon: React.ReactNode; iconBg: string; name: string; desc: string; active?: boolean; comingSoon?: boolean;
   }) {
     return (
       <div className={styles.intCard}>
@@ -1257,18 +1351,38 @@ function IntegrationTab() {
           <div className={styles.intName}>{name}</div>
           <div className={styles.intDesc}>{desc}</div>
         </div>
-        <button
-          className={`${styles.intBtn} ${connected ? styles.intBtnConnected : ''}`}
-          onClick={connected ? undefined : onConnect}
-        >
-          {connected ? '✓ Connected' : 'Connect →'}
-        </button>
+        {active ? (
+          <button className={`${styles.intBtn} ${styles.intBtnConnected}`}>✓ Active</button>
+        ) : comingSoon ? (
+          <span style={{ fontSize: 10, color: 'rgba(192,168,112,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Coming Soon</span>
+        ) : (
+          <button
+            className={styles.intBtn}
+            onClick={() => setSetupModal({ name, instructions: SETUP_INSTRUCTIONS[name] || 'Contact your development team for setup instructions.' })}
+          >
+            Setup →
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div>
+      {setupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(6,15,28,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          onClick={e => e.target === e.currentTarget && setSetupModal(null)}>
+          <div style={{ background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, padding: 28, maxWidth: 500, width: '100%' }}>
+            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: '#F4EDE0', marginBottom: 12 }}>{setupModal.name}</div>
+            <p style={{ fontSize: 13, color: 'rgba(244,237,224,0.55)', lineHeight: 1.7, marginBottom: 20 }}>{setupModal.instructions}</p>
+            <div style={{ fontSize: 11, color: 'rgba(192,168,112,0.45)', marginBottom: 20 }}>Add the required environment variables in your Vercel project settings, then redeploy.</div>
+            <button onClick={() => setSetupModal(null)} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className={styles.spTitle}>Integrations</div>
       <div className={styles.spSub}>Connect RokHaven to external services to automate your booking workflow, calendar sync, and client communications.</div>
 
@@ -1277,15 +1391,12 @@ function IntegrationTab() {
         icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>}
         iconBg="#4285F4" name="Google Calendar"
         desc="Sync confirmed inspections automatically. New bookings appear as calendar events with full client and property details."
-        connected={calConnected.google} onConnect={() => setCalConnected(p => ({ ...p, google: true }))}
       />
       <IntCard icon="📅" iconBg="#0078D4" name="Microsoft Outlook / Office 365"
         desc="Connect your Outlook calendar for automatic inspection scheduling and team-wide calendar visibility."
-        connected={calConnected.outlook} onConnect={() => setCalConnected(p => ({ ...p, outlook: true }))}
       />
       <IntCard icon="📱" iconBg="#1a73e8" name="Apple Calendar (iCal)"
         desc="Sync inspections to Apple Calendar via iCal feed. Compatible with iOS and macOS Calendar apps."
-        connected={calConnected.apple} onConnect={() => setCalConnected(p => ({ ...p, apple: true }))}
       />
 
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>💬 Messaging</div>
@@ -1293,20 +1404,21 @@ function IntegrationTab() {
         icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>}
         iconBg="#25D366" name="WhatsApp Business API"
         desc="Send automated inspection reminders, booking confirmations, and follow-up messages via WhatsApp."
-        connected={msgConnected.whatsapp} onConnect={() => setMsgConnected(p => ({ ...p, whatsapp: true }))}
       />
       <IntCard icon="✈️" iconBg="#0088CC" name="Telegram Bot"
         desc="Send booking notifications and reminders via Telegram to clients who prefer it."
-        connected={msgConnected.telegram} onConnect={() => setMsgConnected(p => ({ ...p, telegram: true }))}
+        comingSoon
       />
       <IntCard icon="📸" iconBg="#E4405F" name="Instagram Direct (via Meta API)"
         desc="Receive and reply to Instagram DM enquiries directly from the RokHaven dashboard."
-        connected={msgConnected.instagram} onConnect={() => setMsgConnected(p => ({ ...p, instagram: true }))}
+        comingSoon
       />
 
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>✉️ Email Provider</div>
       <div className={styles.emailProviderWrapper}>
-        <div className={styles.emailProviderNote}>Select your preferred email delivery provider. Only one email provider can be active at a time.</div>
+        <div className={styles.emailProviderNote}>
+          Resend is currently active and configured. Transactional emails are sent via <strong style={{ color: 'rgba(192,168,112,0.7)' }}>noreply@rokhaven.com</strong>.
+        </div>
         <div className={styles.emailProviders}>
           {EMAIL_PROVIDERS.map(p => (
             <div
@@ -1316,16 +1428,16 @@ function IntegrationTab() {
             >
               <div className={styles.eoName}>{p.name}</div>
               <div className={styles.eoDesc}>{p.desc}</div>
-              {activeEmail === p.id && <div className={styles.eoBadge}>✓ Active</div>}
+              {activeEmail === p.id && <div className={styles.eoBadge}>{p.id === 'resend' ? '✓ Active' : '✓ Selected'}</div>}
             </div>
           ))}
         </div>
-        {activeEmail && (
+        {activeEmail && activeEmail !== 'resend' && (
           <div style={{ marginTop: 14 }}>
             <label style={{ display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.42)', letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 8 }}>
               API Key — {EMAIL_PROVIDERS.find(p => p.id === activeEmail)?.name}
             </label>
-            <input className={styles.fi} type="password" placeholder="Enter your API key…" />
+            <input className={styles.fi} type="password" placeholder="Enter your API key and add to Vercel env vars…" />
           </div>
         )}
       </div>
@@ -1333,15 +1445,14 @@ function IntegrationTab() {
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>💳 CRM &amp; Other</div>
       <IntCard icon="☁️" iconBg="#00A1E0" name="Salesforce CRM"
         desc="Sync leads and client data to your Salesforce org automatically when new enquiries arrive."
-        connected={crmConnected.salesforce} onConnect={() => setCrmConnected(p => ({ ...p, salesforce: true }))}
+        comingSoon
       />
       <IntCard icon="🔶" iconBg="#FF7A59" name="HubSpot CRM"
         desc="Push new leads and inspection bookings directly into your HubSpot pipeline."
-        connected={crmConnected.hubspot} onConnect={() => setCrmConnected(p => ({ ...p, hubspot: true }))}
+        comingSoon
       />
       <IntCard icon="⚡" iconBg="#6C47FF" name="Zapier"
         desc="Connect RokHaven to 6,000+ apps. Automate anything — Notion, Slack, Sheets, and more."
-        connected={crmConnected.zapier} onConnect={() => setCrmConnected(p => ({ ...p, zapier: true }))}
       />
     </div>
   );
@@ -1674,6 +1785,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [properties, setProperties] = useState<AdminProperty[]>([]);
   const [inspections, setInspections] = useState<AdminInspection[]>([]);
   const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1698,7 +1810,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   }, [fetchAll]);
 
   return (
-    <div className={styles.adminWrap}>
+    <div className={styles.adminWrap} onClick={() => notifOpen && setNotifOpen(false)}>
       {/* SIDEBAR */}
       <aside className={styles.sb}>
         <div className={styles.sbLogo}>
@@ -1746,17 +1858,62 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(244,237,224,0.4)', position: 'relative', padding: 4 }}>
-              <IconBell />
-              <span style={{ position: 'absolute', top: 0, right: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)' }} />
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setNotifOpen(o => !o)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: notifOpen ? 'var(--gold)' : 'rgba(244,237,224,0.4)', position: 'relative', padding: 4 }}
+              >
+                <IconBell />
+                {(inspections.filter(i => i.status === 'PENDING').length + enquiries.filter(e => e.status === 'NEW').length) > 0 && (
+                  <span style={{ position: 'absolute', top: 0, right: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)' }} />
+                )}
+              </button>
+              {notifOpen && (
+                <div
+                  style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 320, background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 500 }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(192,168,112,0.08)', fontSize: 11, fontWeight: 600, color: 'rgba(192,168,112,0.6)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    Notifications
+                  </div>
+                  <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                    {inspections.filter(i => i.status === 'PENDING').slice(0, 5).map(insp => (
+                      <div key={insp.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
+                        onClick={() => { setSection('bookings'); setNotifOpen(false); }}>
+                        <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New inspection request</div>
+                        <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{insp.clientName} · {insp.property?.title || 'Unknown property'}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{insp.preferredDate} at {insp.preferredTime}</div>
+                      </div>
+                    ))}
+                    {enquiries.filter(e => e.status === 'NEW').slice(0, 5).map(enq => (
+                      <div key={enq.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
+                        onClick={() => { setSection('leads'); setNotifOpen(false); }}>
+                        <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New enquiry</div>
+                        <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{enq.name} · {enq.property?.title || 'General enquiry'}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{new Date(enq.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                    {inspections.filter(i => i.status === 'PENDING').length === 0 && enquiries.filter(e => e.status === 'NEW').length === 0 && (
+                      <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'rgba(244,237,224,0.3)' }}>
+                        No new notifications
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(192,168,112,0.08)' }}>
+                    <button onClick={() => setNotifOpen(false)} style={{ background: 'none', border: 'none', fontSize: 11, color: 'rgba(192,168,112,0.5)', cursor: 'pointer', padding: 0 }}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className={styles.sbAvatar} style={{ cursor: 'pointer' }}>AO</div>
           </div>
         </div>
 
         {/* CONTENT */}
         <div className={styles.content}>
-          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} />}
+          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'leads' && <LeadsSection enquiries={enquiries} onRefresh={fetchAll} />}
