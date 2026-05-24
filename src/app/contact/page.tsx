@@ -173,7 +173,7 @@ export default function ContactPage() {
               <div>
                 <div className={styles.infoLabel}>Email</div>
                 <div className={styles.infoValue}>
-                  <a href="mailto:hello@rokhaven.com">hello@rokhaven.com</a>
+                  <a href="mailto:info@rokhaven.com">info@rokhaven.com</a>
                 </div>
               </div>
             </div>
@@ -206,8 +206,41 @@ export default function ContactPage() {
               <div>
                 <div className={styles.infoLabel}>Instagram</div>
                 <div className={styles.infoValue}>
-                  <a href="https://instagram.com/rokhavenrealty" target="_blank" rel="noopener noreferrer">
-                    @rokhavenrealty
+                  <a href="https://www.instagram.com/rokhavenrealtyng/" target="_blank" rel="noopener noreferrer">
+                    @rokhavenrealtyng
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.infoRow}>
+              <div className={styles.infoIcon}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(192,168,112,.5)">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.93a8.19 8.19 0 004.79 1.52V7.01a4.85 4.85 0 01-1.02-.32z"/>
+                </svg>
+              </div>
+              <div>
+                <div className={styles.infoLabel}>TikTok</div>
+                <div className={styles.infoValue}>
+                  <a href="https://www.tiktok.com/@rokhaven" target="_blank" rel="noopener noreferrer">
+                    @rokhaven
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.infoRow}>
+              <div className={styles.infoIcon}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(192,168,112,.5)">
+                  <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
+                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#1a150a"/>
+                </svg>
+              </div>
+              <div>
+                <div className={styles.infoLabel}>YouTube</div>
+                <div className={styles.infoValue}>
+                  <a href="https://www.youtube.com/@RokHaven" target="_blank" rel="noopener noreferrer">
+                    @RokHaven
                   </a>
                 </div>
               </div>
@@ -238,7 +271,7 @@ export default function ContactPage() {
             <Link href="/listings?cat=shortlet">Shortlets</Link>
             <Link href="/contact">Contact</Link>
           </div>
-          <div className={styles.footCopy}>© 2025 RokHaven Realty Ltd.</div>
+          <div className={styles.footCopy}>© {new Date().getFullYear()} RokHaven Realty Ltd.</div>
         </div>
       </footer>
     </>
