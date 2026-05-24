@@ -285,7 +285,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
                   +234 916 761 9009
                 </div>
                 <a
-                  href={`https://wa.me/2349167619009?text=${encodeURIComponent(`Hello, I am interested in ${property.title}`)}`}
+                  href={`https://wa.me/2349167619009?text=${encodeURIComponent(`Hello, I am interested in this property: https://rokhaven.com/listings/${id}`)}`}
                   className={styles.ctaWa}
                   target="_blank"
                   rel="noopener noreferrer"
