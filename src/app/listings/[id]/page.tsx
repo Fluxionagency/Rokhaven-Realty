@@ -282,10 +282,10 @@ export default function PropertyDetailPage({ params }: PageProps) {
                   <svg width="14" height="14" fill="none" stroke="rgba(192,168,112,.5)" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.5 10.8 19.79 19.79 0 01.43 2.18 2 2 0 012.4 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.22 6.22l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
                   </svg>
-                  +234 800 123 4567
+                  +234 916 761 9009
                 </div>
                 <a
-                  href="https://wa.me/2348001234567?text=Hello%2C%20I%20am%20interested%20in%20The%20Arch%20Residences"
+                  href={`https://wa.me/2349167619009?text=${encodeURIComponent(`Hello, I am interested in ${property.title}`)}`}
                   className={styles.ctaWa}
                   target="_blank"
                   rel="noopener noreferrer"
