@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
         sqm: body.sqm ? parseFloat(body.sqm) : null,
         features: body.features || '[]',
         images: body.images || '[]',
+        video: body.video || null,
         badge: body.badge || null,
         status: (body.status as 'ACTIVE' | 'PENDING' | 'RENTED' | 'SOLD' | 'INACTIVE') || 'ACTIVE',
       },

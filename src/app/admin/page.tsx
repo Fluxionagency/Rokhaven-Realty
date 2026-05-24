@@ -321,7 +321,7 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
   const [fVideo, setFVideo] = useState('');
   const [fVideoFile, setFVideoFile] = useState<File | null>(null);
   const [fImagePreviews, setFImagePreviews] = useState<string[]>([]);
-  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [fStatus, setFStatus] = useState('ACTIVE');
 
   const filtered = filter === 'All' ? properties : properties.filter(p => p.status.toLowerCase() === filter.toLowerCase());
@@ -409,21 +409,28 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       features: '[]',
     };
     try {
+      let res: Response;
       if (editingProp) {
-        await fetch('/api/properties/' + editingProp.id, {
+        res = await fetch('/api/properties/' + editingProp.id, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
       } else {
-        await fetch('/api/properties', {
+        res = await fetch('/api/properties', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
       }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Save failed: ' + (err.error || `HTTP ${res.status}`));
+        setSaving(false);
+        return;
+      }
       setModalOpen(false);
-      onRefresh();
+      await onRefresh();
     } catch {
-      alert('Failed to save. Please try again.');
+      alert('Network error — please try again.');
     }
     setSaving(false);
   };
@@ -508,7 +515,7 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                 <textarea className={styles.fta} rows={3} value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Describe the property…" />
               </div>
               <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Photos {uploadingImages && <span style={{ color: 'rgba(192,168,112,0.5)', fontWeight: 300 }}>— Uploading…</span>}</label>
+                <label style={lbl}>Photos {uploadProgress && <span style={{ color: 'rgba(192,168,112,0.5)', fontWeight: 300 }}>— {uploadProgress}</span>}</label>
                 <div
                   style={{ border: '1.5px dashed rgba(192,168,112,0.2)', borderRadius: 3, padding: '18px 16px', cursor: 'pointer', textAlign: 'center', marginBottom: fImagePreviews.length ? 12 : 0 }}
                   onClick={() => document.getElementById('imgUploadInput')?.click()}
@@ -526,19 +533,20 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                   onChange={async e => {
                     const files = Array.from(e.target.files || []);
                     if (!files.length) return;
-                    setUploadingImages(true);
                     const uploaded: string[] = [];
-                    for (const file of files) {
+                    for (let i = 0; i < files.length; i++) {
+                      setUploadProgress(`Uploading ${i + 1} of ${files.length}…`);
                       const fd = new FormData();
-                      fd.append('file', file);
+                      fd.append('file', files[i]);
                       fd.append('folder', 'images');
                       const res = await fetch('/api/upload', { method: 'POST', body: fd });
                       if (res.ok) { const d = await res.json(); uploaded.push(d.url); }
+                      else { alert(`Failed to upload ${files[i].name}`); }
                     }
                     const newPreviews = [...fImagePreviews, ...uploaded];
                     setFImagePreviews(newPreviews);
                     setFImages(JSON.stringify(newPreviews));
-                    setUploadingImages(false);
+                    setUploadProgress('');
                     e.target.value = '';
                   }}
                 />
