@@ -13,6 +13,7 @@ model User {
   phone             String?
   whatsapp          String?
   role              Role      @default(CLIENT)
+  title             String?
   passwordHash      String
   resetToken        String?
   resetTokenExpiry  DateTime?

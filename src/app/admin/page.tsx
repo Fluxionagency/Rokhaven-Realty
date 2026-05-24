@@ -1544,7 +1544,18 @@ function IntegrationTab() {
 
 // ─── SETTINGS: TEAM TAB ─────────────────────────────────────────────────────
 
-interface TeamMember { id: string; name: string; email: string; phone?: string | null; role: string; createdAt: string }
+interface TeamMember { id: string; name: string; email: string; phone?: string | null; role: string; title?: string | null; createdAt: string }
+
+const ROLE_OPTIONS = [
+  { value: 'Super Admin', color: 'var(--gold)', desc: 'Full access — manage listings, view all leads, configure settings, manage team.' },
+  { value: 'Agent', color: '#E0B44A', desc: 'View and manage listings and bookings. Cannot access settings or billing.' },
+  { value: 'Viewer', color: 'var(--teal)', desc: 'Read-only access to listings and dashboard. No editing or exporting.' },
+];
+
+function roleColor(title: string | null | undefined) {
+  const r = ROLE_OPTIONS.find(o => o.value === title);
+  return r ? r.color : 'var(--gold)';
+}
 
 function TeamTab() {
   const { data: session } = useSession();
@@ -1553,8 +1564,9 @@ function TeamTab() {
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteTitle, setInviteTitle] = useState('Agent');
   const [inviting, setInviting] = useState(false);
-  const [inviteResult, setInviteResult] = useState<{ name: string; email: string; tempPassword: string } | null>(null);
+  const [inviteResult, setInviteResult] = useState<{ name: string; email: string; title: string; tempPassword: string } | null>(null);
   const [inviteError, setInviteError] = useState('');
   const [removing, setRemoving] = useState<string | null>(null);
 
@@ -1575,12 +1587,12 @@ function TeamTab() {
     const res = await fetch('/api/admin/team', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: inviteName, email: inviteEmail }),
+      body: JSON.stringify({ name: inviteName, email: inviteEmail, title: inviteTitle }),
     });
     const data = await res.json();
     if (!res.ok) { setInviteError(data.error || 'Failed to create member.'); setInviting(false); return; }
-    setInviteResult({ name: data.name, email: data.email, tempPassword: data.tempPassword });
-    setInviteName(''); setInviteEmail('');
+    setInviteResult({ name: data.name, email: data.email, title: data.title, tempPassword: data.tempPassword });
+    setInviteName(''); setInviteEmail(''); setInviteTitle('Agent');
     setInviting(false);
     fetchMembers();
   };
@@ -1603,6 +1615,17 @@ function TeamTab() {
     <div>
       <div className={styles.spTitle}>Team &amp; Access</div>
       <div className={styles.spSub}>Manage admin accounts for the RokHaven portal.</div>
+
+      <div className={styles.intSectionLabel} style={{ marginBottom: 12 }}>Roles</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>
+        {ROLE_OPTIONS.map(r => (
+          <div key={r.value} className={styles.roleCard}>
+            <div className={styles.roleName} style={{ color: r.color }}>{r.value}</div>
+            <div className={styles.roleDesc}>{r.desc}</div>
+          </div>
+        ))}
+      </div>
+
       <div className={styles.teamHdr}>
         <div className={styles.intSectionLabel} style={{ marginBottom: 0 }}>Team Members ({members.length})</div>
         <button className={styles.intBtn} style={{ fontSize: 10, padding: '6px 14px' }} onClick={() => { setShowInvite(s => !s); setInviteResult(null); setInviteError(''); }}>
@@ -1617,14 +1640,15 @@ function TeamTab() {
               <div style={{ fontSize: 13, color: '#5DC882', marginBottom: 10 }}>✓ Member created successfully</div>
               <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Name: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.name}</strong></div>
               <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Email: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.email}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Role: <strong style={{ color: roleColor(inviteResult.title) }}>{inviteResult.title}</strong></div>
               <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 14 }}>Temporary password: <code style={{ background: 'rgba(192,168,112,0.1)', padding: '2px 6px', color: 'var(--gold)', borderRadius: 2 }}>{inviteResult.tempPassword}</code></div>
               <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)', marginBottom: 14 }}>Share these credentials with the new member. They can change their password after logging in.</div>
               <button className={styles.raBtn} style={{ opacity: 1 }} onClick={() => { setInviteResult(null); setShowInvite(false); }}>Done</button>
             </div>
           ) : (
             <div>
-              <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>New Admin Member</div>
-              <div className={styles.g2} style={{ marginBottom: 12 }}>
+              <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>New Team Member</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 12 }}>
                 <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
                   <label>Full Name</label>
                   <input className={styles.fi} placeholder="e.g. Tola Fashola" value={inviteName} onChange={e => setInviteName(e.target.value)} />
@@ -1632,6 +1656,14 @@ function TeamTab() {
                 <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
                   <label>Email Address</label>
                   <input className={styles.fi} type="email" placeholder="admin@rokhaven.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+                </div>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Role</label>
+                  <select className={styles.fsel} value={inviteTitle} onChange={e => setInviteTitle(e.target.value)}>
+                    <option>Agent</option>
+                    <option>Viewer</option>
+                    <option>Super Admin</option>
+                  </select>
                 </div>
               </div>
               {inviteError && <div style={{ fontSize: 12, color: '#e57373', marginBottom: 10 }}>{inviteError}</div>}
@@ -1656,6 +1688,7 @@ function TeamTab() {
             ) : members.map(m => {
               const initials = m.name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
               const isSelf = m.email === sessionEmail;
+              const displayTitle = m.title || 'Super Admin';
               return (
                 <tr key={m.id}>
                   <td>
@@ -1666,8 +1699,8 @@ function TeamTab() {
                   </td>
                   <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)' }}>{m.email}</td>
                   <td>
-                    <span className={styles.badge} style={{ fontSize: 9, color: 'var(--gold)', background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)' }}>
-                      Admin
+                    <span className={styles.badge} style={{ fontSize: 9, color: roleColor(displayTitle), background: 'rgba(192,168,112,0.08)', border: `1px solid ${roleColor(displayTitle)}33` }}>
+                      {displayTitle}
                     </span>
                   </td>
                   <td>
