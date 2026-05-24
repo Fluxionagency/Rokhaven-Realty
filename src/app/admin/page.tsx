@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
@@ -189,6 +189,65 @@ const IconPlus = () => (
   </svg>
 );
 
+// ─── RESCHEDULE MODAL ───────────────────────────────────────────────────────
+
+function RescheduleModal({ inspection, onClose, onDone }: {
+  inspection: AdminInspection;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [date, setDate] = useState(inspection.preferredDate);
+  const [time, setTime] = useState(inspection.preferredTime);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    if (!date || !time) { setError('Please select a date and time.'); return; }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/inspections/' + inspection.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferredDate: date, preferredTime: time, status: 'PENDING' }),
+      });
+      if (!res.ok) { setError('Failed to reschedule. Please try again.'); setSaving(false); return; }
+      onDone();
+    } catch {
+      setError('Network error. Please try again.');
+      setSaving(false);
+    }
+  };
+
+  const lbl: React.CSSProperties = { display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.5)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 6 };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(6,15,28,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, padding: 28, maxWidth: 400, width: '100%' }}>
+        <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: '#F4EDE0', marginBottom: 6 }}>Reschedule Inspection</div>
+        <p style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)', marginBottom: 20 }}>{inspection.clientName} · {inspection.property?.title || 'Unknown property'}</p>
+        <div style={{ marginBottom: 14 }}>
+          <label style={lbl}>New Date</label>
+          <input className={styles.fi} type="date" value={date} onChange={e => setDate(e.target.value)} />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={lbl}>New Time</label>
+          <input className={styles.fi} type="time" value={time} onChange={e => setTime(e.target.value)} />
+        </div>
+        {error && <p style={{ color: '#e57373', fontSize: 12, marginBottom: 14 }}>{error}</p>}
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ background: 'none', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '9px 18px', color: 'rgba(244,237,224,0.5)', fontSize: 12, cursor: 'pointer' }}>
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '9px 22px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Saving…' : 'Reschedule →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── DASHBOARD SECTION ──────────────────────────────────────────────────────
 
 function DashboardSection({ onNav, properties, inspections, onRefresh }: {
@@ -199,6 +258,7 @@ function DashboardSection({ onNav, properties, inspections, onRefresh }: {
 }) {
   const activeListings = properties.filter(p => p.status === 'ACTIVE').length;
   const pendingInspections = inspections.filter(i => i.status === 'PENDING').length;
+  const [rescheduleInsp, setRescheduleInsp] = useState<AdminInspection | null>(null);
 
   const confirmInspection = async (id: string) => {
     await fetch('/api/inspections/' + id, {
@@ -211,6 +271,13 @@ function DashboardSection({ onNav, properties, inspections, onRefresh }: {
 
   return (
     <div>
+      {rescheduleInsp && (
+        <RescheduleModal
+          inspection={rescheduleInsp}
+          onClose={() => setRescheduleInsp(null)}
+          onDone={() => { setRescheduleInsp(null); onRefresh(); }}
+        />
+      )}
       <div className={styles.stats}>
         <div className={styles.sc}>
           <span className={`${styles.scDelta} ${styles.up}`}>↑ 3 this week</span>
@@ -269,7 +336,7 @@ function DashboardSection({ onNav, properties, inspections, onRefresh }: {
                       <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>
                     )}
                     <button className={styles.raBtn} onClick={() => onNav('bookings')}>View</button>
-                    {insp.status === 'CONFIRMED' && <button className={styles.raBtn}>Reschedule</button>}
+                    {insp.status === 'CONFIRMED' && <button className={styles.raBtn} onClick={() => setRescheduleInsp(insp)}>Reschedule</button>}
                     {insp.status === 'COMPLETED' && <button className={styles.raBtn}>Follow up</button>}
                   </div>
                 </td>
@@ -950,26 +1017,19 @@ function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
         <div>
           <div className={styles.linkLabel}>QR Code</div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 18, background: 'rgba(11,27,53,0.4)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 3 }}>
-            <div style={{ background: '#fff', padding: 8, borderRadius: 2 }}>
-              <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" fill="white" />
-                <rect x="5" y="5" width="35" height="35" fill="#0B1B35" />
-                <rect x="10" y="10" width="25" height="25" fill="white" />
-                <rect x="14" y="14" width="17" height="17" fill="#C0A870" />
-                <rect x="60" y="5" width="35" height="35" fill="#0B1B35" />
-                <rect x="65" y="10" width="25" height="25" fill="white" />
-                <rect x="69" y="14" width="17" height="17" fill="#C0A870" />
-                <rect x="5" y="60" width="35" height="35" fill="#0B1B35" />
-                <rect x="10" y="65" width="25" height="25" fill="white" />
-                <rect x="14" y="69" width="17" height="17" fill="#C0A870" />
-                {[0,1,2,3,4,5,6,7].map(r =>
-                  [0,1,2,3,4,5,6,7].map(c =>
-                    (r + c) % 2 === 0 ? (
-                      <rect key={`${r}-${c}`} x={44 + c * 6} y={44 + r * 6} width={5} height={5} fill="#0B1B35" />
-                    ) : null
-                  )
-                )}
-              </svg>
+            <div style={{ background: '#fff', padding: 8, borderRadius: 2, width: 116, height: 116, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {generatedUrl ? (
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('https://' + generatedUrl)}`}
+                  alt="QR code"
+                  width={100}
+                  height={100}
+                />
+              ) : (
+                <div style={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'rgba(0,0,0,0.3)', textAlign: 'center', lineHeight: 1.4 }}>
+                  Generate a link first
+                </div>
+              )}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.28)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
               Scan to open booking form
@@ -987,6 +1047,7 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
   const [statusFilter, setStatusFilter] = useState('All');
   const statuses = ['All', 'Pending', 'Confirmed', 'Completed'];
   const filtered = statusFilter === 'All' ? inspections : inspections.filter(i => i.status.toUpperCase() === statusFilter.toUpperCase());
+  const [rescheduleInsp, setRescheduleInsp] = useState<AdminInspection | null>(null);
 
   const confirmInspection = async (id: string) => {
     await fetch('/api/inspections/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'CONFIRMED' }) });
@@ -995,6 +1056,13 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
 
   return (
     <div>
+      {rescheduleInsp && (
+        <RescheduleModal
+          inspection={rescheduleInsp}
+          onClose={() => setRescheduleInsp(null)}
+          onDone={() => { setRescheduleInsp(null); onRefresh(); }}
+        />
+      )}
       <div className={styles.secHdr} style={{ marginBottom: 16 }}>
         <div className={styles.secTitle}>All Inspection Requests</div>
         <button className={styles.secLink}>Export CSV →</button>
@@ -1015,7 +1083,7 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
               <th>Time</th>
               <th>Status</th>
               <th>Notes</th>
-              <th style={{ width: 160 }}>Actions</th>
+              <th style={{ width: 180 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -1039,8 +1107,8 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
                 <td>
                   <div className={styles.rowActions}>
                     {insp.status === 'PENDING' && <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>}
-                    <button className={styles.raBtn}>View</button>
-                    <button className={styles.raBtn}>Reschedule</button>
+                    <button className={styles.raBtn} onClick={() => setStatusFilter(insp.status.charAt(0) + insp.status.slice(1).toLowerCase())}>View</button>
+                    <button className={styles.raBtn} onClick={() => setRescheduleInsp(insp)}>Reschedule</button>
                   </div>
                 </td>
               </tr>
@@ -1086,22 +1154,38 @@ function toLeadStatus(s: string): LeadStatus {
   return 'Closed';
 }
 
-function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onRefresh: () => void }) {
-  const [leads, setLeads] = useState<Lead[]>(() => enquiries.map(e => ({
-    name: e.name,
-    property: e.property?.title || 'General Enquiry',
-    date: new Date(e.createdAt).toLocaleDateString(),
-    status: toLeadStatus(e.status),
-  })));
+function inspectionToLeadStatus(s: string): LeadStatus {
+  if (s === 'PENDING') return 'New';
+  if (s === 'CONFIRMED') return 'Booked';
+  if (s === 'COMPLETED') return 'Closed';
+  return 'Closed';
+}
 
-  useEffect(() => {
-    setLeads(enquiries.map(e => ({
+function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onRefresh: () => void }) {
+  const buildLeads = () => {
+    const fromEnquiries: Lead[] = enquiries.map(e => ({
       name: e.name,
       property: e.property?.title || 'General Enquiry',
       date: new Date(e.createdAt).toLocaleDateString(),
       status: toLeadStatus(e.status),
-    })));
-  }, [enquiries]);
+    }));
+    const fromInspections: Lead[] = inspections.map(i => ({
+      name: i.clientName,
+      property: i.property?.title || 'Unknown Property',
+      date: i.preferredDate,
+      status: inspectionToLeadStatus(i.status),
+    }));
+    const allNames = new Set(fromEnquiries.map(l => l.name));
+    const dedupedInspections = fromInspections.filter(l => !allNames.has(l.name));
+    return [...fromEnquiries, ...dedupedInspections];
+  };
+
+  const [leads, setLeads] = useState<Lead[]>(buildLeads);
+
+  useEffect(() => {
+    setLeads(buildLeads());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enquiries, inspections]);
 
   const columns: { key: LeadStatus; label: string }[] = [
     { key: 'New', label: 'New Leads' },
@@ -1460,104 +1544,146 @@ function IntegrationTab() {
 
 // ─── SETTINGS: TEAM TAB ─────────────────────────────────────────────────────
 
-function TeamTab() {
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('Agent');
-  const [inviteSent, setInviteSent] = useState(false);
+interface TeamMember { id: string; name: string; email: string; phone?: string | null; role: string; createdAt: string }
 
-  const members = [
-    { initials: 'AO', name: 'Amaka Osei', email: 'amaka@rokhaven.com', role: 'Super Admin', status: 'Active', roleColor: 'var(--gold)' },
-    { initials: 'TF', name: 'Tola Fashola', email: 'tola@rokhaven.com', role: 'Agent', status: 'Active', roleColor: '#E0B44A' },
-    { initials: 'KA', name: 'Kunle Adeyemi', email: 'kunle@rokhaven.com', role: 'Agent', status: 'Active', roleColor: '#E0B44A' },
-    { initials: 'BI', name: 'Blessing Ikenna', email: 'blessing@rokhaven.com', role: 'Viewer', status: 'Invited', roleColor: 'var(--teal)' },
-  ];
+function TeamTab() {
+  const { data: session } = useSession();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviting, setInviting] = useState(false);
+  const [inviteResult, setInviteResult] = useState<{ name: string; email: string; tempPassword: string } | null>(null);
+  const [inviteError, setInviteError] = useState('');
+  const [removing, setRemoving] = useState<string | null>(null);
+
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/team');
+      if (res.ok) setMembers(await res.json());
+    } catch { /* ignore */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchMembers(); }, []);
+
+  const handleInvite = async () => {
+    if (!inviteName || !inviteEmail) { setInviteError('Name and email are required.'); return; }
+    setInviting(true); setInviteError('');
+    const res = await fetch('/api/admin/team', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: inviteName, email: inviteEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setInviteError(data.error || 'Failed to create member.'); setInviting(false); return; }
+    setInviteResult({ name: data.name, email: data.email, tempPassword: data.tempPassword });
+    setInviteName(''); setInviteEmail('');
+    setInviting(false);
+    fetchMembers();
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!window.confirm('Remove this team member? This cannot be undone.')) return;
+    setRemoving(id);
+    await fetch('/api/admin/team', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    setRemoving(null);
+    fetchMembers();
+  };
+
+  const sessionEmail = (session?.user as { email?: string })?.email;
 
   return (
     <div>
       <div className={styles.spTitle}>Team &amp; Access</div>
-      <div className={styles.spSub}>Manage team members and their permission levels within the RokHaven admin.</div>
+      <div className={styles.spSub}>Manage admin accounts for the RokHaven portal.</div>
       <div className={styles.teamHdr}>
         <div className={styles.intSectionLabel} style={{ marginBottom: 0 }}>Team Members ({members.length})</div>
-        <button className={styles.intBtn} style={{ fontSize: 10, padding: '6px 14px' }}>+ Invite Member</button>
+        <button className={styles.intBtn} style={{ fontSize: 10, padding: '6px 14px' }} onClick={() => { setShowInvite(s => !s); setInviteResult(null); setInviteError(''); }}>
+          {showInvite ? 'Close' : '+ Add Member'}
+        </button>
       </div>
+
+      {showInvite && (
+        <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px', marginBottom: 16 }}>
+          {inviteResult ? (
+            <div>
+              <div style={{ fontSize: 13, color: '#5DC882', marginBottom: 10 }}>✓ Member created successfully</div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Name: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.name}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Email: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.email}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 14 }}>Temporary password: <code style={{ background: 'rgba(192,168,112,0.1)', padding: '2px 6px', color: 'var(--gold)', borderRadius: 2 }}>{inviteResult.tempPassword}</code></div>
+              <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)', marginBottom: 14 }}>Share these credentials with the new member. They can change their password after logging in.</div>
+              <button className={styles.raBtn} style={{ opacity: 1 }} onClick={() => { setInviteResult(null); setShowInvite(false); }}>Done</button>
+            </div>
+          ) : (
+            <div>
+              <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>New Admin Member</div>
+              <div className={styles.g2} style={{ marginBottom: 12 }}>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Full Name</label>
+                  <input className={styles.fi} placeholder="e.g. Tola Fashola" value={inviteName} onChange={e => setInviteName(e.target.value)} />
+                </div>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Email Address</label>
+                  <input className={styles.fi} type="email" placeholder="admin@rokhaven.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+                </div>
+              </div>
+              {inviteError && <div style={{ fontSize: 12, color: '#e57373', marginBottom: 10 }}>{inviteError}</div>}
+              <button className={styles.btnGen} style={{ width: 'auto', padding: '10px 24px' }} onClick={handleInvite} disabled={inviting}>
+                {inviting ? 'Creating…' : 'Create Member →'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className={styles.tblWrap}>
         <table>
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th style={{ width: 140 }}></th>
-            </tr>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th style={{ width: 120 }}></th></tr>
           </thead>
           <tbody>
-            {members.map((m, i) => (
-              <tr key={i}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className={styles.sbAvatar} style={{ width: 30, height: 30, fontSize: 10 }}>{m.initials}</div>
-                    <span className={styles.strong}>{m.name}</span>
-                  </div>
-                </td>
-                <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)' }}>{m.email}</td>
-                <td>
-                  <span className={styles.badge} style={{ fontSize: 9, color: m.roleColor, background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)' }}>
-                    {m.role}
-                  </span>
-                </td>
-                <td>
-                  <span className={`${styles.badge} ${m.status === 'Active' ? styles.bConfirmed : styles.bPending}`} style={{ fontSize: 9 }}>
-                    {m.status}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.rowActions} style={{ opacity: 1 }}>
-                    {i === 0 ? (
-                      <button className={styles.raBtn}>Edit</button>
-                    ) : m.status === 'Invited' ? (
-                      <><button className={styles.raBtn}>Resend</button><button className={`${styles.raBtn} ${styles.raDel}`}>Revoke</button></>
-                    ) : (
-                      <><button className={styles.raBtn}>Edit</button><button className={`${styles.raBtn} ${styles.raDel}`}>Remove</button></>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', padding: 28 }}>Loading…</td></tr>
+            ) : members.length === 0 ? (
+              <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', padding: 28 }}>No team members found.</td></tr>
+            ) : members.map(m => {
+              const initials = m.name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
+              const isSelf = m.email === sessionEmail;
+              return (
+                <tr key={m.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className={styles.sbAvatar} style={{ width: 30, height: 30, fontSize: 10 }}>{initials}</div>
+                      <span className={styles.strong}>{m.name}{isSelf && <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', marginLeft: 6 }}>(you)</span>}</span>
+                    </div>
+                  </td>
+                  <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)' }}>{m.email}</td>
+                  <td>
+                    <span className={styles.badge} style={{ fontSize: 9, color: 'var(--gold)', background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)' }}>
+                      Admin
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.rowActions} style={{ opacity: 1 }}>
+                      {!isSelf && (
+                        <button className={`${styles.raBtn} ${styles.raDel}`} disabled={removing === m.id} onClick={() => handleRemove(m.id)}>
+                          {removing === m.id ? '…' : 'Remove'}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px', marginBottom: 20 }}>
-        <div className={styles.intSectionLabel} style={{ marginBottom: 12 }}>Role Permissions</div>
-        <div className={styles.roleGrid}>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: 'var(--gold)' }}>Super Admin</div><div className={styles.roleDesc}>Full access — manage listings, view all leads, configure settings, manage team.</div></div>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: '#E0B44A' }}>Agent</div><div className={styles.roleDesc}>View and manage listings and bookings. Cannot access settings or billing.</div></div>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: 'var(--teal)' }}>Viewer</div><div className={styles.roleDesc}>Read-only access to listings and dashboard. No editing or exporting.</div></div>
-        </div>
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px' }}>
-        <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Invite New Member</div>
-        <div className={styles.g2} style={{ marginBottom: 12 }}>
-          <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
-            <label>Email Address</label>
-            <input className={styles.fi} type="email" placeholder="colleague@rokhaven.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-          </div>
-          <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
-            <label>Role</label>
-            <select className={styles.fsel} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
-              <option>Agent</option>
-              <option>Viewer</option>
-              <option>Super Admin</option>
-            </select>
-          </div>
-        </div>
-        <button
-          className={styles.btnGen}
-          style={{ width: 'auto', padding: '11px 28px' }}
-          onClick={() => { setInviteSent(true); setInviteEmail(''); setTimeout(() => setInviteSent(false), 3000); }}
-        >
-          {inviteSent ? 'Invite Sent ✓' : 'Send Invitation'}
-        </button>
       </div>
     </div>
   );
@@ -1568,6 +1694,8 @@ function TeamTab() {
 function NotificationsTab() {
   const [notifs, setNotifs] = useState(NOTIFS.map(n => ({ ...n })));
   const [saved, setSaved] = useState(false);
+  const [quietFrom, setQuietFrom] = useState('22:00');
+  const [quietTo, setQuietTo] = useState('07:00');
 
   const toggle = (i: number, channel: 'email' | 'whatsapp' | 'sms') => {
     setNotifs(prev => prev.map((n, idx) => idx === i ? { ...n, [channel]: !n[channel] } : n));
@@ -1599,13 +1727,25 @@ function NotificationsTab() {
         <div className={styles.intSectionLabel} style={{ marginBottom: 10 }}>Quiet Hours</div>
         <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.5)', marginBottom: 10 }}>Suppress non-urgent notifications during these hours:</div>
         <div className={styles.quietHoursRow}>
-          <select className={styles.fsel} style={{ width: 130, padding: '9px 12px', fontSize: 13 }}>
-            <option>10:00 PM</option><option>9:00 PM</option><option>11:00 PM</option>
-          </select>
+          <input
+            type="time"
+            className={styles.fsel}
+            style={{ width: 130, padding: '9px 12px', fontSize: 13 }}
+            min="00:00"
+            max="23:59"
+            value={quietFrom}
+            onChange={e => setQuietFrom(e.target.value)}
+          />
           <span style={{ color: 'rgba(244,237,224,0.3)' }}>to</span>
-          <select className={styles.fsel} style={{ width: 130, padding: '9px 12px', fontSize: 13 }}>
-            <option>7:00 AM</option><option>6:00 AM</option><option>8:00 AM</option>
-          </select>
+          <input
+            type="time"
+            className={styles.fsel}
+            style={{ width: 130, padding: '9px 12px', fontSize: 13 }}
+            min="00:00"
+            max="23:59"
+            value={quietTo}
+            onChange={e => setQuietTo(e.target.value)}
+          />
           <span style={{ fontSize: 11, color: 'rgba(244,237,224,0.25)' }}>WAT (West Africa Time)</span>
         </div>
       </div>
@@ -1623,13 +1763,70 @@ function NotificationsTab() {
 // ─── SETTINGS: ACCOUNT TAB ──────────────────────────────────────────────────
 
 function AccountTab() {
-  const [firstName, setFirstName] = useState('Amaka');
-  const [lastName, setLastName] = useState('Osei');
-  const [email, setEmail] = useState('amaka@rokhaven.com');
-  const [phone, setPhone] = useState('+234 916 761 9009');
-  const [profileSaved, setProfileSaved] = useState(false);
-  const [passwordSaved, setPasswordSaved] = useState(false);
+  const { data: session } = useSession();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
+
+  const [curPwd, setCurPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState('');
+  const [pwdError, setPwdError] = useState('');
+
   const [twoFa, setTwoFa] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/user/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.name) setName(data.name);
+        if (data.email) setEmail(data.email);
+        if (data.phone) setPhone(data.phone);
+      })
+      .catch(() => {});
+  }, []);
+
+  const initials = name ? name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase() : (session?.user?.name ? session.user.name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase() : 'ME');
+
+  const saveProfile = async () => {
+    setProfileSaving(true);
+    setProfileMsg('');
+    try {
+      const res = await fetch('/api/user/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone: phone || null }),
+      });
+      if (res.ok) { setProfileMsg('Saved ✓'); }
+      else { const d = await res.json(); setProfileMsg(d.error || 'Save failed.'); }
+    } catch { setProfileMsg('Network error.'); }
+    setProfileSaving(false);
+    setTimeout(() => setProfileMsg(''), 3000);
+  };
+
+  const changePassword = async () => {
+    setPwdError('');
+    setPwdMsg('');
+    if (newPwd !== confirmPwd) { setPwdError('Passwords do not match.'); return; }
+    if (newPwd.length < 8) { setPwdError('New password must be at least 8 characters.'); return; }
+    setPwdSaving(true);
+    try {
+      const res = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: curPwd, newPassword: newPwd }),
+      });
+      const d = await res.json();
+      if (res.ok) { setPwdMsg('Password updated ✓'); setCurPwd(''); setNewPwd(''); setConfirmPwd(''); }
+      else { setPwdError(d.error || 'Failed to update password.'); }
+    } catch { setPwdError('Network error.'); }
+    setPwdSaving(false);
+    setTimeout(() => { setPwdMsg(''); setPwdError(''); }, 4000);
+  };
 
   return (
     <div>
@@ -1638,61 +1835,57 @@ function AccountTab() {
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Profile</div>
       <div className={styles.profileCard}>
-        <div className={styles.profileAvatar}>AO</div>
+        <div className={styles.profileAvatar}>{initials}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--ivory)', marginBottom: 3 }}>{firstName} {lastName}</div>
+          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--ivory)', marginBottom: 3 }}>{name || 'Your Name'}</div>
           <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.35)' }}>{email} · Super Admin</div>
         </div>
-        <button className={styles.intBtn}>Change Photo</button>
       </div>
 
-      <div className={styles.g2}>
-        <div className={styles.fgBlock}>
-          <label>First Name</label>
-          <input className={styles.fi} value={firstName} onChange={e => setFirstName(e.target.value)} />
-        </div>
-        <div className={styles.fgBlock}>
-          <label>Last Name</label>
-          <input className={styles.fi} value={lastName} onChange={e => setLastName(e.target.value)} />
-        </div>
+      <div className={styles.fgBlock}>
+        <label>Full Name</label>
+        <input className={styles.fi} value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" />
       </div>
       <div className={styles.fgBlock}>
         <label>Email Address</label>
-        <input className={styles.fi} type="email" value={email} onChange={e => setEmail(e.target.value)} />
+        <input className={styles.fi} type="email" value={email} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
       </div>
       <div className={styles.fgBlock}>
         <label>Phone</label>
-        <input className={styles.fi} type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
+        <input className={styles.fi} type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+234 800 000 0000" />
       </div>
       <button
         className={styles.btnGen}
         style={{ width: 'auto', padding: '11px 28px', marginBottom: 28 }}
-        onClick={() => { setProfileSaved(true); setTimeout(() => setProfileSaved(false), 2500); }}
+        onClick={saveProfile}
+        disabled={profileSaving}
       >
-        {profileSaved ? 'Saved ✓' : 'Save Profile Changes'}
+        {profileSaving ? 'Saving…' : profileMsg || 'Save Profile Changes'}
       </button>
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Change Password</div>
       <div className={styles.fgBlock}>
         <label>Current Password</label>
-        <input className={styles.fi} type="password" placeholder="••••••••••" />
+        <input className={styles.fi} type="password" placeholder="••••••••••" value={curPwd} onChange={e => setCurPwd(e.target.value)} />
       </div>
       <div className={styles.g2}>
         <div className={styles.fgBlock}>
           <label>New Password</label>
-          <input className={styles.fi} type="password" placeholder="••••••••••" />
+          <input className={styles.fi} type="password" placeholder="Min 8 characters" value={newPwd} onChange={e => setNewPwd(e.target.value)} />
         </div>
         <div className={styles.fgBlock}>
-          <label>Confirm Password</label>
-          <input className={styles.fi} type="password" placeholder="••••••••••" />
+          <label>Confirm New Password</label>
+          <input className={styles.fi} type="password" placeholder="••••••••••" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} />
         </div>
       </div>
+      {pwdError && <div style={{ fontSize: 12, color: 'rgba(224,112,112,0.8)', marginBottom: 10 }}>{pwdError}</div>}
       <button
         className={styles.btnGen}
         style={{ width: 'auto', padding: '11px 28px', marginBottom: 28 }}
-        onClick={() => { setPasswordSaved(true); setTimeout(() => setPasswordSaved(false), 2500); }}
+        onClick={changePassword}
+        disabled={pwdSaving}
       >
-        {passwordSaved ? 'Password Updated ✓' : 'Update Password'}
+        {pwdSaving ? 'Updating…' : pwdMsg || 'Update Password'}
       </button>
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Security</div>
@@ -1710,9 +1903,17 @@ function AccountTab() {
         <div className={`${styles.securityRow} ${styles.securityRowLast}`}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 400, color: 'var(--ivory)', marginBottom: 3 }}>Active Sessions</div>
-            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.32)' }}>1 active session — Chrome, Lagos NG</div>
+            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.32)' }}>
+              Signed in as {session?.user?.email || email} — current session
+            </div>
           </div>
-          <button className={styles.intBtn} style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)' }}>Sign out all</button>
+          <button
+            className={styles.intBtn}
+            style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)' }}
+            onClick={() => signOut({ callbackUrl: '/' })}
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </div>
@@ -1721,8 +1922,8 @@ function AccountTab() {
 
 // ─── SETTINGS SECTION ───────────────────────────────────────────────────────
 
-function SettingsSection() {
-  const [tab, setTab] = useState<SettingsTab>('integration');
+function SettingsSection({ defaultTab }: { defaultTab?: SettingsTab }) {
+  const [tab, setTab] = useState<SettingsTab>(defaultTab ?? 'integration');
   const tabs: { key: SettingsTab; label: string }[] = [
     { key: 'integration', label: 'Integrations' },
     { key: 'team', label: 'Team & Access' },
@@ -1770,7 +1971,7 @@ const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }
 ];
 
 const SECTION_TITLES: Record<Section, string> = {
-  dashboard: 'Welcome back, Amaka.',
+  dashboard: 'Dashboard',
   listings: 'Listings',
   bookings: 'Bookings',
   leads: 'Leads Pipeline',
@@ -1781,11 +1982,18 @@ const SECTION_TITLES: Record<Section, string> = {
 // ─── DASHBOARD SHELL ────────────────────────────────────────────────────────
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
+  const { data: session } = useSession();
   const [section, setSection] = useState<Section>('dashboard');
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('integration');
   const [properties, setProperties] = useState<AdminProperty[]>([]);
   const [inspections, setInspections] = useState<AdminInspection[]>([]);
   const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const userName = session?.user?.name || 'Admin';
+  const userInitials = userName.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
+
+  const goToAccount = () => { setSettingsTab('account'); setSection('settings'); };
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1836,13 +2044,16 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           ))}
         </div>
         <div className={styles.sbFoot}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div className={styles.sbAvatar}>AO</div>
+          <button
+            style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%', textAlign: 'left' }}
+            onClick={goToAccount}
+          >
+            <div className={styles.sbAvatar}>{userInitials}</div>
             <div>
-              <div className={styles.sbName}>Amaka Osei</div>
+              <div className={styles.sbName}>{userName}</div>
               <div className={styles.sbRole}>Super Admin</div>
             </div>
-          </div>
+          </button>
           <button className={styles.sbOut} onClick={onLogout}>Sign out →</button>
         </div>
       </aside>
@@ -1852,7 +2063,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         {/* TOPBAR */}
         <div className={styles.topbar}>
           <div>
-            <div className={styles.topbarTitle}>{SECTION_TITLES[section]}</div>
+            <div className={styles.topbarTitle}>{section === 'dashboard' ? `Welcome back, ${userName.split(' ')[0]}.` : SECTION_TITLES[section]}</div>
             <div className={styles.topbarDate}>
               {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · Admin Command Centre'}
             </div>
@@ -1907,7 +2118,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
               )}
             </div>
-            <div className={styles.sbAvatar} style={{ cursor: 'pointer' }}>AO</div>
+            <button
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              onClick={goToAccount}
+            >
+              <div className={styles.sbAvatar}>{userInitials}</div>
+            </button>
           </div>
         </div>
 
@@ -1916,9 +2132,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
-          {section === 'leads' && <LeadsSection enquiries={enquiries} onRefresh={fetchAll} />}
+          {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
-          {section === 'settings' && <SettingsSection />}
+          {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
       </div>
     </div>
