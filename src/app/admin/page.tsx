@@ -318,6 +318,10 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
   const [fSqm, setFSqm] = useState('');
   const [fBadge, setFBadge] = useState('');
   const [fImages, setFImages] = useState('');
+  const [fVideo, setFVideo] = useState('');
+  const [fVideoFile, setFVideoFile] = useState<File | null>(null);
+  const [fImagePreviews, setFImagePreviews] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [fStatus, setFStatus] = useState('ACTIVE');
 
   const filtered = filter === 'All' ? properties : properties.filter(p => p.status.toLowerCase() === filter.toLowerCase());
@@ -363,12 +367,16 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       setFCat(p.category || 'SALE'); setFBeds(p.bedrooms); setFBaths(p.bathrooms);
       setFSqm(p.sqm ? String(p.sqm) : ''); setFBadge(p.badge || '');
       setFImages(p.images || '[]'); setFStatus(p.status);
+      setFVideo((p as AdminProperty & { video?: string }).video || '');
+      try { setFImagePreviews(JSON.parse(p.images || '[]')); } catch { setFImagePreviews([]); }
+      setFVideoFile(null);
     } else {
       setEditingProp(null);
       setFTitle(''); setFDesc(''); setFPrice(''); setFLocation('');
       setFNbh(''); setFType('Fully Detached'); setFCat('SALE');
       setFBeds(4); setFBaths(4); setFSqm(''); setFBadge('');
-      setFImages('[]'); setFStatus('ACTIVE');
+      setFImages('[]'); setFVideo(''); setFVideoFile(null);
+      setFImagePreviews([]); setFStatus('ACTIVE');
     }
     setModalOpen(true);
   };
@@ -379,6 +387,15 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       return;
     }
     setSaving(true);
+    let videoUrl = fVideo;
+    if (fVideoFile) {
+      const vf = new FormData();
+      vf.append('file', fVideoFile);
+      vf.append('folder', 'videos');
+      const vr = await fetch('/api/upload', { method: 'POST', body: vf });
+      if (vr.ok) { const vd = await vr.json(); videoUrl = vd.url; }
+      else { alert('Video upload failed. Please try again.'); setSaving(false); return; }
+    }
     const body = {
       title: fTitle, description: fDesc, price: fPrice,
       location: fLocation, neighbourhood: fNbh || null,
@@ -387,25 +404,33 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       sqm: fSqm ? parseFloat(fSqm) : null,
       badge: fBadge || null,
       images: fImages || '[]',
+      video: videoUrl || null,
       status: fStatus,
       features: '[]',
     };
     try {
+      let res: Response;
       if (editingProp) {
-        await fetch('/api/properties/' + editingProp.id, {
+        res = await fetch('/api/properties/' + editingProp.id, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
       } else {
-        await fetch('/api/properties', {
+        res = await fetch('/api/properties', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
       }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Save failed: ' + (err.error || `HTTP ${res.status}`));
+        setSaving(false);
+        return;
+      }
       setModalOpen(false);
-      onRefresh();
+      await onRefresh();
     } catch {
-      alert('Failed to save. Please try again.');
+      alert('Network error — please try again.');
     }
     setSaving(false);
   };
@@ -490,9 +515,84 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                 <textarea className={styles.fta} rows={3} value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Describe the property…" />
               </div>
               <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Image URLs — JSON array</label>
-                <textarea className={styles.fta} rows={2} value={fImages} onChange={e => setFImages(e.target.value)} placeholder='["https://...jpg","https://...jpg"]' />
-                <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.2)', marginTop: 4 }}>Paste direct image URLs as a JSON array</div>
+                <label style={lbl}>Photos {uploadProgress && <span style={{ color: 'rgba(192,168,112,0.5)', fontWeight: 300 }}>— {uploadProgress}</span>}</label>
+                <div
+                  style={{ border: '1.5px dashed rgba(192,168,112,0.2)', borderRadius: 3, padding: '18px 16px', cursor: 'pointer', textAlign: 'center', marginBottom: fImagePreviews.length ? 12 : 0 }}
+                  onClick={() => document.getElementById('imgUploadInput')?.click()}
+                >
+                  <div style={{ fontSize: 22, marginBottom: 6 }}>📷</div>
+                  <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)' }}>Click to select photos — JPG, PNG, WEBP</div>
+                  <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.2)', marginTop: 3 }}>Multiple files supported</div>
+                </div>
+                <input
+                  id="imgUploadInput"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={async e => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+                    const uploaded: string[] = [];
+                    for (let i = 0; i < files.length; i++) {
+                      setUploadProgress(`Uploading ${i + 1} of ${files.length}…`);
+                      const fd = new FormData();
+                      fd.append('file', files[i]);
+                      fd.append('folder', 'images');
+                      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                      if (res.ok) { const d = await res.json(); uploaded.push(d.url); }
+                      else { alert(`Failed to upload ${files[i].name}`); }
+                    }
+                    const newPreviews = [...fImagePreviews, ...uploaded];
+                    setFImagePreviews(newPreviews);
+                    setFImages(JSON.stringify(newPreviews));
+                    setUploadProgress('');
+                    e.target.value = '';
+                  }}
+                />
+                {fImagePreviews.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {fImagePreviews.map((url, i) => (
+                      <div key={i} style={{ position: 'relative', width: 80, height: 60 }}>
+                        <img src={url} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(192,168,112,0.15)' }} />
+                        <button
+                          onClick={() => {
+                            const next = fImagePreviews.filter((_, j) => j !== i);
+                            setFImagePreviews(next);
+                            setFImages(JSON.stringify(next));
+                          }}
+                          style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: 'rgba(224,112,112,0.85)', border: 'none', color: '#fff', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div style={{ gridColumn: '1/-1' }}>
+                <label style={lbl}>Video</label>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('videoUploadInput')?.click()}
+                    style={{ background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '8px 14px', fontSize: 11, color: 'rgba(192,168,112,0.7)', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    {fVideoFile ? `✓ ${fVideoFile.name}` : '📹 Upload video'}
+                  </button>
+                  <input
+                    id="videoUploadInput"
+                    type="file"
+                    accept="video/*"
+                    style={{ display: 'none' }}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) { setFVideoFile(f); setFVideo(''); } }}
+                  />
+                  <input
+                    className={styles.fi}
+                    value={fVideo}
+                    onChange={e => { setFVideo(e.target.value); setFVideoFile(null); }}
+                    placeholder="Or paste a video URL (YouTube, Vimeo, direct link…)"
+                  />
+                </div>
+                {fVideoFile && <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)' }}>Video will be uploaded when you save.</div>}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>

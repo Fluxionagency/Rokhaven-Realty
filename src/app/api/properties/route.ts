@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
         sqm: body.sqm ? parseFloat(body.sqm) : null,
         features: body.features || '[]',
         images: body.images || '[]',
+        video: body.video || null,
         badge: body.badge || null,
         status: (body.status as 'ACTIVE' | 'PENDING' | 'RENTED' | 'SOLD' | 'INACTIVE') || 'ACTIVE',
       },
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(property, { status: 201 })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: 'Failed to create property' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
