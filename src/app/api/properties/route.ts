@@ -45,7 +45,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const property = await prisma.property.create({ data: body })
+    const property = await prisma.property.create({
+      data: {
+        title: body.title,
+        description: body.description || '',
+        price: body.price,
+        location: body.location,
+        neighbourhood: body.neighbourhood || null,
+        type: body.type || 'Fully Detached',
+        category: (body.category as 'SALE' | 'RENT' | 'SHORTLET' | 'JV') || 'SALE',
+        bedrooms: parseInt(body.bedrooms) || 1,
+        bathrooms: parseInt(body.bathrooms) || 1,
+        sqm: body.sqm ? parseFloat(body.sqm) : null,
+        features: body.features || '[]',
+        images: body.images || '[]',
+        badge: body.badge || null,
+        status: (body.status as 'ACTIVE' | 'PENDING' | 'RENTED' | 'SOLD' | 'INACTIVE') || 'ACTIVE',
+      },
+    })
     return NextResponse.json(property, { status: 201 })
   } catch (error) {
     console.error(error)

@@ -299,6 +299,23 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
   const [filter, setFilter] = useState<ListingFilter>('All');
   const filters: ListingFilter[] = ['All', 'Active', 'Rented', 'Sold', 'Pending'];
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingProp, setEditingProp] = useState<AdminProperty | null>(null);
+  const [saving, setSaving] = useState(false);
+  // form fields
+  const [fTitle, setFTitle] = useState('');
+  const [fDesc, setFDesc] = useState('');
+  const [fPrice, setFPrice] = useState('');
+  const [fLocation, setFLocation] = useState('');
+  const [fNbh, setFNbh] = useState('');
+  const [fType, setFType] = useState('Fully Detached');
+  const [fCat, setFCat] = useState('SALE');
+  const [fBeds, setFBeds] = useState(4);
+  const [fBaths, setFBaths] = useState(4);
+  const [fSqm, setFSqm] = useState('');
+  const [fBadge, setFBadge] = useState('');
+  const [fImages, setFImages] = useState('');
+  const [fStatus, setFStatus] = useState('ACTIVE');
 
   const filtered = filter === 'All' ? properties : properties.filter(p => p.status.toLowerCase() === filter.toLowerCase());
 
@@ -317,6 +334,61 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       await fetch('/api/properties/' + p.id, { method: 'DELETE' });
       onRefresh();
     }
+  };
+
+  const openModal = (p?: AdminProperty) => {
+    if (p) {
+      setEditingProp(p);
+      setFTitle(p.title); setFDesc(''); setFPrice(p.price);
+      setFLocation(p.location); setFNbh(''); setFType(p.category || 'Fully Detached');
+      setFCat('SALE'); setFBeds(p.bedrooms); setFBaths(p.bathrooms);
+      setFSqm(p.sqm ? String(p.sqm) : ''); setFBadge(p.badge || '');
+      setFImages(p.images || '[]'); setFStatus(p.status);
+    } else {
+      setEditingProp(null);
+      setFTitle(''); setFDesc(''); setFPrice(''); setFLocation('');
+      setFNbh(''); setFType('Fully Detached'); setFCat('SALE');
+      setFBeds(4); setFBaths(4); setFSqm(''); setFBadge('');
+      setFImages('[]'); setFStatus('ACTIVE');
+    }
+    setModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!fTitle || !fPrice || !fLocation) {
+      alert('Title, price and location are required.');
+      return;
+    }
+    setSaving(true);
+    const body = {
+      title: fTitle, description: fDesc, price: fPrice,
+      location: fLocation, neighbourhood: fNbh || null,
+      type: fType, category: fCat,
+      bedrooms: fBeds, bathrooms: fBaths,
+      sqm: fSqm ? parseFloat(fSqm) : null,
+      badge: fBadge || null,
+      images: fImages || '[]',
+      status: fStatus,
+      features: '[]',
+    };
+    try {
+      if (editingProp) {
+        await fetch('/api/properties/' + editingProp.id, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      } else {
+        await fetch('/api/properties', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      }
+      setModalOpen(false);
+      onRefresh();
+    } catch {
+      alert('Failed to save. Please try again.');
+    }
+    setSaving(false);
   };
 
   return (
@@ -544,13 +616,38 @@ function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
   const [note, setNote] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [expiryDaysDisplay, setExpiryDaysDisplay] = useState<number>(7);
 
-  const handleGenerate = () => {
-    const slug = propVal || 'general';
-    const namePart = clientName ? '-' + clientName.split(' ')[0].toLowerCase() : '';
-    const url = `rokhaven.com/book/${slug}${namePart}`;
-    setGeneratedUrl(url);
-    setCopied(false);
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      let expiryDays = 7;
+      if (expiryDate) {
+        const diff = Math.ceil((new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        if (diff > 0) expiryDays = diff;
+      }
+      const res = await fetch('/api/booking-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId: propVal || null,
+          clientName: clientName || null,
+          clientPhone: clientPhone || null,
+          note: note || null,
+          expiryDays,
+        }),
+      });
+      const data = await res.json();
+      if (data.code) {
+        setGeneratedUrl(`rokhaven.com/book/${data.code}`);
+        setExpiryDaysDisplay(expiryDays);
+        setCopied(false);
+      }
+    } catch {
+      // silently fail
+    }
+    setGenerating(false);
   };
 
   const handleCopy = useCallback(() => {
@@ -591,7 +688,9 @@ function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
           <label>Note to Client <span style={{ color: 'rgba(192,168,112,0.3)', fontWeight: 300 }}>— Optional</span></label>
           <textarea className={styles.fta} rows={3} placeholder="e.g. Hi Adaeze, please use this link to schedule your viewing at your convenience." value={note} onChange={e => setNote(e.target.value)} />
         </div>
-        <button className={styles.btnGen} onClick={handleGenerate}>Generate Booking Link →</button>
+        <button className={styles.btnGen} onClick={handleGenerate} disabled={generating}>
+          {generating ? 'Generating…' : 'Generate Booking Link →'}
+        </button>
       </div>
 
       <div className={`${styles.linkResult} ${!generatedUrl ? styles.linkResultDim : ''}`}>
@@ -609,7 +708,7 @@ function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
             <svg width="11" height="11" fill="none" stroke="rgba(192,168,112,0.3)" strokeWidth="1.5" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
-            Expires in 7 days
+            Expires in {expiryDaysDisplay} days
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
