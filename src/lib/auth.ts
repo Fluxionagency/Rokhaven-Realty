@@ -23,21 +23,6 @@ export const authOptions: NextAuthOptions = {
         const email = credentials.email.toLowerCase()
         const expectedRole = credentials.role || 'CLIENT'
 
-        // Test accounts — development only
-        if (process.env.NODE_ENV === 'development') {
-          const testAccounts: Record<string, { name: string; role: string; password: string }> = {
-            'admin@rokhaven.com':     { name: 'Admin',          role: 'ADMIN',     password: 'admin123' },
-            'client@rokhaven.com':    { name: 'Test Client',    role: 'CLIENT',    password: 'client123' },
-            'principal@rokhaven.com': { name: 'Test Principal', role: 'PRINCIPAL', password: 'principal123' },
-          }
-          const test = testAccounts[email]
-          if (test && credentials.password === test.password) {
-            if (test.role === expectedRole || expectedRole === 'CLIENT') {
-              return { id: 'test-' + test.role.toLowerCase(), email, name: test.name, role: test.role }
-            }
-          }
-        }
-
         // Database lookup
         try {
           const user = await prisma.user.findUnique({ where: { email } })
