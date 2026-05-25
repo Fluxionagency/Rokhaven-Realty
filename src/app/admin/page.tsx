@@ -1415,11 +1415,15 @@ function IntegrationTab() {
   const [waActive, setWaActive] = useState(false);
   const [waTesting, setWaTesting] = useState(false);
   const [waTestMsg, setWaTestMsg] = useState('');
+  const [igActive, setIgActive] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/integrations/status')
       .then(r => r.json())
-      .then(d => { if (d.whatsapp) setWaActive(true) })
+      .then(d => {
+        if (d.whatsapp) setWaActive(true);
+        if (d.instagram) setIgActive(true);
+      })
       .catch(() => {});
   }, []);
 
@@ -1443,7 +1447,7 @@ function IntegrationTab() {
     'Apple Calendar (iCal)': 'Apple Calendar sync works via iCal feed URL. Generate a secret iCal URL from your calendar settings and add it to your environment as ICAL_FEED_URL.',
     'WhatsApp Business API': 'Apply for WhatsApp Business API access via Meta for Developers. Once approved, add WHATSAPP_API_TOKEN and WHATSAPP_PHONE_ID to your environment variables.',
     'Telegram Bot': 'Create a bot via @BotFather on Telegram, copy the bot token, and add TELEGRAM_BOT_TOKEN to your environment variables.',
-    'Instagram Direct (via Meta API)': 'Enable Instagram Messaging in your Meta App settings, connect your Instagram Business account, and add META_ACCESS_TOKEN to your environment variables.',
+    'Instagram Direct (via Meta API)': 'In Meta Developer Portal, connect your Instagram Business account, add INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_WEBHOOK_TOKEN to your Vercel environment variables, then set the webhook URL to https://www.rokhaven.com/api/webhooks/instagram.',
     'Salesforce CRM': 'Create a connected app in Salesforce Setup, copy the Consumer Key and Secret, and add SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET to your environment variables.',
     'HubSpot CRM': 'Create a private app in your HubSpot account, grant CRM contacts and deals scopes, and add HUBSPOT_API_KEY to your environment variables.',
     'Zapier': 'In Zapier, create a new Zap with a Webhook trigger. Copy the webhook URL and add it as ZAPIER_WEBHOOK_URL to your environment variables.',
@@ -1537,8 +1541,8 @@ function IntegrationTab() {
         comingSoon
       />
       <IntCard icon="📸" iconBg="#E4405F" name="Instagram Direct (via Meta API)"
-        desc="Receive and reply to Instagram DM enquiries directly from the RokHaven dashboard."
-        comingSoon
+        desc="Receive Instagram DM enquiries automatically. New DMs appear in your Leads section."
+        active={igActive}
       />
 
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>✉️ Email Provider</div>

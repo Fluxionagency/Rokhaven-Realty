@@ -9,5 +9,6 @@ export async function GET() {
   }
   return NextResponse.json({
     whatsapp: !!(process.env.WHATSAPP_API_TOKEN && process.env.WHATSAPP_PHONE_ID),
+    instagram: !!(process.env.INSTAGRAM_ACCESS_TOKEN && process.env.INSTAGRAM_WEBHOOK_TOKEN),
   })
 }
