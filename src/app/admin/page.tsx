@@ -1412,6 +1412,30 @@ function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
 function IntegrationTab() {
   const [activeEmail, setActiveEmail] = useState('resend');
   const [setupModal, setSetupModal] = useState<{ name: string; instructions: string } | null>(null);
+  const [waActive, setWaActive] = useState(false);
+  const [waTesting, setWaTesting] = useState(false);
+  const [waTestMsg, setWaTestMsg] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/integrations/status')
+      .then(r => r.json())
+      .then(d => { if (d.whatsapp) setWaActive(true) })
+      .catch(() => {});
+  }, []);
+
+  async function sendWaTest() {
+    setWaTesting(true);
+    setWaTestMsg('');
+    try {
+      const res = await fetch('/api/admin/integrations/whatsapp/test', { method: 'POST' });
+      const d = await res.json();
+      setWaTestMsg(res.ok ? '✓ Test message sent to your WhatsApp number.' : d.error || 'Failed.');
+    } catch {
+      setWaTestMsg('Request failed.');
+    } finally {
+      setWaTesting(false);
+    }
+  }
 
   const SETUP_INSTRUCTIONS: Record<string, string> = {
     'Google Calendar': 'To connect Google Calendar, enable the Google Calendar API in Google Cloud Console, create OAuth credentials, and add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your environment variables.',
@@ -1425,8 +1449,9 @@ function IntegrationTab() {
     'Zapier': 'In Zapier, create a new Zap with a Webhook trigger. Copy the webhook URL and add it as ZAPIER_WEBHOOK_URL to your environment variables.',
   };
 
-  function IntCard({ icon, iconBg, name, desc, active, comingSoon }: {
+  function IntCard({ icon, iconBg, name, desc, active, comingSoon, onTest, testLabel }: {
     icon: React.ReactNode; iconBg: string; name: string; desc: string; active?: boolean; comingSoon?: boolean;
+    onTest?: () => void; testLabel?: string;
   }) {
     return (
       <div className={styles.intCard}>
@@ -1436,7 +1461,17 @@ function IntegrationTab() {
           <div className={styles.intDesc}>{desc}</div>
         </div>
         {active ? (
-          <button className={`${styles.intBtn} ${styles.intBtnConnected}`}>✓ Active</button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <button className={`${styles.intBtn} ${styles.intBtnConnected}`}>✓ Active</button>
+            {onTest && (
+              <button
+                onClick={onTest}
+                style={{ fontSize: 10, color: 'rgba(192,168,112,0.55)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em', whiteSpace: 'nowrap', padding: 0 }}
+              >
+                {testLabel || 'Send test →'}
+              </button>
+            )}
+          </div>
         ) : comingSoon ? (
           <span style={{ fontSize: 10, color: 'rgba(192,168,112,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Coming Soon</span>
         ) : (
@@ -1488,7 +1523,15 @@ function IntegrationTab() {
         icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>}
         iconBg="#25D366" name="WhatsApp Business API"
         desc="Send automated inspection reminders, booking confirmations, and follow-up messages via WhatsApp."
+        active={waActive}
+        onTest={waTesting ? undefined : sendWaTest}
+        testLabel={waTesting ? 'Sending…' : 'Send test →'}
       />
+      {waTestMsg && (
+        <div style={{ fontSize: 11, color: waTestMsg.startsWith('✓') ? '#4ade80' : '#f87171', marginTop: -8, marginBottom: 8, paddingLeft: 56 }}>
+          {waTestMsg}
+        </div>
+      )}
       <IntCard icon="✈️" iconBg="#0088CC" name="Telegram Bot"
         desc="Send booking notifications and reminders via Telegram to clients who prefer it."
         comingSoon

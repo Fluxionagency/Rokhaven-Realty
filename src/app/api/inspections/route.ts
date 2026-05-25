@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { autoCreateProfile } from '@/lib/autoProfile'
 import { sendAdminInspectionAlert } from '@/lib/email'
+import { notifyAdminsNewInspection } from '@/lib/whatsapp'
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,6 +68,14 @@ export async function POST(request: NextRequest) {
       propertyName: body.propertyName || inspection.propertyId || '',
       date: inspection.preferredDate,
       time: inspection.preferredTime,
+    }).catch(console.error)
+    await notifyAdminsNewInspection({
+      name: name || '',
+      phone,
+      propertyName: body.propertyName || inspection.propertyId || '',
+      date: inspection.preferredDate,
+      time: inspection.preferredTime,
+      refNo: refNo,
     }).catch(console.error)
 
     return NextResponse.json(inspection, { status: 201 })
