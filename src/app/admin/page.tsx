@@ -51,6 +51,7 @@ interface AdminEnquiry {
   createdAt: string;
   budget: string | null;
   intent: string | null;
+  howHeard: string | null;
 }
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
@@ -1145,7 +1146,8 @@ function BookingsSection({ properties, inspections, onRefresh }: {
 
 // ─── LEADS SECTION ──────────────────────────────────────────────────────────
 
-type Lead = { name: string; property: string; date: string; status: LeadStatus };
+type LeadSource = 'website' | 'instagram' | 'inspection';
+type Lead = { name: string; property: string; date: string; status: LeadStatus; source: LeadSource; phone?: string; notes?: string };
 
 function toLeadStatus(s: string): LeadStatus {
   if (s === 'NEW') return 'New';
@@ -1165,15 +1167,20 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
   const buildLeads = () => {
     const fromEnquiries: Lead[] = enquiries.map(e => ({
       name: e.name,
-      property: e.property?.title || 'General Enquiry',
+      property: e.property?.title || (e.howHeard === 'Instagram' ? 'Instagram DM' : 'General Enquiry'),
       date: new Date(e.createdAt).toLocaleDateString(),
       status: toLeadStatus(e.status),
+      source: e.howHeard === 'Instagram' ? 'instagram' : 'website',
+      phone: e.phone,
+      notes: e.intent === 'Instagram DM' ? 'Via Instagram Direct' : undefined,
     }));
     const fromInspections: Lead[] = inspections.map(i => ({
       name: i.clientName,
       property: i.property?.title || 'Unknown Property',
       date: i.preferredDate,
       status: inspectionToLeadStatus(i.status),
+      source: 'inspection' as LeadSource,
+      phone: i.clientPhone,
     }));
     const allNames = new Set(fromEnquiries.map(l => l.name));
     const dedupedInspections = fromInspections.filter(l => !allNames.has(l.name));
@@ -1181,6 +1188,7 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
   };
 
   const [leads, setLeads] = useState<Lead[]>(buildLeads);
+  const [sourceFilter, setSourceFilter] = useState<'all' | LeadSource>('all');
 
   useEffect(() => {
     setLeads(buildLeads());
@@ -1198,15 +1206,45 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
     setLeads(prev => prev.map(l => l.name === leadName ? { ...l, status: newStatus } : l));
   };
 
+  const filteredLeads = sourceFilter === 'all' ? leads : leads.filter(l => l.source === sourceFilter);
+  const igCount = leads.filter(l => l.source === 'instagram').length;
+
   return (
     <div>
-      <div className={styles.secHdr} style={{ marginBottom: 20 }}>
+      <div className={styles.secHdr} style={{ marginBottom: 16 }}>
         <div className={styles.secTitle}>Leads Pipeline</div>
         <button className={styles.secLink}>Export →</button>
       </div>
+
+      {/* Source filter */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {(['all', 'website', 'instagram', 'inspection'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setSourceFilter(f)}
+            style={{
+              padding: '5px 14px', borderRadius: 2, fontSize: 11, cursor: 'pointer', letterSpacing: '0.08em',
+              border: '1px solid',
+              borderColor: sourceFilter === f ? 'rgba(192,168,112,0.6)' : 'rgba(192,168,112,0.18)',
+              background: sourceFilter === f ? 'rgba(192,168,112,0.12)' : 'transparent',
+              color: sourceFilter === f ? '#C0A870' : 'rgba(244,237,224,0.45)',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}
+          >
+            {f === 'instagram' && <span>📸</span>}
+            {f === 'website' && <span>🌐</span>}
+            {f === 'inspection' && <span>🏠</span>}
+            {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            {f === 'instagram' && igCount > 0 && (
+              <span style={{ background: '#E4405F', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 9 }}>{igCount}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className={styles.leadsGrid}>
         {columns.map(col => {
-          const colLeads = leads.filter(l => l.status === col.key);
+          const colLeads = filteredLeads.filter(l => l.status === col.key);
           return (
             <div key={col.key} className={styles.pipeCol}>
               <div className={styles.pipeHead}>
@@ -1215,8 +1253,23 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
               </div>
               {colLeads.map((lead, i) => (
                 <div key={i} className={styles.leadCard}>
-                  <div className={styles.leadName}>{lead.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <div className={styles.leadName}>{lead.name}</div>
+                    {lead.source === 'instagram' && (
+                      <span style={{ fontSize: 9, background: 'rgba(228,64,95,0.15)', color: '#E4405F', border: '1px solid rgba(228,64,95,0.3)', borderRadius: 2, padding: '2px 6px', letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 6 }}>
+                        📸 IG
+                      </span>
+                    )}
+                    {lead.source === 'inspection' && (
+                      <span style={{ fontSize: 9, background: 'rgba(192,168,112,0.1)', color: 'rgba(192,168,112,0.6)', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '2px 6px', letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 6 }}>
+                        🏠 Booking
+                      </span>
+                    )}
+                  </div>
                   <div className={styles.leadProp}>{lead.property}</div>
+                  {lead.notes && (
+                    <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.35)', marginTop: 2, fontStyle: 'italic' }}>{lead.notes}</div>
+                  )}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
                     <div className={styles.leadTime} style={col.key === 'Closed' ? { color: '#5DC882' } : {}}>
                       {lead.date}
