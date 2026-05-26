@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { autoCreateProfile } from '@/lib/autoProfile'
+import { sendAdminEnquiryAlert } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,6 +47,14 @@ export async function POST(request: NextRequest) {
         marketingConsent: body.marketing === 'yes' || body.marketingConsent === true,
       },
     })
+    if (body.email && body.name) {
+      await autoCreateProfile(body.email, body.name, body.phone || '', 'CLIENT').catch(console.error)
+    }
+    await sendAdminEnquiryAlert({
+      name: body.name || '', email: body.email || '', phone: body.phone || '',
+      subject: body.subject, message: body.message,
+    }).catch(console.error)
+
     return NextResponse.json(enquiry, { status: 201 })
   } catch (error) {
     console.error(error)

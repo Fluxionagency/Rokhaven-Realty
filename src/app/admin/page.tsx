@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
@@ -51,6 +51,7 @@ interface AdminEnquiry {
   createdAt: string;
   budget: string | null;
   intent: string | null;
+  howHeard: string | null;
 }
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
@@ -189,18 +190,95 @@ const IconPlus = () => (
   </svg>
 );
 
+// ─── RESCHEDULE MODAL ───────────────────────────────────────────────────────
+
+function RescheduleModal({ inspection, onClose, onDone }: {
+  inspection: AdminInspection;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [date, setDate] = useState(inspection.preferredDate);
+  const [time, setTime] = useState(inspection.preferredTime);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    if (!date || !time) { setError('Please select a date and time.'); return; }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/inspections/' + inspection.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferredDate: date, preferredTime: time, status: 'PENDING' }),
+      });
+      if (!res.ok) { setError('Failed to reschedule. Please try again.'); setSaving(false); return; }
+      onDone();
+    } catch {
+      setError('Network error. Please try again.');
+      setSaving(false);
+    }
+  };
+
+  const lbl: React.CSSProperties = { display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.5)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 6 };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(6,15,28,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, padding: 28, maxWidth: 400, width: '100%' }}>
+        <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: '#F4EDE0', marginBottom: 6 }}>Reschedule Inspection</div>
+        <p style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)', marginBottom: 20 }}>{inspection.clientName} · {inspection.property?.title || 'Unknown property'}</p>
+        <div style={{ marginBottom: 14 }}>
+          <label style={lbl}>New Date</label>
+          <input className={styles.fi} type="date" value={date} onChange={e => setDate(e.target.value)} />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={lbl}>New Time</label>
+          <input className={styles.fi} type="time" value={time} onChange={e => setTime(e.target.value)} />
+        </div>
+        {error && <p style={{ color: '#e57373', fontSize: 12, marginBottom: 14 }}>{error}</p>}
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ background: 'none', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '9px 18px', color: 'rgba(244,237,224,0.5)', fontSize: 12, cursor: 'pointer' }}>
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '9px 22px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Saving…' : 'Reschedule →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── DASHBOARD SECTION ──────────────────────────────────────────────────────
 
-function DashboardSection({ onNav, properties, inspections }: {
+function DashboardSection({ onNav, properties, inspections, onRefresh }: {
   onNav: (section: Section) => void;
   properties: AdminProperty[];
   inspections: AdminInspection[];
+  onRefresh: () => void;
 }) {
   const activeListings = properties.filter(p => p.status === 'ACTIVE').length;
   const pendingInspections = inspections.filter(i => i.status === 'PENDING').length;
+  const [rescheduleInsp, setRescheduleInsp] = useState<AdminInspection | null>(null);
+
+  const confirmInspection = async (id: string) => {
+    await fetch('/api/inspections/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'CONFIRMED' }),
+    });
+    onRefresh();
+  };
 
   return (
     <div>
+      {rescheduleInsp && (
+        <RescheduleModal
+          inspection={rescheduleInsp}
+          onClose={() => setRescheduleInsp(null)}
+          onDone={() => { setRescheduleInsp(null); onRefresh(); }}
+        />
+      )}
       <div className={styles.stats}>
         <div className={styles.sc}>
           <span className={`${styles.scDelta} ${styles.up}`}>↑ 3 this week</span>
@@ -255,9 +333,11 @@ function DashboardSection({ onNav, properties, inspections }: {
                 <td><Badge status={insp.status} /></td>
                 <td>
                   <div className={styles.rowActions}>
-                    {insp.status === 'PENDING' && <button className={styles.raBtn}>Confirm</button>}
-                    <button className={styles.raBtn}>View</button>
-                    {insp.status === 'CONFIRMED' && <button className={styles.raBtn}>Reschedule</button>}
+                    {insp.status === 'PENDING' && (
+                      <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>
+                    )}
+                    <button className={styles.raBtn} onClick={() => onNav('bookings')}>View</button>
+                    {insp.status === 'CONFIRMED' && <button className={styles.raBtn} onClick={() => setRescheduleInsp(insp)}>Reschedule</button>}
                     {insp.status === 'COMPLETED' && <button className={styles.raBtn}>Follow up</button>}
                   </div>
                 </td>
@@ -938,26 +1018,19 @@ function GenerateLinkTab({ properties }: { properties: AdminProperty[] }) {
         <div>
           <div className={styles.linkLabel}>QR Code</div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 18, background: 'rgba(11,27,53,0.4)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 3 }}>
-            <div style={{ background: '#fff', padding: 8, borderRadius: 2 }}>
-              <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" fill="white" />
-                <rect x="5" y="5" width="35" height="35" fill="#0B1B35" />
-                <rect x="10" y="10" width="25" height="25" fill="white" />
-                <rect x="14" y="14" width="17" height="17" fill="#C0A870" />
-                <rect x="60" y="5" width="35" height="35" fill="#0B1B35" />
-                <rect x="65" y="10" width="25" height="25" fill="white" />
-                <rect x="69" y="14" width="17" height="17" fill="#C0A870" />
-                <rect x="5" y="60" width="35" height="35" fill="#0B1B35" />
-                <rect x="10" y="65" width="25" height="25" fill="white" />
-                <rect x="14" y="69" width="17" height="17" fill="#C0A870" />
-                {[0,1,2,3,4,5,6,7].map(r =>
-                  [0,1,2,3,4,5,6,7].map(c =>
-                    (r + c) % 2 === 0 ? (
-                      <rect key={`${r}-${c}`} x={44 + c * 6} y={44 + r * 6} width={5} height={5} fill="#0B1B35" />
-                    ) : null
-                  )
-                )}
-              </svg>
+            <div style={{ background: '#fff', padding: 8, borderRadius: 2, width: 116, height: 116, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {generatedUrl ? (
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('https://' + generatedUrl)}`}
+                  alt="QR code"
+                  width={100}
+                  height={100}
+                />
+              ) : (
+                <div style={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'rgba(0,0,0,0.3)', textAlign: 'center', lineHeight: 1.4 }}>
+                  Generate a link first
+                </div>
+              )}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.28)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
               Scan to open booking form
@@ -975,6 +1048,7 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
   const [statusFilter, setStatusFilter] = useState('All');
   const statuses = ['All', 'Pending', 'Confirmed', 'Completed'];
   const filtered = statusFilter === 'All' ? inspections : inspections.filter(i => i.status.toUpperCase() === statusFilter.toUpperCase());
+  const [rescheduleInsp, setRescheduleInsp] = useState<AdminInspection | null>(null);
 
   const confirmInspection = async (id: string) => {
     await fetch('/api/inspections/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'CONFIRMED' }) });
@@ -983,6 +1057,13 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
 
   return (
     <div>
+      {rescheduleInsp && (
+        <RescheduleModal
+          inspection={rescheduleInsp}
+          onClose={() => setRescheduleInsp(null)}
+          onDone={() => { setRescheduleInsp(null); onRefresh(); }}
+        />
+      )}
       <div className={styles.secHdr} style={{ marginBottom: 16 }}>
         <div className={styles.secTitle}>All Inspection Requests</div>
         <button className={styles.secLink}>Export CSV →</button>
@@ -1003,7 +1084,7 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
               <th>Time</th>
               <th>Status</th>
               <th>Notes</th>
-              <th style={{ width: 160 }}>Actions</th>
+              <th style={{ width: 180 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -1027,8 +1108,8 @@ function InspectionsTab({ inspections, onRefresh }: { inspections: AdminInspecti
                 <td>
                   <div className={styles.rowActions}>
                     {insp.status === 'PENDING' && <button className={styles.raBtn} onClick={() => confirmInspection(insp.id)}>Confirm</button>}
-                    <button className={styles.raBtn}>View</button>
-                    <button className={styles.raBtn}>Reschedule</button>
+                    <button className={styles.raBtn} onClick={() => setStatusFilter(insp.status.charAt(0) + insp.status.slice(1).toLowerCase())}>View</button>
+                    <button className={styles.raBtn} onClick={() => setRescheduleInsp(insp)}>Reschedule</button>
                   </div>
                 </td>
               </tr>
@@ -1065,7 +1146,8 @@ function BookingsSection({ properties, inspections, onRefresh }: {
 
 // ─── LEADS SECTION ──────────────────────────────────────────────────────────
 
-type Lead = { name: string; property: string; date: string; status: LeadStatus };
+type LeadSource = 'website' | 'instagram' | 'inspection';
+type Lead = { name: string; property: string; date: string; status: LeadStatus; source: LeadSource; phone?: string; notes?: string };
 
 function toLeadStatus(s: string): LeadStatus {
   if (s === 'NEW') return 'New';
@@ -1074,22 +1156,44 @@ function toLeadStatus(s: string): LeadStatus {
   return 'Closed';
 }
 
-function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onRefresh: () => void }) {
-  const [leads, setLeads] = useState<Lead[]>(() => enquiries.map(e => ({
-    name: e.name,
-    property: e.property?.title || 'General Enquiry',
-    date: new Date(e.createdAt).toLocaleDateString(),
-    status: toLeadStatus(e.status),
-  })));
+function inspectionToLeadStatus(s: string): LeadStatus {
+  if (s === 'PENDING') return 'New';
+  if (s === 'CONFIRMED') return 'Booked';
+  if (s === 'COMPLETED') return 'Closed';
+  return 'Closed';
+}
 
-  useEffect(() => {
-    setLeads(enquiries.map(e => ({
+function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onRefresh: () => void }) {
+  const buildLeads = () => {
+    const fromEnquiries: Lead[] = enquiries.map(e => ({
       name: e.name,
-      property: e.property?.title || 'General Enquiry',
+      property: e.property?.title || (e.howHeard === 'Instagram' ? 'Instagram DM' : 'General Enquiry'),
       date: new Date(e.createdAt).toLocaleDateString(),
       status: toLeadStatus(e.status),
-    })));
-  }, [enquiries]);
+      source: e.howHeard === 'Instagram' ? 'instagram' : 'website',
+      phone: e.phone,
+      notes: e.intent === 'Instagram DM' ? 'Via Instagram Direct' : undefined,
+    }));
+    const fromInspections: Lead[] = inspections.map(i => ({
+      name: i.clientName,
+      property: i.property?.title || 'Unknown Property',
+      date: i.preferredDate,
+      status: inspectionToLeadStatus(i.status),
+      source: 'inspection' as LeadSource,
+      phone: i.clientPhone,
+    }));
+    const allNames = new Set(fromEnquiries.map(l => l.name));
+    const dedupedInspections = fromInspections.filter(l => !allNames.has(l.name));
+    return [...fromEnquiries, ...dedupedInspections];
+  };
+
+  const [leads, setLeads] = useState<Lead[]>(buildLeads);
+  const [sourceFilter, setSourceFilter] = useState<'all' | LeadSource>('all');
+
+  useEffect(() => {
+    setLeads(buildLeads());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enquiries, inspections]);
 
   const columns: { key: LeadStatus; label: string }[] = [
     { key: 'New', label: 'New Leads' },
@@ -1102,15 +1206,45 @@ function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onR
     setLeads(prev => prev.map(l => l.name === leadName ? { ...l, status: newStatus } : l));
   };
 
+  const filteredLeads = sourceFilter === 'all' ? leads : leads.filter(l => l.source === sourceFilter);
+  const igCount = leads.filter(l => l.source === 'instagram').length;
+
   return (
     <div>
-      <div className={styles.secHdr} style={{ marginBottom: 20 }}>
+      <div className={styles.secHdr} style={{ marginBottom: 16 }}>
         <div className={styles.secTitle}>Leads Pipeline</div>
         <button className={styles.secLink}>Export →</button>
       </div>
+
+      {/* Source filter */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {(['all', 'website', 'instagram', 'inspection'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setSourceFilter(f)}
+            style={{
+              padding: '5px 14px', borderRadius: 2, fontSize: 11, cursor: 'pointer', letterSpacing: '0.08em',
+              border: '1px solid',
+              borderColor: sourceFilter === f ? 'rgba(192,168,112,0.6)' : 'rgba(192,168,112,0.18)',
+              background: sourceFilter === f ? 'rgba(192,168,112,0.12)' : 'transparent',
+              color: sourceFilter === f ? '#C0A870' : 'rgba(244,237,224,0.45)',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}
+          >
+            {f === 'instagram' && <span>📸</span>}
+            {f === 'website' && <span>🌐</span>}
+            {f === 'inspection' && <span>🏠</span>}
+            {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            {f === 'instagram' && igCount > 0 && (
+              <span style={{ background: '#E4405F', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 9 }}>{igCount}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className={styles.leadsGrid}>
         {columns.map(col => {
-          const colLeads = leads.filter(l => l.status === col.key);
+          const colLeads = filteredLeads.filter(l => l.status === col.key);
           return (
             <div key={col.key} className={styles.pipeCol}>
               <div className={styles.pipeHead}>
@@ -1119,8 +1253,23 @@ function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onR
               </div>
               {colLeads.map((lead, i) => (
                 <div key={i} className={styles.leadCard}>
-                  <div className={styles.leadName}>{lead.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <div className={styles.leadName}>{lead.name}</div>
+                    {lead.source === 'instagram' && (
+                      <span style={{ fontSize: 9, background: 'rgba(228,64,95,0.15)', color: '#E4405F', border: '1px solid rgba(228,64,95,0.3)', borderRadius: 2, padding: '2px 6px', letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 6 }}>
+                        📸 IG
+                      </span>
+                    )}
+                    {lead.source === 'inspection' && (
+                      <span style={{ fontSize: 9, background: 'rgba(192,168,112,0.1)', color: 'rgba(192,168,112,0.6)', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '2px 6px', letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 6 }}>
+                        🏠 Booking
+                      </span>
+                    )}
+                  </div>
                   <div className={styles.leadProp}>{lead.property}</div>
+                  {lead.notes && (
+                    <div style={{ fontSize: 10, color: 'rgba(244,237,224,0.35)', marginTop: 2, fontStyle: 'italic' }}>{lead.notes}</div>
+                  )}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
                     <div className={styles.leadTime} style={col.key === 'Closed' ? { color: '#5DC882' } : {}}>
                       {lead.date}
@@ -1140,6 +1289,95 @@ function LeadsSection({ enquiries, onRefresh }: { enquiries: AdminEnquiry[]; onR
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ─── EDITABLE REMINDER SCHEDULE ─────────────────────────────────────────────
+
+type ReminderSlot = { timing: string; email: boolean; whatsapp: boolean; sms: boolean };
+
+function ReminderScheduleCard() {
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [slots, setSlots] = useState<ReminderSlot[]>([
+    { timing: '48', email: true, whatsapp: true, sms: true },
+    { timing: '24', email: true, whatsapp: true, sms: true },
+    { timing: '2',  email: false, whatsapp: true, sms: true },
+  ]);
+  const [staged, setStaged] = useState<ReminderSlot[]>(slots);
+
+  const startEdit = () => { setStaged(slots.map(s => ({ ...s }))); setEditing(true); setSaved(false); };
+  const cancel = () => setEditing(false);
+  const save = () => { setSlots(staged); setEditing(false); setSaved(true); setTimeout(() => setSaved(false), 2500); };
+
+  const toggle = (i: number, ch: 'email' | 'whatsapp' | 'sms') => {
+    setStaged(prev => prev.map((s, idx) => idx === i ? { ...s, [ch]: !s[ch] } : s));
+  };
+
+  const channelLabel = (s: ReminderSlot) =>
+    [s.email && 'Email', s.whatsapp && 'WhatsApp', s.sms && 'SMS'].filter(Boolean).join(' + ') || 'None';
+
+  return (
+    <div className={styles.reminderSchedule}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div className={styles.intSectionLabel} style={{ marginBottom: 0 }}>Automated Reminder Schedule</div>
+        {!editing ? (
+          <button className={styles.raBtn} style={{ opacity: 1 }} onClick={startEdit}>Edit Schedule</button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className={styles.raBtn} style={{ opacity: 1 }} onClick={cancel}>Cancel</button>
+            <button className={styles.raBtn} style={{ opacity: 1, background: 'var(--gold)', color: '#060F1C' }} onClick={save}>Save</button>
+          </div>
+        )}
+      </div>
+      {saved && <div style={{ fontSize: 12, color: '#5DC882', marginBottom: 10 }}>Schedule saved ✓</div>}
+      {!editing ? (
+        <div className={styles.reminderScheduleRow}>
+          {slots.map((s, i) => (
+            <div key={i} className={styles.reminderItem}>
+              <div className={styles.reminderDot} />
+              <div>
+                <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400 }}>{s.timing} hours before</div>
+                <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)' }}>{channelLabel(s)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {staged.map((s, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 3, padding: '14px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 160 }}>
+                  <input
+                    type="number"
+                    min={1}
+                    max={168}
+                    value={s.timing}
+                    onChange={e => setStaged(prev => prev.map((sl, idx) => idx === i ? { ...sl, timing: e.target.value } : sl))}
+                    style={{ width: 56, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(192,168,112,0.2)', color: '#f4ede0', padding: '6px 10px', fontSize: 13, borderRadius: 2, outline: 'none' }}
+                  />
+                  <span style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)' }}>hours before</span>
+                </div>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  {(['email', 'whatsapp', 'sms'] as const).map(ch => (
+                    <label key={ch} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, color: s[ch] ? 'var(--gold)' : 'rgba(244,237,224,0.3)' }}>
+                      <input
+                        type="checkbox"
+                        checked={s[ch]}
+                        onChange={() => toggle(i, ch)}
+                        style={{ accentColor: '#C0A870', cursor: 'pointer' }}
+                      />
+                      {ch === 'whatsapp' ? 'WhatsApp' : ch.charAt(0).toUpperCase() + ch.slice(1)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1217,24 +1455,7 @@ function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
           </tbody>
         </table>
       </div>
-      <div className={styles.reminderSchedule}>
-        <div className={styles.intSectionLabel}>Automated Reminder Schedule</div>
-        <div className={styles.reminderScheduleRow}>
-          {[
-            { label: '48 hours before', channels: 'WhatsApp + Email + SMS' },
-            { label: '24 hours before', channels: 'WhatsApp + Email + SMS' },
-            { label: '2 hours before', channels: 'WhatsApp + SMS' },
-          ].map(r => (
-            <div key={r.label} className={styles.reminderItem}>
-              <div className={styles.reminderDot} />
-              <div>
-                <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400 }}>{r.label}</div>
-                <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)' }}>{r.channels}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ReminderScheduleCard />
     </div>
   );
 }
@@ -1242,13 +1463,52 @@ function RemindersSection({ inspections }: { inspections: AdminInspection[] }) {
 // ─── SETTINGS: INTEGRATION TAB ──────────────────────────────────────────────
 
 function IntegrationTab() {
-  const [calConnected, setCalConnected] = useState<Record<string, boolean>>({ google: false, outlook: false, apple: false });
-  const [msgConnected, setMsgConnected] = useState<Record<string, boolean>>({ whatsapp: true, telegram: false, instagram: false });
-  const [crmConnected, setCrmConnected] = useState<Record<string, boolean>>({ salesforce: false, hubspot: false, zapier: false });
-  const [activeEmail, setActiveEmail] = useState('sendgrid');
+  const [activeEmail, setActiveEmail] = useState('resend');
+  const [setupModal, setSetupModal] = useState<{ name: string; instructions: string } | null>(null);
+  const [waActive, setWaActive] = useState(false);
+  const [waTesting, setWaTesting] = useState(false);
+  const [waTestMsg, setWaTestMsg] = useState('');
+  const [igActive, setIgActive] = useState(false);
 
-  function IntCard({ icon, iconBg, name, desc, connected, onConnect }: {
-    icon: React.ReactNode; iconBg: string; name: string; desc: string; connected: boolean; onConnect: () => void;
+  useEffect(() => {
+    fetch('/api/admin/integrations/status')
+      .then(r => r.json())
+      .then(d => {
+        if (d.whatsapp) setWaActive(true);
+        if (d.instagram) setIgActive(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function sendWaTest() {
+    setWaTesting(true);
+    setWaTestMsg('');
+    try {
+      const res = await fetch('/api/admin/integrations/whatsapp/test', { method: 'POST' });
+      const d = await res.json();
+      setWaTestMsg(res.ok ? '✓ Test message sent to your WhatsApp number.' : d.error || 'Failed.');
+    } catch {
+      setWaTestMsg('Request failed.');
+    } finally {
+      setWaTesting(false);
+    }
+  }
+
+  const SETUP_INSTRUCTIONS: Record<string, string> = {
+    'Google Calendar': 'To connect Google Calendar, enable the Google Calendar API in Google Cloud Console, create OAuth credentials, and add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your environment variables.',
+    'Microsoft Outlook / Office 365': 'Register an app in Azure Active Directory, grant Calendar.ReadWrite permissions, and add AZURE_CLIENT_ID and AZURE_CLIENT_SECRET to your environment variables.',
+    'Apple Calendar (iCal)': 'Apple Calendar sync works via iCal feed URL. Generate a secret iCal URL from your calendar settings and add it to your environment as ICAL_FEED_URL.',
+    'WhatsApp Business API': 'Apply for WhatsApp Business API access via Meta for Developers. Once approved, add WHATSAPP_API_TOKEN and WHATSAPP_PHONE_ID to your environment variables.',
+    'Telegram Bot': 'Create a bot via @BotFather on Telegram, copy the bot token, and add TELEGRAM_BOT_TOKEN to your environment variables.',
+    'Instagram Direct (via Meta API)': 'In Meta Developer Portal, connect your Instagram Business account, add INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_WEBHOOK_TOKEN to your Vercel environment variables, then set the webhook URL to https://www.rokhaven.com/api/webhooks/instagram.',
+    'Salesforce CRM': 'Create a connected app in Salesforce Setup, copy the Consumer Key and Secret, and add SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET to your environment variables.',
+    'HubSpot CRM': 'Create a private app in your HubSpot account, grant CRM contacts and deals scopes, and add HUBSPOT_API_KEY to your environment variables.',
+    'Zapier': 'In Zapier, create a new Zap with a Webhook trigger. Copy the webhook URL and add it as ZAPIER_WEBHOOK_URL to your environment variables.',
+  };
+
+  function IntCard({ icon, iconBg, name, desc, active, comingSoon, onTest, testLabel }: {
+    icon: React.ReactNode; iconBg: string; name: string; desc: string; active?: boolean; comingSoon?: boolean;
+    onTest?: () => void; testLabel?: string;
   }) {
     return (
       <div className={styles.intCard}>
@@ -1257,18 +1517,48 @@ function IntegrationTab() {
           <div className={styles.intName}>{name}</div>
           <div className={styles.intDesc}>{desc}</div>
         </div>
-        <button
-          className={`${styles.intBtn} ${connected ? styles.intBtnConnected : ''}`}
-          onClick={connected ? undefined : onConnect}
-        >
-          {connected ? '✓ Connected' : 'Connect →'}
-        </button>
+        {active ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <button className={`${styles.intBtn} ${styles.intBtnConnected}`}>✓ Active</button>
+            {onTest && (
+              <button
+                onClick={onTest}
+                style={{ fontSize: 10, color: 'rgba(192,168,112,0.55)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em', whiteSpace: 'nowrap', padding: 0 }}
+              >
+                {testLabel || 'Send test →'}
+              </button>
+            )}
+          </div>
+        ) : comingSoon ? (
+          <span style={{ fontSize: 10, color: 'rgba(192,168,112,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Coming Soon</span>
+        ) : (
+          <button
+            className={styles.intBtn}
+            onClick={() => setSetupModal({ name, instructions: SETUP_INSTRUCTIONS[name] || 'Contact your development team for setup instructions.' })}
+          >
+            Setup →
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div>
+      {setupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(6,15,28,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          onClick={e => e.target === e.currentTarget && setSetupModal(null)}>
+          <div style={{ background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, padding: 28, maxWidth: 500, width: '100%' }}>
+            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: '#F4EDE0', marginBottom: 12 }}>{setupModal.name}</div>
+            <p style={{ fontSize: 13, color: 'rgba(244,237,224,0.55)', lineHeight: 1.7, marginBottom: 20 }}>{setupModal.instructions}</p>
+            <div style={{ fontSize: 11, color: 'rgba(192,168,112,0.45)', marginBottom: 20 }}>Add the required environment variables in your Vercel project settings, then redeploy.</div>
+            <button onClick={() => setSetupModal(null)} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className={styles.spTitle}>Integrations</div>
       <div className={styles.spSub}>Connect RokHaven to external services to automate your booking workflow, calendar sync, and client communications.</div>
 
@@ -1276,16 +1566,14 @@ function IntegrationTab() {
       <IntCard
         icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>}
         iconBg="#4285F4" name="Google Calendar"
-        desc="Sync confirmed inspections automatically. New bookings appear as calendar events with full client and property details."
-        connected={calConnected.google} onConnect={() => setCalConnected(p => ({ ...p, google: true }))}
+        desc="Each admin connects their own Google Calendar individually. Go to Account → My Integrations to connect yours."
+        active
       />
       <IntCard icon="📅" iconBg="#0078D4" name="Microsoft Outlook / Office 365"
         desc="Connect your Outlook calendar for automatic inspection scheduling and team-wide calendar visibility."
-        connected={calConnected.outlook} onConnect={() => setCalConnected(p => ({ ...p, outlook: true }))}
       />
       <IntCard icon="📱" iconBg="#1a73e8" name="Apple Calendar (iCal)"
         desc="Sync inspections to Apple Calendar via iCal feed. Compatible with iOS and macOS Calendar apps."
-        connected={calConnected.apple} onConnect={() => setCalConnected(p => ({ ...p, apple: true }))}
       />
 
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>💬 Messaging</div>
@@ -1293,20 +1581,29 @@ function IntegrationTab() {
         icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>}
         iconBg="#25D366" name="WhatsApp Business API"
         desc="Send automated inspection reminders, booking confirmations, and follow-up messages via WhatsApp."
-        connected={msgConnected.whatsapp} onConnect={() => setMsgConnected(p => ({ ...p, whatsapp: true }))}
+        active={waActive}
+        onTest={waTesting ? undefined : sendWaTest}
+        testLabel={waTesting ? 'Sending…' : 'Send test →'}
       />
+      {waTestMsg && (
+        <div style={{ fontSize: 11, color: waTestMsg.startsWith('✓') ? '#4ade80' : '#f87171', marginTop: -8, marginBottom: 8, paddingLeft: 56 }}>
+          {waTestMsg}
+        </div>
+      )}
       <IntCard icon="✈️" iconBg="#0088CC" name="Telegram Bot"
         desc="Send booking notifications and reminders via Telegram to clients who prefer it."
-        connected={msgConnected.telegram} onConnect={() => setMsgConnected(p => ({ ...p, telegram: true }))}
+        comingSoon
       />
       <IntCard icon="📸" iconBg="#E4405F" name="Instagram Direct (via Meta API)"
-        desc="Receive and reply to Instagram DM enquiries directly from the RokHaven dashboard."
-        connected={msgConnected.instagram} onConnect={() => setMsgConnected(p => ({ ...p, instagram: true }))}
+        desc="Receive Instagram DM enquiries automatically. New DMs appear in your Leads section."
+        active={igActive}
       />
 
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>✉️ Email Provider</div>
       <div className={styles.emailProviderWrapper}>
-        <div className={styles.emailProviderNote}>Select your preferred email delivery provider. Only one email provider can be active at a time.</div>
+        <div className={styles.emailProviderNote}>
+          Resend is currently active and configured. Transactional emails are sent via <strong style={{ color: 'rgba(192,168,112,0.7)' }}>noreply@rokhaven.com</strong>.
+        </div>
         <div className={styles.emailProviders}>
           {EMAIL_PROVIDERS.map(p => (
             <div
@@ -1316,16 +1613,16 @@ function IntegrationTab() {
             >
               <div className={styles.eoName}>{p.name}</div>
               <div className={styles.eoDesc}>{p.desc}</div>
-              {activeEmail === p.id && <div className={styles.eoBadge}>✓ Active</div>}
+              {activeEmail === p.id && <div className={styles.eoBadge}>{p.id === 'resend' ? '✓ Active' : '✓ Selected'}</div>}
             </div>
           ))}
         </div>
-        {activeEmail && (
+        {activeEmail && activeEmail !== 'resend' && (
           <div style={{ marginTop: 14 }}>
             <label style={{ display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.42)', letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 8 }}>
               API Key — {EMAIL_PROVIDERS.find(p => p.id === activeEmail)?.name}
             </label>
-            <input className={styles.fi} type="password" placeholder="Enter your API key…" />
+            <input className={styles.fi} type="password" placeholder="Enter your API key and add to Vercel env vars…" />
           </div>
         )}
       </div>
@@ -1333,15 +1630,14 @@ function IntegrationTab() {
       <div className={`${styles.intSectionLabel} ${styles.intSectionLabelSpaced}`}>💳 CRM &amp; Other</div>
       <IntCard icon="☁️" iconBg="#00A1E0" name="Salesforce CRM"
         desc="Sync leads and client data to your Salesforce org automatically when new enquiries arrive."
-        connected={crmConnected.salesforce} onConnect={() => setCrmConnected(p => ({ ...p, salesforce: true }))}
+        comingSoon
       />
       <IntCard icon="🔶" iconBg="#FF7A59" name="HubSpot CRM"
         desc="Push new leads and inspection bookings directly into your HubSpot pipeline."
-        connected={crmConnected.hubspot} onConnect={() => setCrmConnected(p => ({ ...p, hubspot: true }))}
+        comingSoon
       />
       <IntCard icon="⚡" iconBg="#6C47FF" name="Zapier"
         desc="Connect RokHaven to 6,000+ apps. Automate anything — Notion, Slack, Sheets, and more."
-        connected={crmConnected.zapier} onConnect={() => setCrmConnected(p => ({ ...p, zapier: true }))}
       />
     </div>
   );
@@ -1349,104 +1645,179 @@ function IntegrationTab() {
 
 // ─── SETTINGS: TEAM TAB ─────────────────────────────────────────────────────
 
-function TeamTab() {
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('Agent');
-  const [inviteSent, setInviteSent] = useState(false);
+interface TeamMember { id: string; name: string; email: string; phone?: string | null; role: string; title?: string | null; createdAt: string }
 
-  const members = [
-    { initials: 'AO', name: 'Amaka Osei', email: 'amaka@rokhaven.com', role: 'Super Admin', status: 'Active', roleColor: 'var(--gold)' },
-    { initials: 'TF', name: 'Tola Fashola', email: 'tola@rokhaven.com', role: 'Agent', status: 'Active', roleColor: '#E0B44A' },
-    { initials: 'KA', name: 'Kunle Adeyemi', email: 'kunle@rokhaven.com', role: 'Agent', status: 'Active', roleColor: '#E0B44A' },
-    { initials: 'BI', name: 'Blessing Ikenna', email: 'blessing@rokhaven.com', role: 'Viewer', status: 'Invited', roleColor: 'var(--teal)' },
-  ];
+const ROLE_OPTIONS = [
+  { value: 'Super Admin', color: 'var(--gold)', desc: 'Full access — manage listings, view all leads, configure settings, manage team.' },
+  { value: 'Agent', color: '#E0B44A', desc: 'View and manage listings and bookings. Cannot access settings or billing.' },
+  { value: 'Viewer', color: 'var(--teal)', desc: 'Read-only access to listings and dashboard. No editing or exporting.' },
+];
+
+function roleColor(title: string | null | undefined) {
+  const r = ROLE_OPTIONS.find(o => o.value === title);
+  return r ? r.color : 'var(--gold)';
+}
+
+function TeamTab() {
+  const { data: session } = useSession();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteTitle, setInviteTitle] = useState('Agent');
+  const [inviting, setInviting] = useState(false);
+  const [inviteResult, setInviteResult] = useState<{ name: string; email: string; title: string; tempPassword: string } | null>(null);
+  const [inviteError, setInviteError] = useState('');
+  const [removing, setRemoving] = useState<string | null>(null);
+
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/team');
+      if (res.ok) setMembers(await res.json());
+    } catch { /* ignore */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchMembers(); }, []);
+
+  const handleInvite = async () => {
+    if (!inviteName || !inviteEmail) { setInviteError('Name and email are required.'); return; }
+    setInviting(true); setInviteError('');
+    const res = await fetch('/api/admin/team', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: inviteName, email: inviteEmail, title: inviteTitle }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setInviteError(data.error || 'Failed to create member.'); setInviting(false); return; }
+    setInviteResult({ name: data.name, email: data.email, title: data.title, tempPassword: data.tempPassword });
+    setInviteName(''); setInviteEmail(''); setInviteTitle('Agent');
+    setInviting(false);
+    fetchMembers();
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!window.confirm('Remove this team member? This cannot be undone.')) return;
+    setRemoving(id);
+    await fetch('/api/admin/team', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    setRemoving(null);
+    fetchMembers();
+  };
+
+  const sessionEmail = (session?.user as { email?: string })?.email;
 
   return (
     <div>
       <div className={styles.spTitle}>Team &amp; Access</div>
-      <div className={styles.spSub}>Manage team members and their permission levels within the RokHaven admin.</div>
+      <div className={styles.spSub}>Manage admin accounts for the RokHaven portal.</div>
+
+      <div className={styles.intSectionLabel} style={{ marginBottom: 12 }}>Roles</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>
+        {ROLE_OPTIONS.map(r => (
+          <div key={r.value} className={styles.roleCard}>
+            <div className={styles.roleName} style={{ color: r.color }}>{r.value}</div>
+            <div className={styles.roleDesc}>{r.desc}</div>
+          </div>
+        ))}
+      </div>
+
       <div className={styles.teamHdr}>
         <div className={styles.intSectionLabel} style={{ marginBottom: 0 }}>Team Members ({members.length})</div>
-        <button className={styles.intBtn} style={{ fontSize: 10, padding: '6px 14px' }}>+ Invite Member</button>
+        <button className={styles.intBtn} style={{ fontSize: 10, padding: '6px 14px' }} onClick={() => { setShowInvite(s => !s); setInviteResult(null); setInviteError(''); }}>
+          {showInvite ? 'Close' : '+ Add Member'}
+        </button>
       </div>
+
+      {showInvite && (
+        <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px', marginBottom: 16 }}>
+          {inviteResult ? (
+            <div>
+              <div style={{ fontSize: 13, color: '#5DC882', marginBottom: 10 }}>✓ Member created successfully</div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Name: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.name}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Email: <strong style={{ color: 'var(--ivory)' }}>{inviteResult.email}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 4 }}>Role: <strong style={{ color: roleColor(inviteResult.title) }}>{inviteResult.title}</strong></div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', marginBottom: 14 }}>Temporary password: <code style={{ background: 'rgba(192,168,112,0.1)', padding: '2px 6px', color: 'var(--gold)', borderRadius: 2 }}>{inviteResult.tempPassword}</code></div>
+              <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.3)', marginBottom: 14 }}>Share these credentials with the new member. They can change their password after logging in.</div>
+              <button className={styles.raBtn} style={{ opacity: 1 }} onClick={() => { setInviteResult(null); setShowInvite(false); }}>Done</button>
+            </div>
+          ) : (
+            <div>
+              <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>New Team Member</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 12 }}>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Full Name</label>
+                  <input className={styles.fi} placeholder="e.g. Tola Fashola" value={inviteName} onChange={e => setInviteName(e.target.value)} />
+                </div>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Email Address</label>
+                  <input className={styles.fi} type="email" placeholder="admin@rokhaven.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+                </div>
+                <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
+                  <label>Role</label>
+                  <select className={styles.fsel} value={inviteTitle} onChange={e => setInviteTitle(e.target.value)}>
+                    <option>Agent</option>
+                    <option>Viewer</option>
+                    <option>Super Admin</option>
+                  </select>
+                </div>
+              </div>
+              {inviteError && <div style={{ fontSize: 12, color: '#e57373', marginBottom: 10 }}>{inviteError}</div>}
+              <button className={styles.btnGen} style={{ width: 'auto', padding: '10px 24px' }} onClick={handleInvite} disabled={inviting}>
+                {inviting ? 'Creating…' : 'Create Member →'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className={styles.tblWrap}>
         <table>
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th style={{ width: 140 }}></th>
-            </tr>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th style={{ width: 120 }}></th></tr>
           </thead>
           <tbody>
-            {members.map((m, i) => (
-              <tr key={i}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className={styles.sbAvatar} style={{ width: 30, height: 30, fontSize: 10 }}>{m.initials}</div>
-                    <span className={styles.strong}>{m.name}</span>
-                  </div>
-                </td>
-                <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)' }}>{m.email}</td>
-                <td>
-                  <span className={styles.badge} style={{ fontSize: 9, color: m.roleColor, background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)' }}>
-                    {m.role}
-                  </span>
-                </td>
-                <td>
-                  <span className={`${styles.badge} ${m.status === 'Active' ? styles.bConfirmed : styles.bPending}`} style={{ fontSize: 9 }}>
-                    {m.status}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.rowActions} style={{ opacity: 1 }}>
-                    {i === 0 ? (
-                      <button className={styles.raBtn}>Edit</button>
-                    ) : m.status === 'Invited' ? (
-                      <><button className={styles.raBtn}>Resend</button><button className={`${styles.raBtn} ${styles.raDel}`}>Revoke</button></>
-                    ) : (
-                      <><button className={styles.raBtn}>Edit</button><button className={`${styles.raBtn} ${styles.raDel}`}>Remove</button></>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', padding: 28 }}>Loading…</td></tr>
+            ) : members.length === 0 ? (
+              <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', padding: 28 }}>No team members found.</td></tr>
+            ) : members.map(m => {
+              const initials = m.name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
+              const isSelf = m.email === sessionEmail;
+              const displayTitle = m.title || 'Super Admin';
+              return (
+                <tr key={m.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className={styles.sbAvatar} style={{ width: 30, height: 30, fontSize: 10 }}>{initials}</div>
+                      <span className={styles.strong}>{m.name}{isSelf && <span style={{ fontSize: 10, color: 'rgba(244,237,224,0.3)', marginLeft: 6 }}>(you)</span>}</span>
+                    </div>
+                  </td>
+                  <td style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)' }}>{m.email}</td>
+                  <td>
+                    <span className={styles.badge} style={{ fontSize: 9, color: roleColor(displayTitle), background: 'rgba(192,168,112,0.08)', border: `1px solid ${roleColor(displayTitle)}33` }}>
+                      {displayTitle}
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.rowActions} style={{ opacity: 1 }}>
+                      {!isSelf && (
+                        <button className={`${styles.raBtn} ${styles.raDel}`} disabled={removing === m.id} onClick={() => handleRemove(m.id)}>
+                          {removing === m.id ? '…' : 'Remove'}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px', marginBottom: 20 }}>
-        <div className={styles.intSectionLabel} style={{ marginBottom: 12 }}>Role Permissions</div>
-        <div className={styles.roleGrid}>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: 'var(--gold)' }}>Super Admin</div><div className={styles.roleDesc}>Full access — manage listings, view all leads, configure settings, manage team.</div></div>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: '#E0B44A' }}>Agent</div><div className={styles.roleDesc}>View and manage listings and bookings. Cannot access settings or billing.</div></div>
-          <div className={styles.roleCard}><div className={styles.roleName} style={{ color: 'var(--teal)' }}>Viewer</div><div className={styles.roleDesc}>Read-only access to listings and dashboard. No editing or exporting.</div></div>
-        </div>
-      </div>
-      <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, padding: '18px 20px' }}>
-        <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Invite New Member</div>
-        <div className={styles.g2} style={{ marginBottom: 12 }}>
-          <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
-            <label>Email Address</label>
-            <input className={styles.fi} type="email" placeholder="colleague@rokhaven.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-          </div>
-          <div className={styles.fgBlock} style={{ marginBottom: 0 }}>
-            <label>Role</label>
-            <select className={styles.fsel} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
-              <option>Agent</option>
-              <option>Viewer</option>
-              <option>Super Admin</option>
-            </select>
-          </div>
-        </div>
-        <button
-          className={styles.btnGen}
-          style={{ width: 'auto', padding: '11px 28px' }}
-          onClick={() => { setInviteSent(true); setInviteEmail(''); setTimeout(() => setInviteSent(false), 3000); }}
-        >
-          {inviteSent ? 'Invite Sent ✓' : 'Send Invitation'}
-        </button>
       </div>
     </div>
   );
@@ -1457,6 +1828,8 @@ function TeamTab() {
 function NotificationsTab() {
   const [notifs, setNotifs] = useState(NOTIFS.map(n => ({ ...n })));
   const [saved, setSaved] = useState(false);
+  const [quietFrom, setQuietFrom] = useState('22:00');
+  const [quietTo, setQuietTo] = useState('07:00');
 
   const toggle = (i: number, channel: 'email' | 'whatsapp' | 'sms') => {
     setNotifs(prev => prev.map((n, idx) => idx === i ? { ...n, [channel]: !n[channel] } : n));
@@ -1488,13 +1861,25 @@ function NotificationsTab() {
         <div className={styles.intSectionLabel} style={{ marginBottom: 10 }}>Quiet Hours</div>
         <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.5)', marginBottom: 10 }}>Suppress non-urgent notifications during these hours:</div>
         <div className={styles.quietHoursRow}>
-          <select className={styles.fsel} style={{ width: 130, padding: '9px 12px', fontSize: 13 }}>
-            <option>10:00 PM</option><option>9:00 PM</option><option>11:00 PM</option>
-          </select>
+          <input
+            type="time"
+            className={styles.fsel}
+            style={{ width: 130, padding: '9px 12px', fontSize: 13 }}
+            min="00:00"
+            max="23:59"
+            value={quietFrom}
+            onChange={e => setQuietFrom(e.target.value)}
+          />
           <span style={{ color: 'rgba(244,237,224,0.3)' }}>to</span>
-          <select className={styles.fsel} style={{ width: 130, padding: '9px 12px', fontSize: 13 }}>
-            <option>7:00 AM</option><option>6:00 AM</option><option>8:00 AM</option>
-          </select>
+          <input
+            type="time"
+            className={styles.fsel}
+            style={{ width: 130, padding: '9px 12px', fontSize: 13 }}
+            min="00:00"
+            max="23:59"
+            value={quietTo}
+            onChange={e => setQuietTo(e.target.value)}
+          />
           <span style={{ fontSize: 11, color: 'rgba(244,237,224,0.25)' }}>WAT (West Africa Time)</span>
         </div>
       </div>
@@ -1512,13 +1897,99 @@ function NotificationsTab() {
 // ─── SETTINGS: ACCOUNT TAB ──────────────────────────────────────────────────
 
 function AccountTab() {
-  const [firstName, setFirstName] = useState('Amaka');
-  const [lastName, setLastName] = useState('Osei');
-  const [email, setEmail] = useState('amaka@rokhaven.com');
-  const [phone, setPhone] = useState('+234 916 761 9009');
-  const [profileSaved, setProfileSaved] = useState(false);
-  const [passwordSaved, setPasswordSaved] = useState(false);
+  const { data: session } = useSession();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
+
+  const [curPwd, setCurPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState('');
+  const [pwdError, setPwdError] = useState('');
+
   const [twoFa, setTwoFa] = useState(false);
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [calendarMsg, setCalendarMsg] = useState('');
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/user/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.name) setName(data.name);
+        if (data.email) setEmail(data.email);
+        if (data.phone) setPhone(data.phone);
+        if (data.whatsapp) setWhatsapp(data.whatsapp);
+        setCalendarConnected(!!data.googleCalendarConnected);
+      })
+      .catch(() => {});
+
+    // Check URL params after Google OAuth redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('calendarConnected')) {
+      setCalendarConnected(true);
+      setCalendarMsg('Google Calendar connected successfully ✓');
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(() => setCalendarMsg(''), 4000);
+    }
+    if (params.get('calendarError')) {
+      setCalendarMsg('Failed to connect Google Calendar. Please try again.');
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(() => setCalendarMsg(''), 4000);
+    }
+  }, []);
+
+  const initials = name ? name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase() : (session?.user?.name ? session.user.name.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase() : 'ME');
+
+  const saveProfile = async () => {
+    setProfileSaving(true);
+    setProfileMsg('');
+    try {
+      const res = await fetch('/api/user/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone: phone || null, whatsapp: whatsapp || null }),
+      });
+      if (res.ok) { setProfileMsg('Saved ✓'); }
+      else { const d = await res.json(); setProfileMsg(d.error || 'Save failed.'); }
+    } catch { setProfileMsg('Network error.'); }
+    setProfileSaving(false);
+    setTimeout(() => setProfileMsg(''), 3000);
+  };
+
+  const disconnectCalendar = async () => {
+    setDisconnecting(true);
+    await fetch('/api/auth/google-calendar', { method: 'DELETE' });
+    setCalendarConnected(false);
+    setCalendarMsg('Google Calendar disconnected.');
+    setDisconnecting(false);
+    setTimeout(() => setCalendarMsg(''), 3000);
+  };
+
+  const changePassword = async () => {
+    setPwdError('');
+    setPwdMsg('');
+    if (newPwd !== confirmPwd) { setPwdError('Passwords do not match.'); return; }
+    if (newPwd.length < 8) { setPwdError('New password must be at least 8 characters.'); return; }
+    setPwdSaving(true);
+    try {
+      const res = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: curPwd, newPassword: newPwd }),
+      });
+      const d = await res.json();
+      if (res.ok) { setPwdMsg('Password updated ✓'); setCurPwd(''); setNewPwd(''); setConfirmPwd(''); }
+      else { setPwdError(d.error || 'Failed to update password.'); }
+    } catch { setPwdError('Network error.'); }
+    setPwdSaving(false);
+    setTimeout(() => { setPwdMsg(''); setPwdError(''); }, 4000);
+  };
 
   return (
     <div>
@@ -1527,61 +1998,63 @@ function AccountTab() {
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Profile</div>
       <div className={styles.profileCard}>
-        <div className={styles.profileAvatar}>AO</div>
+        <div className={styles.profileAvatar}>{initials}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--ivory)', marginBottom: 3 }}>{firstName} {lastName}</div>
+          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--ivory)', marginBottom: 3 }}>{name || 'Your Name'}</div>
           <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.35)' }}>{email} · Super Admin</div>
         </div>
-        <button className={styles.intBtn}>Change Photo</button>
       </div>
 
-      <div className={styles.g2}>
-        <div className={styles.fgBlock}>
-          <label>First Name</label>
-          <input className={styles.fi} value={firstName} onChange={e => setFirstName(e.target.value)} />
-        </div>
-        <div className={styles.fgBlock}>
-          <label>Last Name</label>
-          <input className={styles.fi} value={lastName} onChange={e => setLastName(e.target.value)} />
-        </div>
+      <div className={styles.fgBlock}>
+        <label>Full Name</label>
+        <input className={styles.fi} value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" />
       </div>
       <div className={styles.fgBlock}>
         <label>Email Address</label>
-        <input className={styles.fi} type="email" value={email} onChange={e => setEmail(e.target.value)} />
+        <input className={styles.fi} type="email" value={email} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
       </div>
-      <div className={styles.fgBlock}>
-        <label>Phone</label>
-        <input className={styles.fi} type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
+      <div className={styles.g2}>
+        <div className={styles.fgBlock}>
+          <label>Phone</label>
+          <input className={styles.fi} type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+234 800 000 0000" />
+        </div>
+        <div className={styles.fgBlock}>
+          <label>WhatsApp Number</label>
+          <input className={styles.fi} type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+234 800 000 0000" />
+        </div>
       </div>
       <button
         className={styles.btnGen}
         style={{ width: 'auto', padding: '11px 28px', marginBottom: 28 }}
-        onClick={() => { setProfileSaved(true); setTimeout(() => setProfileSaved(false), 2500); }}
+        onClick={saveProfile}
+        disabled={profileSaving}
       >
-        {profileSaved ? 'Saved ✓' : 'Save Profile Changes'}
+        {profileSaving ? 'Saving…' : profileMsg || 'Save Profile Changes'}
       </button>
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Change Password</div>
       <div className={styles.fgBlock}>
         <label>Current Password</label>
-        <input className={styles.fi} type="password" placeholder="••••••••••" />
+        <input className={styles.fi} type="password" placeholder="••••••••••" value={curPwd} onChange={e => setCurPwd(e.target.value)} />
       </div>
       <div className={styles.g2}>
         <div className={styles.fgBlock}>
           <label>New Password</label>
-          <input className={styles.fi} type="password" placeholder="••••••••••" />
+          <input className={styles.fi} type="password" placeholder="Min 8 characters" value={newPwd} onChange={e => setNewPwd(e.target.value)} />
         </div>
         <div className={styles.fgBlock}>
-          <label>Confirm Password</label>
-          <input className={styles.fi} type="password" placeholder="••••••••••" />
+          <label>Confirm New Password</label>
+          <input className={styles.fi} type="password" placeholder="••••••••••" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} />
         </div>
       </div>
+      {pwdError && <div style={{ fontSize: 12, color: 'rgba(224,112,112,0.8)', marginBottom: 10 }}>{pwdError}</div>}
       <button
         className={styles.btnGen}
         style={{ width: 'auto', padding: '11px 28px', marginBottom: 28 }}
-        onClick={() => { setPasswordSaved(true); setTimeout(() => setPasswordSaved(false), 2500); }}
+        onClick={changePassword}
+        disabled={pwdSaving}
       >
-        {passwordSaved ? 'Password Updated ✓' : 'Update Password'}
+        {pwdSaving ? 'Updating…' : pwdMsg || 'Update Password'}
       </button>
 
       <div className={styles.intSectionLabel} style={{ marginBottom: 14 }}>Security</div>
@@ -1599,9 +2072,81 @@ function AccountTab() {
         <div className={`${styles.securityRow} ${styles.securityRowLast}`}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 400, color: 'var(--ivory)', marginBottom: 3 }}>Active Sessions</div>
-            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.32)' }}>1 active session — Chrome, Lagos NG</div>
+            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.32)' }}>
+              Signed in as {session?.user?.email || email} — current session
+            </div>
           </div>
-          <button className={styles.intBtn} style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)' }}>Sign out all</button>
+          <button
+            className={styles.intBtn}
+            style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)' }}
+            onClick={() => signOut({ callbackUrl: '/' })}
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.intSectionLabel} style={{ marginBottom: 14, marginTop: 32 }}>My Integrations</div>
+      <div style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.09)', borderRadius: 3, overflow: 'hidden' }}>
+        {/* WhatsApp */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px', borderBottom: '1px solid rgba(192,168,112,0.07)' }}>
+          <div style={{ width: 38, height: 38, borderRadius: 8, background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.8 9.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400, marginBottom: 2 }}>WhatsApp Business</div>
+            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.35)' }}>Your personal WhatsApp number used for client communication</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input
+              className={styles.fi}
+              type="tel"
+              value={whatsapp}
+              onChange={e => setWhatsapp(e.target.value)}
+              placeholder="+234 800 000 0000"
+              style={{ width: 180, marginBottom: 0 }}
+            />
+            <button className={styles.intBtn} onClick={saveProfile} disabled={profileSaving}>
+              {profileSaving ? '…' : whatsapp ? 'Update' : 'Save'}
+            </button>
+          </div>
+        </div>
+
+        {/* Google Calendar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px' }}>
+          <div style={{ width: 38, height: 38, borderRadius: 8, background: '#4285F4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 400, marginBottom: 2 }}>Google Calendar</div>
+            <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.35)' }}>
+              {calendarConnected ? 'Connected — confirmed inspections sync to your calendar' : 'Connect to auto-sync confirmed inspections to your Google Calendar'}
+            </div>
+            {calendarMsg && <div style={{ fontSize: 11, color: calendarMsg.includes('✓') ? '#5DC882' : 'rgba(224,112,112,0.8)', marginTop: 4 }}>{calendarMsg}</div>}
+          </div>
+          <div>
+            {calendarConnected ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 11, color: '#5DC882' }}>✓ Connected</span>
+                <button
+                  className={styles.intBtn}
+                  style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)', fontSize: 10 }}
+                  onClick={disconnectCalendar}
+                  disabled={disconnecting}
+                >
+                  {disconnecting ? '…' : 'Disconnect'}
+                </button>
+              </div>
+            ) : (
+              <a href="/api/auth/google-calendar" className={styles.intBtn} style={{ textDecoration: 'none', display: 'inline-block' }}>
+                Connect →
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -1610,8 +2155,8 @@ function AccountTab() {
 
 // ─── SETTINGS SECTION ───────────────────────────────────────────────────────
 
-function SettingsSection() {
-  const [tab, setTab] = useState<SettingsTab>('integration');
+function SettingsSection({ defaultTab }: { defaultTab?: SettingsTab }) {
+  const [tab, setTab] = useState<SettingsTab>(defaultTab ?? 'integration');
   const tabs: { key: SettingsTab; label: string }[] = [
     { key: 'integration', label: 'Integrations' },
     { key: 'team', label: 'Team & Access' },
@@ -1659,7 +2204,7 @@ const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }
 ];
 
 const SECTION_TITLES: Record<Section, string> = {
-  dashboard: 'Welcome back, Amaka.',
+  dashboard: 'Dashboard',
   listings: 'Listings',
   bookings: 'Bookings',
   leads: 'Leads Pipeline',
@@ -1670,10 +2215,18 @@ const SECTION_TITLES: Record<Section, string> = {
 // ─── DASHBOARD SHELL ────────────────────────────────────────────────────────
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
+  const { data: session } = useSession();
   const [section, setSection] = useState<Section>('dashboard');
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('integration');
   const [properties, setProperties] = useState<AdminProperty[]>([]);
   const [inspections, setInspections] = useState<AdminInspection[]>([]);
   const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const userName = session?.user?.name || 'Admin';
+  const userInitials = userName.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
+
+  const goToAccount = () => { setSettingsTab('account'); setSection('settings'); };
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1698,7 +2251,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   }, [fetchAll]);
 
   return (
-    <div className={styles.adminWrap}>
+    <div className={styles.adminWrap} onClick={() => notifOpen && setNotifOpen(false)}>
       {/* SIDEBAR */}
       <aside className={styles.sb}>
         <div className={styles.sbLogo}>
@@ -1724,13 +2277,16 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           ))}
         </div>
         <div className={styles.sbFoot}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div className={styles.sbAvatar}>AO</div>
+          <button
+            style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%', textAlign: 'left' }}
+            onClick={goToAccount}
+          >
+            <div className={styles.sbAvatar}>{userInitials}</div>
             <div>
-              <div className={styles.sbName}>Amaka Osei</div>
+              <div className={styles.sbName}>{userName}</div>
               <div className={styles.sbRole}>Super Admin</div>
             </div>
-          </div>
+          </button>
           <button className={styles.sbOut} onClick={onLogout}>Sign out →</button>
         </div>
       </aside>
@@ -1740,28 +2296,78 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         {/* TOPBAR */}
         <div className={styles.topbar}>
           <div>
-            <div className={styles.topbarTitle}>{SECTION_TITLES[section]}</div>
+            <div className={styles.topbarTitle}>{section === 'dashboard' ? `Welcome back, ${userName.split(' ')[0]}.` : SECTION_TITLES[section]}</div>
             <div className={styles.topbarDate}>
               {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · Admin Command Centre'}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(244,237,224,0.4)', position: 'relative', padding: 4 }}>
-              <IconBell />
-              <span style={{ position: 'absolute', top: 0, right: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)' }} />
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setNotifOpen(o => !o)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: notifOpen ? 'var(--gold)' : 'rgba(244,237,224,0.4)', position: 'relative', padding: 4 }}
+              >
+                <IconBell />
+                {(inspections.filter(i => i.status === 'PENDING').length + enquiries.filter(e => e.status === 'NEW').length) > 0 && (
+                  <span style={{ position: 'absolute', top: 0, right: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)' }} />
+                )}
+              </button>
+              {notifOpen && (
+                <div
+                  style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 320, background: '#0D1E30', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 500 }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(192,168,112,0.08)', fontSize: 11, fontWeight: 600, color: 'rgba(192,168,112,0.6)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    Notifications
+                  </div>
+                  <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                    {inspections.filter(i => i.status === 'PENDING').slice(0, 5).map(insp => (
+                      <div key={insp.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
+                        onClick={() => { setSection('bookings'); setNotifOpen(false); }}>
+                        <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New inspection request</div>
+                        <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{insp.clientName} · {insp.property?.title || 'Unknown property'}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{insp.preferredDate} at {insp.preferredTime}</div>
+                      </div>
+                    ))}
+                    {enquiries.filter(e => e.status === 'NEW').slice(0, 5).map(enq => (
+                      <div key={enq.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
+                        onClick={() => { setSection('leads'); setNotifOpen(false); }}>
+                        <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New enquiry</div>
+                        <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{enq.name} · {enq.property?.title || 'General enquiry'}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{new Date(enq.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                    {inspections.filter(i => i.status === 'PENDING').length === 0 && enquiries.filter(e => e.status === 'NEW').length === 0 && (
+                      <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'rgba(244,237,224,0.3)' }}>
+                        No new notifications
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(192,168,112,0.08)' }}>
+                    <button onClick={() => setNotifOpen(false)} style={{ background: 'none', border: 'none', fontSize: 11, color: 'rgba(192,168,112,0.5)', cursor: 'pointer', padding: 0 }}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              onClick={goToAccount}
+            >
+              <div className={styles.sbAvatar}>{userInitials}</div>
             </button>
-            <div className={styles.sbAvatar} style={{ cursor: 'pointer' }}>AO</div>
           </div>
         </div>
 
         {/* CONTENT */}
         <div className={styles.content}>
-          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} />}
+          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
-          {section === 'leads' && <LeadsSection enquiries={enquiries} onRefresh={fetchAll} />}
+          {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
-          {section === 'settings' && <SettingsSection />}
+          {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
       </div>
     </div>
