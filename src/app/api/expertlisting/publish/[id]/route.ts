@@ -12,8 +12,10 @@ import { authOptions } from '@/lib/auth'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   // Only admins can publish
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any)?.role !== 'ADMIN') {
@@ -21,7 +23,7 @@ export async function POST(
   }
 
   const imported = await prisma.importedProperty.findUnique({
-    where: { id: params.id },
+    where: { id },
   })
 
   if (!imported) {
@@ -63,7 +65,7 @@ export async function POST(
 
   // Mark import as published
   await prisma.importedProperty.update({
-    where: { id: params.id },
+    where: { id },
     data: { status: 'PUBLISHED', publishedPropertyId: property.id },
   })
 
