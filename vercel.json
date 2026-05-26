@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/expertlisting/sync",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}
