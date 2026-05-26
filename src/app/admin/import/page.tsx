@@ -90,10 +90,7 @@ export default function ImportPage() {
     setSyncing(true)
     setSyncMsg(null)
     try {
-      const res = await fetch('/api/expertlisting/sync', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET ?? ''}` },
-      })
+      const res = await fetch('/api/expertlisting/sync', { method: 'POST' })
       const data = await res.json()
       setSyncMsg(
         data.success

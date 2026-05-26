@@ -2276,6 +2276,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </button>
           ))}
         </div>
+        <div style={{ padding: '0 12px', marginBottom: 8 }}>
+          <a
+            href="/admin/import"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+              color: 'rgba(244,237,224,.55)', textDecoration: 'none',
+              background: 'rgba(192,168,112,.06)', border: '1px solid rgba(192,168,112,.1)',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+            Import Listings
+          </a>
+        </div>
         <div className={styles.sbFoot}>
           <button
             style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%', textAlign: 'left' }}

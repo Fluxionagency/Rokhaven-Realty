@@ -14,11 +14,17 @@ import { prisma } from '@/lib/prisma'
 import { getAgentListingUrls, scrapeProperty } from '@/lib/expertlisting/scraper'
 
 export async function POST(req: NextRequest) {
-  // ── Auth ────────────────────────────────────────────────
+  // ── Auth: accept cron secret OR admin session ────────────
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret) {
-    const auth = req.headers.get('authorization')
-    if (auth !== `Bearer ${cronSecret}`) {
+  const auth = req.headers.get('authorization')
+  const isCron = cronSecret && auth === `Bearer ${cronSecret}`
+
+  if (!isCron) {
+    const { getServerSession } = await import('next-auth')
+    const { authOptions } = await import('@/lib/auth')
+    const session = await getServerSession(authOptions)
+    const role = (session?.user as { role?: string } | undefined)?.role
+    if (role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
   }
