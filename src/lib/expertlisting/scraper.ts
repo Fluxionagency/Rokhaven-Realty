@@ -181,6 +181,8 @@ export async function getAgentListingUrls(profileUrl: string): Promise<string[]>
   const html = await fetchHtml(profileUrl)
   const urls = new Set<string>()
 
+  console.log(`[scraper] Profile HTML length: ${html.length}`)
+
   // From HTML href attributes
   const hrefRe = /href="(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"]+\/\d+)"/g
   let m: RegExpExecArray | null
@@ -188,6 +190,21 @@ export async function getAgentListingUrls(profileUrl: string): Promise<string[]>
 
   // From RSC payload
   const payload = extractRscPayload(html)
+  console.log(`[scraper] RSC payload length: ${payload.length}`)
+  if (payload.length < 500) {
+    console.log(`[scraper] RSC sample: ${payload.substring(0, 500)}`)
+  }
+
+  // Log all /properties/ paths found anywhere in HTML to debug URL format
+  const anyPropRe = /\/properties\/[^\s"'<>]{5,}/g
+  const allPropPaths = new Set<string>()
+  while ((m = anyPropRe.exec(html)) !== null) allPropPaths.add(m[0].split('"')[0].split("'")[0])
+  if (allPropPaths.size > 0) {
+    console.log(`[scraper] All /properties/ paths in HTML:`, [...allPropPaths].slice(0, 10))
+  } else {
+    console.log(`[scraper] No /properties/ paths found in HTML at all`)
+  }
+
   const payloadRe = /(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"\\]+\/(\d+))/g
   while ((m = payloadRe.exec(payload)) !== null) {
     urls.add(`${BASE_URL}${m[1]}`)

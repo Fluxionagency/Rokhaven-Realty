@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         where: { id: log.id },
         data: { status: 'COMPLETED', finishedAt: new Date(), newCount: 0 },
       })
-      return NextResponse.json({ message: 'No listings found on profile', newCount: 0 })
+      return NextResponse.json({ success: true, message: 'No listings found on profile — check EXPERTLISTING_PROFILE_URL or listings may load client-side', newCount: 0, skippedCount: 0, errorCount: 0 })
     }
 
     // 2. Find which IDs are already imported
