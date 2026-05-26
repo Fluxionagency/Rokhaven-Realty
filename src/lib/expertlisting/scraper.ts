@@ -182,13 +182,13 @@ export async function getAgentListingUrls(profileUrl: string): Promise<string[]>
   const urls = new Set<string>()
 
   // From HTML href attributes
-  const hrefRe = /href="(\/properties\/(?:rent|sale|buy|lease|commercial)\/[^"]+\/\d+)"/g
+  const hrefRe = /href="(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"]+\/\d+)"/g
   let m: RegExpExecArray | null
   while ((m = hrefRe.exec(html)) !== null) urls.add(`${BASE_URL}${m[1]}`)
 
   // From RSC payload
   const payload = extractRscPayload(html)
-  const payloadRe = /(\/properties\/(?:rent|sale|buy|lease|commercial)\/[^"\\]+\/(\d+))/g
+  const payloadRe = /(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"\\]+\/(\d+))/g
   while ((m = payloadRe.exec(payload)) !== null) {
     urls.add(`${BASE_URL}${m[1]}`)
   }
@@ -200,7 +200,7 @@ export async function getAgentListingUrls(profileUrl: string): Promise<string[]>
 /** Extract just the numeric listing IDs from a profile page HTML (fast check) */
 export function extractListingIds(html: string): number[] {
   const ids = new Set<number>()
-  const re = /\/properties\/(?:rent|sale|buy|lease|commercial)\/[^"'\s]+\/(\d+)/g
+  const re = /\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"'\s]+\/(\d+)/g
   let m: RegExpExecArray | null
   while ((m = re.exec(html)) !== null) ids.add(Number(m[1]))
   return Array.from(ids)

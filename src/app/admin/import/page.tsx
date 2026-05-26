@@ -139,7 +139,7 @@ export default function ImportPage() {
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>Expert Listing Import</h1>
             <p style={{ color: '#777', fontSize: 13, marginTop: 4 }}>
-              Auto-syncs "Direct to Owner's Agent" verified listings every 30 minutes
+              Auto-syncs "Direct to Owner's Agent" verified listings daily at 6am
             </p>
           </div>
           <button
