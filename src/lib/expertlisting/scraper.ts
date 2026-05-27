@@ -1,13 +1,11 @@
 /**
  * expertlisting.ng Scraper
  *
- * Fetches property pages, parses the embedded Next.js RSC payload,
- * and returns structured property data.
+ * Paginates through /properties/rent and /properties/sale on ExpertListing.ng,
+ * collects all property URLs, then scrapes each one.
  *
- * HARD FILTER: Only returns listings where user_is_connected_to_owner = true
- * ("Direct to Owner's Agent" verified badge).
- *
- * No headless browser needed — the data is server-rendered into script tags.
+ * FILTER: Only imports listings that contain the text
+ * "sourced and verified directly by Expert Listing"
  */
 
 export interface ExpertListingProperty {
@@ -16,7 +14,7 @@ export interface ExpertListingProperty {
   url: string
   title: string
   description: string
-  price: string          // raw number as string, e.g. "10000000"
+  price: string
   currency: string
   transactionType: string
   propertyType: string
@@ -35,6 +33,10 @@ export interface ExpertListingProperty {
 
 const BASE_URL = 'https://www.expertlisting.ng'
 
+const SOURCE_PATHS = ['/properties/rent', '/properties/sale']
+
+const EL_VERIFIED_TEXT = 'sourced and verified directly by Expert Listing'
+
 const FETCH_HEADERS: HeadersInit = {
   'User-Agent':
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -43,7 +45,6 @@ const FETCH_HEADERS: HeadersInit = {
   'Cache-Control': 'no-cache',
 }
 
-/** Fetch HTML with retries */
 async function fetchHtml(url: string, retries = 3): Promise<string> {
   for (let i = 0; i < retries; i++) {
     try {
@@ -58,59 +59,101 @@ async function fetchHtml(url: string, retries = 3): Promise<string> {
   throw new Error('Max retries exceeded')
 }
 
-/** Join all __next_f RSC payload chunks from HTML */
 function extractRscPayload(html: string): string {
   const chunks: string[] = []
   const regex = /self\.__next_f\.push\(\[1,"((?:[^"\\]|\\.)*)"\]\)/g
   let match: RegExpExecArray | null
   while ((match = regex.exec(html)) !== null) {
-    try {
-      chunks.push(JSON.parse(`"${match[1]}"`))
-    } catch { /* skip malformed */ }
+    try { chunks.push(JSON.parse(`"${match[1]}"`)) } catch { /* skip */ }
   }
   return chunks.join('')
 }
 
-/** Parse the property object out of the RSC payload */
-function parseProperty(payload: string, sourceUrl: string): ExpertListingProperty | null {
+/** Extract all property listing URLs from a single page's HTML + RSC payload */
+function extractPropertyUrls(html: string, payload: string): string[] {
+  const urls = new Set<string>()
+  const pattern = /\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"'\s<>]+\/\d+/g
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(html)) !== null) urls.add(BASE_URL + m[0].split('"')[0].split("'")[0])
+  while ((m = pattern.exec(payload)) !== null) urls.add(BASE_URL + m[0].split('"')[0].split('\\')[0])
+  return Array.from(urls)
+}
+
+/**
+ * Paginate through all rent + sale listing pages and return every property URL found.
+ * Stops paginating a category when a page yields no new URLs.
+ * maxPages caps total pages per category to avoid timeouts.
+ */
+export async function getAllListingUrls(maxPages = 15): Promise<string[]> {
+  const allUrls = new Set<string>()
+
+  for (const path of SOURCE_PATHS) {
+    for (let page = 1; page <= maxPages; page++) {
+      const url = page === 1 ? `${BASE_URL}${path}` : `${BASE_URL}${path}?page=${page}`
+      try {
+        const html = await fetchHtml(url)
+        const payload = extractRscPayload(html)
+
+        const beforeCount = allUrls.size
+        for (const u of extractPropertyUrls(html, payload)) allUrls.add(u)
+        const found = allUrls.size - beforeCount
+
+        console.log(`[scraper] ${path} page ${page}: +${found} URLs (total ${allUrls.size})`)
+
+        // Debug: log HTML length and sample of /properties/ paths on first page
+        if (page === 1) {
+          console.log(`[scraper] ${path} HTML length: ${html.length}, RSC length: ${payload.length}`)
+          const sample = Array.from(allUrls).slice(0, 3)
+          if (sample.length) console.log(`[scraper] Sample URLs:`, sample)
+          else console.log(`[scraper] No property URLs found on first page — listings may load client-side`)
+        }
+
+        if (found === 0) break
+        await new Promise((r) => setTimeout(r, 600))
+      } catch (err: any) {
+        console.error(`[scraper] Error fetching ${url}:`, err?.message)
+        break
+      }
+    }
+  }
+
+  console.log(`[scraper] Total unique listing URLs: ${allUrls.size}`)
+  return Array.from(allUrls)
+}
+
+function parseProperty(html: string, payload: string, sourceUrl: string): ExpertListingProperty | null {
   try {
     const propIdx = payload.indexOf('"property":{"id":')
     if (propIdx === -1) return null
 
-    const window = payload.substring(propIdx + 11, propIdx + 18000)
+    const win = payload.substring(propIdx + 11, propIdx + 18000)
 
     const getStr = (key: string) =>
-      new RegExp(`"${key}":\\s*"([^"]*)"`) .exec(window)?.[1] ?? ''
+      new RegExp(`"${key}":\\s*"([^"]*)"`) .exec(win)?.[1] ?? ''
     const getNum = (key: string) =>
-      Number(new RegExp(`"${key}":\\s*(\\d+)`).exec(window)?.[1] ?? 0)
-    const getBool = (key: string) =>
-      new RegExp(`"${key}":\\s*(true|false)`).exec(window)?.[1] === 'true'
+      Number(new RegExp(`"${key}":\\s*(\\d+)`).exec(win)?.[1] ?? 0)
 
     const id = getNum('id')
     if (!id) return null
 
-    const refId            = getStr('ref_id')
-    const propertyType     = getStr('property_type')
-    const currency         = getStr('currency') || 'NGN'
-    const price            = String(getNum('price'))
-    const transactionType  = getStr('transaction_type')
-    const isVerified       = getBool('user_is_connected_to_owner')
-    const bedroomCount     = getNum('bedroom_count')
-    const bathroomCount    = getNum('bathroom_count')
+    const refId           = getStr('ref_id')
+    const propertyType    = getStr('property_type')
+    const currency        = getStr('currency') || 'NGN'
+    const price           = String(getNum('price'))
+    const transactionType = getStr('transaction_type')
+    const bedroomCount    = getNum('bedroom_count')
+    const bathroomCount   = getNum('bathroom_count')
 
-    const landSize = (() => {
-      const m = /"land_size":\s*"?([^",}]+)"?/.exec(window)
-      return m?.[1] ?? null
-    })()
+    const landSize = /"land_size":\s*"?([^",}]+)"?/.exec(win)?.[1] ?? null
 
     const description = (() => {
-      const m = /"description":\s*"((?:[^"\\]|\\.)*)"/.exec(window)
+      const m = /"description":\s*"((?:[^"\\]|\\.)*)"/.exec(win)
       return m ? JSON.parse(`"${m[1]}"`) : ''
     })()
 
-    const neighborhood = /"neighborhood":\{"id":\d+,"name":"([^"]+)"/.exec(window)?.[1] ?? ''
-    const lcda         = /"lcda":\{"id":\d+[^}]*"name":"([^"]+)"/.exec(window)?.[1] ?? ''
-    const state        = /"state":\{"id":\d+[^}]*"name":"([^"]+)"/.exec(window)?.[1] ?? 'Lagos'
+    const neighborhood = /"neighborhood":\{"id":\d+,"name":"([^"]+)"/.exec(win)?.[1] ?? ''
+    const lcda         = /"lcda":\{"id":\d+[^}]*"name":"([^"]+)"/.exec(win)?.[1] ?? ''
+    const state        = /"state":\{"id":\d+[^}]*"name":"([^"]+)"/.exec(win)?.[1] ?? 'Lagos'
     const fullAddress  = [neighborhood, lcda, state].filter(Boolean).join(', ')
 
     const title = [
@@ -118,23 +161,22 @@ function parseProperty(payload: string, sourceUrl: string): ExpertListingPropert
       propertyType ? propertyType.charAt(0).toUpperCase() + propertyType.slice(1) : '',
       transactionType === 'rent' ? 'for Rent'
         : transactionType === 'sale' ? 'for Sale'
+        : transactionType === 'shortlet' ? 'Shortlet'
         : transactionType === 'lease' ? 'for Lease' : '',
       'in', neighborhood, lcda ? `${lcda},` : '', state,
     ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
 
-    // Amenities / features
     const features: string[] = []
     const amenityRe = /"amenity_name":\s*"([^"]+)"/g
     let am: RegExpExecArray | null
-    while ((am = amenityRe.exec(window)) !== null) features.push(am[1])
+    while ((am = amenityRe.exec(win)) !== null) features.push(am[1])
 
-    // Images from CloudFront
     const images: string[] = []
     const imgRe = /https:\/\/d3d6p1r1do6n32\.cloudfront\.net\/[^"\\]+/g
     let imgM: RegExpExecArray | null
-    while ((imgM = imgRe.exec(window)) !== null) {
-      const url = imgM[0].split('\\')[0]
-      if (!images.includes(url)) images.push(url)
+    while ((imgM = imgRe.exec(win)) !== null) {
+      const u = imgM[0].split('\\')[0]
+      if (!images.includes(u)) images.push(u)
     }
 
     return {
@@ -145,7 +187,7 @@ function parseProperty(payload: string, sourceUrl: string): ExpertListingPropert
       neighborhood, lcda, state, fullAddress,
       features, images,
       coverImage: images[0] ?? null,
-      isVerified,
+      isVerified: true,
     }
   } catch (err) {
     console.error('[scraper] Parse error:', err)
@@ -154,67 +196,28 @@ function parseProperty(payload: string, sourceUrl: string): ExpertListingPropert
 }
 
 /**
- * Scrape a single property URL.
- * Returns null if not parseable OR not "Direct to Owner's Agent".
+ * Scrape a single property page.
+ * Returns null if not an ExpertListing-verified property or if unparseable.
  */
 export async function scrapeProperty(url: string): Promise<ExpertListingProperty | null> {
   const html = await fetchHtml(url)
+
+  if (!html.includes(EL_VERIFIED_TEXT)) {
+    console.log(`[scraper] Skipping — not EL-verified: ${url}`)
+    return null
+  }
+
   const payload = extractRscPayload(html)
-  const property = parseProperty(payload, url)
+  const property = parseProperty(html, payload, url)
 
   if (!property) {
     console.warn(`[scraper] Could not parse: ${url}`)
     return null
   }
-  if (!property.isVerified) {
-    console.log(`[scraper] Skipping unverified listing ${property.refId}`)
-    return null
-  }
+
   return property
 }
 
-/**
- * Get all property URLs from an agent profile page.
- * Returns full URLs like https://www.expertlisting.ng/properties/rent/lagos/...
- */
-export async function getAgentListingUrls(profileUrl: string): Promise<string[]> {
-  const html = await fetchHtml(profileUrl)
-  const urls = new Set<string>()
-
-  console.log(`[scraper] Profile HTML length: ${html.length}`)
-
-  // From HTML href attributes
-  const hrefRe = /href="(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"]+\/\d+)"/g
-  let m: RegExpExecArray | null
-  while ((m = hrefRe.exec(html)) !== null) urls.add(`${BASE_URL}${m[1]}`)
-
-  // From RSC payload
-  const payload = extractRscPayload(html)
-  console.log(`[scraper] RSC payload length: ${payload.length}`)
-  if (payload.length < 500) {
-    console.log(`[scraper] RSC sample: ${payload.substring(0, 500)}`)
-  }
-
-  // Log all /properties/ paths found anywhere in HTML to debug URL format
-  const anyPropRe = /\/properties\/[^\s"'<>]{5,}/g
-  const allPropPaths = new Set<string>()
-  while ((m = anyPropRe.exec(html)) !== null) allPropPaths.add(m[0].split('"')[0].split("'")[0])
-  if (allPropPaths.size > 0) {
-    console.log(`[scraper] All /properties/ paths in HTML:`, [...allPropPaths].slice(0, 10))
-  } else {
-    console.log(`[scraper] No /properties/ paths found in HTML at all`)
-  }
-
-  const payloadRe = /(\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"\\]+\/(\d+))/g
-  while ((m = payloadRe.exec(payload)) !== null) {
-    urls.add(`${BASE_URL}${m[1]}`)
-  }
-
-  console.log(`[scraper] Found ${urls.size} listing URLs on profile`)
-  return Array.from(urls)
-}
-
-/** Extract just the numeric listing IDs from a profile page HTML (fast check) */
 export function extractListingIds(html: string): number[] {
   const ids = new Set<number>()
   const re = /\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"'\s]+\/(\d+)/g

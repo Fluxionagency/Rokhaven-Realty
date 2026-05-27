@@ -1,20 +1,20 @@
 /**
  * POST /api/expertlisting/sync
  *
- * Called by Vercel Cron every 30 min (vercel.json) and manually from admin UI.
- * Polls the agent's expertlisting.ng profile → imports new verified listings.
+ * Called by Vercel Cron daily (vercel.json) and manually from admin UI.
+ * Paginates through ExpertListing.ng rent + sale pages and imports
+ * properties that are "sourced and verified directly by Expert Listing".
  *
- * Required env vars:
- *   EXPERTLISTING_PROFILE_URL  — your agent profile page on expertlisting.ng
- *   CRON_SECRET                — random secret to protect this endpoint
+ * Optional env var:
+ *   CRON_SECRET  — random secret to protect this endpoint from external callers
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAgentListingUrls, scrapeProperty } from '@/lib/expertlisting/scraper'
+import { getAllListingUrls, scrapeProperty } from '@/lib/expertlisting/scraper'
 
 export async function POST(req: NextRequest) {
-  // ── Auth: accept cron secret OR admin session ────────────
+  // ── Auth: allow admin session OR cron secret ─────────────
   const cronSecret = process.env.CRON_SECRET
   const auth = req.headers.get('authorization')
   const isCron = cronSecret && auth === `Bearer ${cronSecret}`
@@ -29,15 +29,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const profileUrl = process.env.EXPERTLISTING_PROFILE_URL
-  if (!profileUrl) {
-    return NextResponse.json(
-      { error: 'EXPERTLISTING_PROFILE_URL not set in environment' },
-      { status: 500 }
-    )
-  }
-
-  // ── Create sync log ─────────────────────────────────────
+  // ── Create sync log ──────────────────────────────────────
   const log = await prisma.importSyncLog.create({
     data: { status: 'RUNNING' },
   })
@@ -45,20 +37,24 @@ export async function POST(req: NextRequest) {
   let newCount = 0, skippedCount = 0, errorCount = 0
 
   try {
-    // 1. Get all listing URLs from profile
-    const listingUrls = await getAgentListingUrls(profileUrl)
+    // 1. Collect all listing URLs from rent + sale pages
+    const listingUrls = await getAllListingUrls(15)
 
     if (listingUrls.length === 0) {
       await prisma.importSyncLog.update({
         where: { id: log.id },
         data: { status: 'COMPLETED', finishedAt: new Date(), newCount: 0 },
       })
-      return NextResponse.json({ success: true, message: 'No listings found on profile — check EXPERTLISTING_PROFILE_URL or listings may load client-side', newCount: 0, skippedCount: 0, errorCount: 0 })
+      return NextResponse.json({
+        success: true,
+        message: 'No listing URLs found — ExpertListing.ng may load listings client-side',
+        newCount: 0, skippedCount: 0, errorCount: 0,
+      })
     }
 
-    // 2. Find which IDs are already imported
+    // 2. Skip already-imported listings
     const listingIds = listingUrls
-      .map((url) => Number(url.match(/\/(\d+)$/)?.[1]))
+      .map((url) => Number(url.match(/\/(\d+)(?:[/?#].*)?$/)?.[1]))
       .filter((id) => !isNaN(id) && id > 0)
 
     const existing = await prisma.importedProperty.findMany({
@@ -68,13 +64,13 @@ export async function POST(req: NextRequest) {
     const existingIds = new Set(existing.map((r) => r.expertlistingId))
 
     const newUrls = listingUrls.filter((url) => {
-      const id = Number(url.match(/\/(\d+)$/)?.[1])
+      const id = Number(url.match(/\/(\d+)(?:[/?#].*)?$/)?.[1])
       return id && !existingIds.has(id)
     })
 
-    console.log(`[sync] ${listingUrls.length} total | ${existingIds.size} existing | ${newUrls.length} new`)
+    console.log(`[sync] ${listingUrls.length} found | ${existingIds.size} existing | ${newUrls.length} new`)
 
-    // 3. Scrape and save each new listing
+    // 3. Scrape and save each new listing (EL-verified only)
     for (const url of newUrls) {
       try {
         const property = await scrapeProperty(url)
@@ -110,7 +106,6 @@ export async function POST(req: NextRequest) {
             status:             'PENDING',
           },
           update: {
-            // Re-sync images/description in case they updated
             description: property.description,
             images:      JSON.stringify(property.images),
             coverImage:  property.coverImage,
@@ -122,8 +117,7 @@ export async function POST(req: NextRequest) {
         console.log(`[sync] Imported: ${property.title} (${property.refId})`)
         newCount++
 
-        // Be polite — 800ms between requests
-        await new Promise((r) => setTimeout(r, 800))
+        await new Promise((r) => setTimeout(r, 700))
       } catch (err: any) {
         console.error(`[sync] Error on ${url}:`, err?.message)
         errorCount++
@@ -137,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${newCount} imported, ${skippedCount} skipped (unverified), ${errorCount} errors`,
+      message: `${newCount} imported, ${skippedCount} skipped (not EL-verified), ${errorCount} errors`,
       newCount, skippedCount, errorCount,
     })
   } catch (err: any) {
