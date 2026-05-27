@@ -1,12 +1,11 @@
 /**
  * POST /api/expertlisting/sync
  *
- * Called by Vercel Cron daily (vercel.json) and manually from admin UI.
- * Discovers properties via ExpertListing.ng's sitemap, then imports
- * only those with "sourced and verified directly by Expert Listing" badge.
+ * Called by Vercel Cron once per day (vercel.json) and manually from admin UI.
+ * Reads all listing URLs from ExpertListing.ng's sitemap, scrapes each one,
+ * and imports only those with the EL "sourced and verified" badge.
  *
- * Optional env var:
- *   CRON_SECRET  — secret to protect this endpoint from external callers
+ * Auth: admin session cookie OR Authorization: Bearer <CRON_SECRET> header.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -14,10 +13,10 @@ import { prisma } from '@/lib/prisma'
 import { getAllListingUrls, scrapeProperty } from '@/lib/expertlisting/scraper'
 
 export async function POST(req: NextRequest) {
-  // ── Auth: allow admin session OR cron secret ─────────────
+  // ── Auth ─────────────────────────────────────────────────
   const cronSecret = process.env.CRON_SECRET
   const auth = req.headers.get('authorization')
-  const isCron = cronSecret && auth === `Bearer ${cronSecret}`
+  const isCron = !!(cronSecret && auth === `Bearer ${cronSecret}`)
 
   if (!isCron) {
     const { getServerSession } = await import('next-auth')
@@ -29,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Create sync log ─────────────────────────────────────
+  // ── Create sync log ──────────────────────────────────────
   const log = await prisma.importSyncLog.create({
     data: { status: 'RUNNING' },
   })
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest) {
   let newCount = 0, skippedCount = 0, errorCount = 0
 
   try {
-    // 1. Discover all property URLs via sitemap
+    // 1. Get all listing URLs from ExpertListing.ng sitemap
     const listingUrls = await getAllListingUrls()
 
     if (listingUrls.length === 0) {
@@ -45,7 +44,13 @@ export async function POST(req: NextRequest) {
         where: { id: log.id },
         data: { status: 'COMPLETED', finishedAt: new Date(), newCount: 0 },
       })
-      return NextResponse.json({ success: true, message: 'No property URLs found in sitemap', newCount: 0, skippedCount: 0, errorCount: 0 })
+      return NextResponse.json({
+        success: true,
+        message: 'No listings found in sitemap',
+        newCount: 0,
+        skippedCount: 0,
+        errorCount: 0,
+      })
     }
 
     // 2. Skip already-imported listings
@@ -64,10 +69,14 @@ export async function POST(req: NextRequest) {
       return id && !existingIds.has(id)
     })
 
-    console.log(`[sync] ${listingUrls.length} found | ${existingIds.size} existing | ${newUrls.length} new`)
+    console.log(
+      `[sync] ${listingUrls.length} total | ${existingIds.size} existing | ${newUrls.length} new`
+    )
 
-    // 3. Scrape and save each new listing (EL-verified only)
-    for (const url of newUrls) {
+    // 3. Scrape and save each new listing (cap at 200 per run to avoid timeouts)
+    const toProcess = newUrls.slice(0, 200)
+
+    for (const url of toProcess) {
       try {
         const property = await scrapeProperty(url)
 
@@ -113,7 +122,8 @@ export async function POST(req: NextRequest) {
         console.log(`[sync] Imported: ${property.title} (${property.refId})`)
         newCount++
 
-        await new Promise((r) => setTimeout(r, 700))
+        // Be polite — 600ms between requests
+        await new Promise((r) => setTimeout(r, 600))
       } catch (err: any) {
         console.error(`[sync] Error on ${url}:`, err?.message)
         errorCount++
