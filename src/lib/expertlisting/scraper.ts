@@ -1,10 +1,10 @@
 /**
  * expertlisting.ng Scraper
  *
- * Paginates through /properties/rent and /properties/sale on ExpertListing.ng,
- * collects all property URLs, then scrapes each one.
+ * Discovers property URLs via ExpertListing.ng's sitemap (XML),
+ * then scrapes each individual property page via its RSC payload.
  *
- * FILTER: Only imports listings that contain the text
+ * FILTER: Only imports listings containing the text
  * "sourced and verified directly by Expert Listing"
  */
 
@@ -32,8 +32,6 @@ export interface ExpertListingProperty {
 }
 
 const BASE_URL = 'https://www.expertlisting.ng'
-
-const SOURCE_PATHS = ['/properties/rent', '/properties/sale']
 
 const EL_VERIFIED_TEXT = 'sourced and verified directly by Expert Listing'
 
@@ -69,59 +67,88 @@ function extractRscPayload(html: string): string {
   return chunks.join('')
 }
 
-/** Extract all property listing URLs from a single page's HTML + RSC payload */
-function extractPropertyUrls(html: string, payload: string): string[] {
-  const urls = new Set<string>()
-  const pattern = /\/properties\/(?:rent|sale|buy|lease|commercial|shortlet)\/[^"'\s<>]+\/\d+/g
+/** Parse all <loc> URLs from a sitemap XML string */
+function parseSitemapUrls(xml: string): string[] {
+  const urls: string[] = []
+  const re = /<loc>\s*(https?:\/\/[^\s<]+)\s*<\/loc>/g
   let m: RegExpExecArray | null
-  while ((m = pattern.exec(html)) !== null) urls.add(BASE_URL + m[0].split('"')[0].split("'")[0])
-  while ((m = pattern.exec(payload)) !== null) urls.add(BASE_URL + m[0].split('"')[0].split('\\')[0])
-  return Array.from(urls)
+  while ((m = re.exec(xml)) !== null) urls.push(m[1])
+  return urls
 }
 
 /**
- * Paginate through all rent + sale listing pages and return every property URL found.
- * Stops paginating a category when a page yields no new URLs.
- * maxPages caps total pages per category to avoid timeouts.
+ * Discover all property URLs via ExpertListing.ng's sitemap.
+ * Handles sitemap indexes (multiple sub-sitemaps) automatically.
+ * Returns only /properties/ URLs for rent and sale.
  */
-export async function getAllListingUrls(maxPages = 15): Promise<string[]> {
-  const allUrls = new Set<string>()
+export async function getAllListingUrls(): Promise<string[]> {
+  const propertyUrls = new Set<string>()
 
-  for (const path of SOURCE_PATHS) {
-    for (let page = 1; page <= maxPages; page++) {
-      const url = page === 1 ? `${BASE_URL}${path}` : `${BASE_URL}${path}?page=${page}`
-      try {
-        const html = await fetchHtml(url)
-        const payload = extractRscPayload(html)
+  const sitemapCandidates = [
+    `${BASE_URL}/sitemap.xml`,
+    `${BASE_URL}/sitemap-0.xml`,
+    `${BASE_URL}/sitemap-properties.xml`,
+  ]
 
-        const beforeCount = allUrls.size
-        for (const u of extractPropertyUrls(html, payload)) allUrls.add(u)
-        const found = allUrls.size - beforeCount
+  let rootXml = ''
+  let usedUrl = ''
 
-        console.log(`[scraper] ${path} page ${page}: +${found} URLs (total ${allUrls.size})`)
-
-        // Debug: log HTML length and sample of /properties/ paths on first page
-        if (page === 1) {
-          console.log(`[scraper] ${path} HTML length: ${html.length}, RSC length: ${payload.length}`)
-          const sample = Array.from(allUrls).slice(0, 3)
-          if (sample.length) console.log(`[scraper] Sample URLs:`, sample)
-          else console.log(`[scraper] No property URLs found on first page — listings may load client-side`)
-        }
-
-        if (found === 0) break
-        await new Promise((r) => setTimeout(r, 600))
-      } catch (err: any) {
-        console.error(`[scraper] Error fetching ${url}:`, err?.message)
+  for (const candidate of sitemapCandidates) {
+    try {
+      rootXml = await fetchHtml(candidate)
+      if (rootXml.includes('<urlset') || rootXml.includes('<sitemapindex')) {
+        usedUrl = candidate
+        console.log(`[scraper] Found sitemap at ${candidate} (${rootXml.length} bytes)`)
         break
+      }
+    } catch {
+      console.log(`[scraper] No sitemap at ${candidate}`)
+    }
+  }
+
+  if (!rootXml) {
+    console.log('[scraper] No sitemap found — ExpertListing.ng may not expose one')
+    return []
+  }
+
+  if (rootXml.includes('<sitemapindex')) {
+    const subUrls = parseSitemapUrls(rootXml)
+    console.log(`[scraper] Sitemap index found with ${subUrls.length} sub-sitemaps`)
+
+    for (const subUrl of subUrls) {
+      try {
+        const subXml = await fetchHtml(subUrl)
+        const found = parseSitemapUrls(subXml).filter(
+          (u) => u.includes('/properties/rent/') || u.includes('/properties/sale/')
+        )
+        found.forEach((u) => propertyUrls.add(u))
+        console.log(`[scraper] Sub-sitemap ${subUrl}: +${found.length} property URLs`)
+        await new Promise((r) => setTimeout(r, 300))
+      } catch (err: any) {
+        console.error(`[scraper] Error fetching sub-sitemap ${subUrl}:`, err?.message)
+      }
+    }
+  } else {
+    const found = parseSitemapUrls(rootXml).filter(
+      (u) => u.includes('/properties/rent/') || u.includes('/properties/sale/')
+    )
+    found.forEach((u) => propertyUrls.add(u))
+    console.log(`[scraper] Single sitemap at ${usedUrl}: ${found.length} property URLs found`)
+
+    if (found.length === 0) {
+      const allLocs = parseSitemapUrls(rootXml)
+      console.log(`[scraper] Total <loc> entries in sitemap: ${allLocs.length}`)
+      if (allLocs.length > 0) {
+        console.log(`[scraper] Sample URLs:`, allLocs.slice(0, 5))
       }
     }
   }
 
-  console.log(`[scraper] Total unique listing URLs: ${allUrls.size}`)
-  return Array.from(allUrls)
+  console.log(`[scraper] Total property URLs from sitemap: ${propertyUrls.size}`)
+  return Array.from(propertyUrls)
 }
 
-function parseProperty(html: string, payload: string, sourceUrl: string): ExpertListingProperty | null {
+function parseProperty(payload: string, sourceUrl: string): ExpertListingProperty | null {
   try {
     const propIdx = payload.indexOf('"property":{"id":')
     if (propIdx === -1) return null
@@ -143,8 +170,7 @@ function parseProperty(html: string, payload: string, sourceUrl: string): Expert
     const transactionType = getStr('transaction_type')
     const bedroomCount    = getNum('bedroom_count')
     const bathroomCount   = getNum('bathroom_count')
-
-    const landSize = /"land_size":\s*"?([^",}]+)"?/.exec(win)?.[1] ?? null
+    const landSize        = /"land_size":\s*"?([^",}]+)"?/.exec(win)?.[1] ?? null
 
     const description = (() => {
       const m = /"description":\s*"((?:[^"\\]|\\.)*)"/.exec(win)
@@ -197,7 +223,7 @@ function parseProperty(html: string, payload: string, sourceUrl: string): Expert
 
 /**
  * Scrape a single property page.
- * Returns null if not an ExpertListing-verified property or if unparseable.
+ * Returns null if not EL-verified or unparseable.
  */
 export async function scrapeProperty(url: string): Promise<ExpertListingProperty | null> {
   const html = await fetchHtml(url)
@@ -208,7 +234,7 @@ export async function scrapeProperty(url: string): Promise<ExpertListingProperty
   }
 
   const payload = extractRscPayload(html)
-  const property = parseProperty(html, payload, url)
+  const property = parseProperty(payload, url)
 
   if (!property) {
     console.warn(`[scraper] Could not parse: ${url}`)

@@ -2,11 +2,11 @@
  * POST /api/expertlisting/sync
  *
  * Called by Vercel Cron daily (vercel.json) and manually from admin UI.
- * Paginates through ExpertListing.ng rent + sale pages and imports
- * properties that are "sourced and verified directly by Expert Listing".
+ * Discovers properties via ExpertListing.ng's sitemap, then imports
+ * only those with "sourced and verified directly by Expert Listing" badge.
  *
  * Optional env var:
- *   CRON_SECRET  — random secret to protect this endpoint from external callers
+ *   CRON_SECRET  — secret to protect this endpoint from external callers
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Create sync log ──────────────────────────────────────
+  // ── Create sync log ─────────────────────────────────────
   const log = await prisma.importSyncLog.create({
     data: { status: 'RUNNING' },
   })
@@ -37,19 +37,15 @@ export async function POST(req: NextRequest) {
   let newCount = 0, skippedCount = 0, errorCount = 0
 
   try {
-    // 1. Collect all listing URLs from rent + sale pages
-    const listingUrls = await getAllListingUrls(15)
+    // 1. Discover all property URLs via sitemap
+    const listingUrls = await getAllListingUrls()
 
     if (listingUrls.length === 0) {
       await prisma.importSyncLog.update({
         where: { id: log.id },
         data: { status: 'COMPLETED', finishedAt: new Date(), newCount: 0 },
       })
-      return NextResponse.json({
-        success: true,
-        message: 'No listing URLs found — ExpertListing.ng may load listings client-side',
-        newCount: 0, skippedCount: 0, errorCount: 0,
-      })
+      return NextResponse.json({ success: true, message: 'No property URLs found in sitemap', newCount: 0, skippedCount: 0, errorCount: 0 })
     }
 
     // 2. Skip already-imported listings
