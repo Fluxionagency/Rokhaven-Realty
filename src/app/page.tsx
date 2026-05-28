@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
+import LocationAutocomplete from '@/components/LocationAutocomplete';
 
 interface FeaturedProperty {
   id: string;
@@ -99,22 +100,12 @@ export default function HomePage() {
           </p>
           <div className="search-bar">
             <div className="sf">
-              <label htmlFor="heroLoc">Location</label>
-              <select
-                id="heroLoc"
+              <label>Location</label>
+              <LocationAutocomplete
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              >
-                <option value="">Any Location</option>
-                <option>Banana Island</option>
-                <option>Ikoyi</option>
-                <option>Victoria Island</option>
-                <option>Eko Atlantic</option>
-                <option>Lekki Phase 1</option>
-                <option>Lekki Phase 2</option>
-                <option>Ikeja GRA</option>
-                <option>Magodo</option>
-              </select>
+                onChange={setLocation}
+                placeholder="Any location"
+              />
             </div>
             <div className="sf">
               <label htmlFor="heroPType">Property Type</label>

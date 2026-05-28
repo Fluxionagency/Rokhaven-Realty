@@ -480,3 +480,48 @@ footer { background: var(--obsidian); border-top: 1px solid rgba(192,168,112,.1)
   .eyebrow { margin-bottom: 18px; }
   .hero h1 { font-size: 36px; }
 }
+
+/* ── Google Places Autocomplete dropdown ── */
+.pac-container {
+  background: #142236 !important;
+  border: 1px solid rgba(192,168,112,.22) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,.65) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  margin-top: 6px !important;
+  z-index: 9999 !important;
+}
+.pac-item {
+  padding: 10px 16px !important;
+  cursor: pointer !important;
+  border-top: 1px solid rgba(192,168,112,.07) !important;
+  color: rgba(244,237,224,.6) !important;
+  font-size: 13px !important;
+  font-weight: 300 !important;
+  line-height: 1.5 !important;
+}
+.pac-item:first-child { border-top: none !important; }
+.pac-item:hover,
+.pac-item-selected { background: rgba(192,168,112,.1) !important; color: var(--ivory) !important; }
+.pac-item-query {
+  color: rgba(244,237,224,.9) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+.pac-matched { color: #c0a870 !important; font-weight: 500 !important; }
+.pac-icon { display: none !important; }
+.pac-logo::after { display: none !important; }
+
+/* Location input inside hero search bar */
+.sf input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  color: rgba(244,237,224,.65);
+  cursor: text;
+}
+.sf input::placeholder { color: rgba(244,237,224,.38); }
