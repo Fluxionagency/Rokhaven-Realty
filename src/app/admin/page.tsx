@@ -559,10 +559,7 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
               </div>
               <div>
                 <label style={lbl}>Neighbourhood</label>
-                <select className={styles.fsel} value={fNbh} onChange={e => setFNbh(e.target.value)}>
-                  <option value="">Select…</option>
-                  {['Banana Island','Ikoyi','Victoria Island','Eko Atlantic','Lekki Phase 1','Lekki Phase 2','Ajah','Ikeja GRA','Magodo','Other'].map(n => <option key={n}>{n}</option>)}
-                </select>
+                <input className={styles.fi} value={fNbh} onChange={e => setFNbh(e.target.value)} placeholder="e.g. Lekki Phase 1, Ikoyi…" />
               </div>
               <div>
                 <label style={lbl}>Bedrooms</label>
