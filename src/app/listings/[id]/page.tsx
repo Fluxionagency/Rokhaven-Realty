@@ -44,6 +44,29 @@ function firstImage(images: string): string {
   } catch { return ''; }
 }
 
+function getVideoEmbed(url: string): { type: 'iframe' | 'video'; src: string } | null {
+  if (!url) return null;
+
+  // YouTube
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (yt) return { type: 'iframe', src: `https://www.youtube.com/embed/${yt[1]}` };
+
+  // Vimeo
+  const vi = url.match(/vimeo\.com\/(\d+)/);
+  if (vi) return { type: 'iframe', src: `https://player.vimeo.com/video/${vi[1]}` };
+
+  // Google Drive — convert to /preview embed
+  const gd = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (gd) return { type: 'iframe', src: `https://drive.google.com/file/d/${gd[1]}/preview` };
+
+  // Direct video file (Supabase storage or any .mp4/.mov/etc)
+  if (/\.(mp4|mov|webm|ogg|avi)(\?|$)/i.test(url) || url.includes('supabase')) {
+    return { type: 'video', src: url };
+  }
+
+  return null;
+}
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -248,6 +271,31 @@ export default function PropertyDetailPage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* Video */}
+          {property.video && (() => {
+            const embed = getVideoEmbed(property.video);
+            if (!embed) return null;
+            return (
+              <div className={styles.videoSection}>
+                <h2 className={styles.secHeading}>Property Video</h2>
+                <div className={styles.videoWrap}>
+                  {embed.type === 'iframe' ? (
+                    <iframe
+                      src={embed.src}
+                      allowFullScreen
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      frameBorder="0"
+                    />
+                  ) : (
+                    <video controls playsInline>
+                      <source src={embed.src} />
+                    </video>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ── STICKY CTA SIDEBAR ── */}

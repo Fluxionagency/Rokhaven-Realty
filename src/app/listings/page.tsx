@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
+import LocationAutocomplete from '@/components/LocationAutocomplete';
 import styles from './page.module.css';
 
 interface Property {
@@ -38,7 +39,7 @@ function ListingsContent() {
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
-  const [selLoc, setSelLoc] = useState('');
+  const [selLoc, setSelLoc] = useState(() => searchParams.get('loc') || '');
   const [selType, setSelType] = useState('');
   const [selBeds, setSelBeds] = useState('any');
   const [selBaths, setSelBaths] = useState('any');
@@ -166,33 +167,28 @@ function ListingsContent() {
       <div className={styles.filterWrap}>
         <div className={styles.filterRow}>
 
-          {/* Location */}
-          <div
-            className={`${styles.ftrig} ${openDrop === 'loc' ? styles.ftrigOpen : ''} ${selLoc ? styles.ftrigHasVal : ''}`}
-            onClick={(e) => toggleDrop('loc', e)}
-          >
-            <span>{selLoc || 'Location'}</span>
-            <span className={styles.ftrigArr}>▾</span>
-            {openDrop === 'loc' && (
-              <div className={styles.drop} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.dropLbl}>Neighbourhood</div>
-                <select
-                  value={selLoc}
-                  onChange={(e) => { setSelLoc(e.target.value); setOpenDrop(null); }}
-                >
-                  <option value="">Any Location</option>
-                  <option>Banana Island</option>
-                  <option>Ikoyi</option>
-                  <option>Victoria Island</option>
-                  <option>Eko Atlantic</option>
-                  <option>Lekki Phase 1</option>
-                  <option>Lekki Phase 2</option>
-                  <option>Ajah</option>
-                  <option>Ikeja GRA</option>
-                  <option>Magodo</option>
-                </select>
-              </div>
-            )}
+          {/* Location — text input with Google Places autocomplete */}
+          <div className={`${styles.ftrig} ${selLoc ? styles.ftrigHasVal : ''}`}
+               style={{ padding: '0 4px 0 13px', cursor: 'text' }}>
+            <LocationAutocomplete
+              value={selLoc}
+              onChange={setSelLoc}
+              placeholder="Location"
+              wrapperStyle={{ minWidth: 120, maxWidth: 200 }}
+              inputStyle={{
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '11px',
+                fontWeight: 400,
+                color: selLoc ? 'var(--gold)' : 'rgba(244,237,224,.65)',
+                letterSpacing: '.06em',
+                width: '100%',
+                padding: '7px 20px 7px 0',
+                cursor: 'text',
+              }}
+            />
           </div>
 
           {/* Property Type */}

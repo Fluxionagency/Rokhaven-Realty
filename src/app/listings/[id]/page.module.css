@@ -365,6 +365,40 @@
   background: rgba(192,168,112,.14);
 }
 
+/* ── VIDEO ── */
+.videoSection {
+  margin-bottom: 60px;
+}
+
+.videoWrap {
+  margin-top: 18px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* iframes (YouTube, Vimeo, Google Drive): full width, tall enough for portrait */
+.videoWrap iframe {
+  display: block;
+  width: 100%;
+  height: 75vh;
+  border: none;
+}
+
+/* direct uploads: auto-size to the video's actual dimensions */
+.videoWrap video {
+  display: block;
+  max-width: 100%;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  border: none;
+}
+
 /* ── STICKY CTA SIDEBAR ── */
 .ctaCard {
   position: sticky;

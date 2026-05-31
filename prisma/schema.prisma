@@ -175,3 +175,60 @@ model BookingLink {
   used        Boolean   @default(false)
   createdAt   DateTime  @default(now())
 }
+
+// ─── Expert Listing Auto-Import ────────────────────────────────────────────────
+
+model ImportedProperty {
+  id                   String    @id @default(cuid())
+
+  // Source
+  expertlistingId      Int       @unique
+  expertlistingUrl     String
+  expertlistingRefId   String?
+
+  // Property details
+  title                String
+  description          String    @default("")
+  price                String    // stored as formatted string e.g. "10000000"
+  currency             String    @default("NGN")
+  transactionType      String    // rent | sale | lease
+  propertyType         String
+  bedroomCount         Int       @default(0)
+  bathroomCount        Int       @default(0)
+  landSize             String?
+
+  // Location
+  neighborhood         String    @default("")
+  lcda                 String    @default("")
+  state                String    @default("Lagos")
+  fullAddress          String    @default("")
+
+  // Media (JSON arrays stored as strings)
+  features             String    @default("[]")
+  images               String    @default("[]")
+  coverImage           String?
+
+  // Flags
+  isVerified           Boolean   @default(true)
+
+  // Status
+  status               String    @default("PENDING") // PENDING | PUBLISHED | ARCHIVED
+  importError          String?
+
+  // Link to published Property (once admin publishes it)
+  publishedPropertyId  String?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model ImportSyncLog {
+  id            String    @id @default(cuid())
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+  newCount      Int       @default(0)
+  skippedCount  Int       @default(0)
+  errorCount    Int       @default(0)
+  status        String    @default("RUNNING") // RUNNING | COMPLETED | FAILED
+  errorMessage  String?
+}
