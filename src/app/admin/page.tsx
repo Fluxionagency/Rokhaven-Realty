@@ -400,8 +400,11 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
   const [fImages, setFImages] = useState('');
   const [fVideo, setFVideo] = useState('');
   const [fVideoFile, setFVideoFile] = useState<File | null>(null);
+  const [fVideoFileName, setFVideoFileName] = useState('');
   const [fImagePreviews, setFImagePreviews] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState('');
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState<number | null>(null);
   const [fStatus, setFStatus] = useState('ACTIVE');
 
   const filtered = filter === 'All' ? properties : properties.filter(p => p.status.toLowerCase() === filter.toLowerCase());
@@ -449,13 +452,14 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       setFImages(p.images || '[]'); setFStatus(p.status);
       setFVideo((p as AdminProperty & { video?: string }).video || '');
       try { setFImagePreviews(JSON.parse(p.images || '[]')); } catch { setFImagePreviews([]); }
-      setFVideoFile(null);
+      setFVideoFile(null); setFVideoFileName(''); setVideoUploading(false); setVideoUploadProgress(null);
     } else {
       setEditingProp(null);
       setFTitle(''); setFDesc(''); setFPrice(''); setFLocation('');
       setFNbh(''); setFType('Fully Detached'); setFCat('SALE');
       setFBeds(4); setFBaths(4); setFSqm(''); setFBadge('');
       setFImages('[]'); setFVideo(''); setFVideoFile(null);
+      setFVideoFileName(''); setVideoUploading(false); setVideoUploadProgress(null);
       setFImagePreviews([]); setFStatus('ACTIVE');
     }
     setModalOpen(true);
@@ -466,16 +470,12 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
       alert('Title, price and location are required.');
       return;
     }
-    setSaving(true);
-    let videoUrl = fVideo;
-    if (fVideoFile) {
-      const vf = new FormData();
-      vf.append('file', fVideoFile);
-      vf.append('folder', 'videos');
-      const vr = await fetch('/api/upload', { method: 'POST', body: vf });
-      if (vr.ok) { const vd = await vr.json(); videoUrl = vd.url; }
-      else { alert('Video upload failed. Please try again.'); setSaving(false); return; }
+    if (videoUploading) {
+      alert('Please wait for the video to finish uploading.');
+      return;
     }
+    setSaving(true);
+    const videoUrl = fVideo;
     const body = {
       title: fTitle, description: fDesc, price: fPrice,
       location: fLocation, neighbourhood: fNbh || null,
@@ -651,33 +651,73 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                   <button
                     type="button"
                     onClick={() => document.getElementById('videoUploadInput')?.click()}
-                    style={{ background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '8px 14px', fontSize: 11, color: 'rgba(192,168,112,0.7)', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    disabled={videoUploading}
+                    style={{ background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '8px 14px', fontSize: 11, color: 'rgba(192,168,112,0.7)', cursor: videoUploading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', opacity: videoUploading ? 0.6 : 1 }}
                   >
-                    {fVideoFile ? `✓ ${fVideoFile.name}` : '📹 Upload video'}
+                    {videoUploading ? '⏳ Uploading…' : fVideo && !fVideo.startsWith('http') === false && fVideoFileName ? `✓ ${fVideoFileName}` : fVideo ? '✓ Video ready' : '📹 Upload video'}
                   </button>
                   <input
                     id="videoUploadInput"
                     type="file"
                     accept="video/*"
                     style={{ display: 'none' }}
-                    onChange={e => { const f = e.target.files?.[0]; if (f) { setFVideoFile(f); setFVideo(''); } }}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setFVideoFileName(file.name);
+                      setFVideo('');
+                      setVideoUploading(true);
+                      setVideoUploadProgress(0);
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      fd.append('folder', 'videos');
+                      const xhr = new XMLHttpRequest();
+                      xhr.upload.onprogress = (ev) => {
+                        if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+                      };
+                      xhr.onload = () => {
+                        setVideoUploading(false);
+                        setVideoUploadProgress(null);
+                        if (xhr.status === 200) {
+                          try { setFVideo(JSON.parse(xhr.responseText).url); } catch { alert('Video upload failed.'); }
+                        } else { alert('Video upload failed. Please try again.'); }
+                        e.target.value = '';
+                      };
+                      xhr.onerror = () => { setVideoUploading(false); setVideoUploadProgress(null); alert('Video upload failed.'); };
+                      xhr.open('POST', '/api/upload');
+                      xhr.send(fd);
+                    }}
                   />
                   <input
                     className={styles.fi}
                     value={fVideo}
-                    onChange={e => { setFVideo(e.target.value); setFVideoFile(null); }}
+                    onChange={e => { setFVideo(e.target.value); setFVideoFileName(''); }}
                     placeholder="Or paste a video URL (YouTube, Vimeo, direct link…)"
+                    disabled={videoUploading}
                   />
                 </div>
-                {fVideoFile && <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)' }}>Video will be uploaded when you save.</div>}
+                {videoUploading && videoUploadProgress !== null && (
+                  <div style={{ marginTop: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(192,168,112,0.6)', marginBottom: 4 }}>
+                      <span>Uploading {fVideoFileName}…</span>
+                      <span>{videoUploadProgress}%</span>
+                    </div>
+                    <div style={{ background: 'rgba(192,168,112,0.1)', borderRadius: 2, height: 4, overflow: 'hidden' }}>
+                      <div style={{ background: '#C0A870', height: '100%', width: `${videoUploadProgress}%`, transition: 'width 0.2s ease', borderRadius: 2 }} />
+                    </div>
+                  </div>
+                )}
+                {!videoUploading && fVideo && fVideoFileName && (
+                  <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.55)', marginTop: 4 }}>✓ {fVideoFileName} uploaded successfully</div>
+                )}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '10px 20px', color: 'rgba(244,237,224,0.5)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--fb)' }}>
                 Cancel
               </button>
-              <button onClick={handleSave} disabled={saving} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-                {saving ? 'Saving…' : editingProp ? 'Save Changes →' : 'Create Listing →'}
+              <button onClick={handleSave} disabled={saving || videoUploading} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: (saving || videoUploading) ? 'not-allowed' : 'pointer', opacity: (saving || videoUploading) ? 0.6 : 1 }}>
+                {saving ? 'Saving…' : videoUploading ? `Uploading video ${videoUploadProgress ?? 0}%…` : editingProp ? 'Save Changes →' : 'Create Listing →'}
               </button>
             </div>
           </div>
