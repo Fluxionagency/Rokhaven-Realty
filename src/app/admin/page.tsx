@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import styles from './page.module.css';
 
@@ -2253,7 +2254,13 @@ const SECTION_TITLES: Record<Section, string> = {
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { data: session } = useSession();
-  const [section, setSection] = useState<Section>('dashboard');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const VALID_SECTIONS: Section[] = ['dashboard', 'listings', 'bookings', 'leads', 'reminders', 'settings'];
+  const urlSection = searchParams.get('section') as Section | null;
+  const [section, setSection] = useState<Section>(
+    urlSection && VALID_SECTIONS.includes(urlSection) ? urlSection : 'dashboard'
+  );
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('integration');
   const [properties, setProperties] = useState<AdminProperty[]>([]);
   const [inspections, setInspections] = useState<AdminInspection[]>([]);
@@ -2263,7 +2270,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const userName = session?.user?.name || 'Admin';
   const userInitials = userName.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
 
-  const goToAccount = () => { setSettingsTab('account'); setSection('settings'); };
+  const navigateTo = useCallback((s: Section) => {
+    setSection(s);
+    const params = s === 'dashboard' ? '/admin' : `/admin?section=${s}`;
+    router.replace(params, { scroll: false });
+  }, [router]);
+
+  const goToAccount = () => { setSettingsTab('account'); navigateTo('settings'); };
 
   const fetchAll = useCallback(async () => {
     try {
@@ -2306,7 +2319,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <button
               key={key}
               className={`${styles.sbLink} ${section === key ? styles.sbLinkActive : ''}`}
-              onClick={() => setSection(key)}
+              onClick={() => navigateTo(key)}
             >
               <Icon />
               {label}
@@ -2374,7 +2387,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <div style={{ maxHeight: 360, overflowY: 'auto' }}>
                     {inspections.filter(i => i.status === 'PENDING').slice(0, 5).map(insp => (
                       <div key={insp.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
-                        onClick={() => { setSection('bookings'); setNotifOpen(false); }}>
+                        onClick={() => { navigateTo('bookings'); setNotifOpen(false); }}>
                         <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New inspection request</div>
                         <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{insp.clientName} · {insp.property?.title || 'Unknown property'}</div>
                         <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{insp.preferredDate} at {insp.preferredTime}</div>
@@ -2382,7 +2395,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     ))}
                     {enquiries.filter(e => e.status === 'NEW').slice(0, 5).map(enq => (
                       <div key={enq.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
-                        onClick={() => { setSection('leads'); setNotifOpen(false); }}>
+                        onClick={() => { navigateTo('leads'); setNotifOpen(false); }}>
                         <div style={{ fontSize: 12, color: '#f4ede0', marginBottom: 2 }}>New enquiry</div>
                         <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)' }}>{enq.name} · {enq.property?.title || 'General enquiry'}</div>
                         <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.4)', marginTop: 3 }}>{new Date(enq.createdAt).toLocaleDateString()}</div>
@@ -2413,7 +2426,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         {/* CONTENT */}
         <div className={styles.content}>
-          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
+          {section === 'dashboard' && <DashboardSection onNav={navigateTo} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
