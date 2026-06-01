@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import styles from './page.module.css';
@@ -2441,5 +2441,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 // ─── ROOT PAGE ───────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  return <Dashboard onLogout={() => signOut({ callbackUrl: '/auth/admin-login' })} />;
+  return (
+    <Suspense>
+      <Dashboard onLogout={() => signOut({ callbackUrl: '/auth/admin-login' })} />
+    </Suspense>
+  );
 }
