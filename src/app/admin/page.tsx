@@ -2116,7 +2116,7 @@ function AccountTab() {
           <button
             className={styles.intBtn}
             style={{ color: 'rgba(224,112,112,0.6)', borderColor: 'rgba(224,112,112,0.2)' }}
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={() => signOut({ callbackUrl: '/auth/admin-login' })}
           >
             Sign out
           </button>
@@ -2428,5 +2428,5 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 // ─── ROOT PAGE ───────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  return <Dashboard onLogout={() => signOut({ callbackUrl: '/' })} />;
+  return <Dashboard onLogout={() => signOut({ callbackUrl: '/auth/admin-login' })} />;
 }
