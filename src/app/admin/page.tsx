@@ -1329,10 +1329,36 @@ function ContactPanel({ lead, onClose, onMove }: { lead: Lead; onClose: () => vo
 
 type LeadSource = 'website' | 'instagram' | 'inspection';
 type Lead = {
+  id: string; sourceType: 'enquiry' | 'inspection';
   name: string; email?: string; property: string; date: string;
   status: LeadStatus; source: LeadSource; phone?: string; notes?: string;
   budget?: string; intent?: string; time?: string; referenceNo?: string;
 };
+
+function leadStatusToDb(status: LeadStatus, sourceType: 'enquiry' | 'inspection'): string {
+  if (sourceType === 'enquiry') {
+    if (status === 'New') return 'NEW';
+    if (status === 'Contacted') return 'CONTACTED';
+    if (status === 'Booked' || status === 'InspectionDone') return 'IN_PROGRESS';
+    if (status === 'Closed') return 'CLOSED';
+    if (status === 'Failed') return 'CLOSED';
+    return 'NEW';
+  } else {
+    if (status === 'New' || status === 'Contacted') return 'PENDING';
+    if (status === 'Booked') return 'CONFIRMED';
+    if (status === 'InspectionDone' || status === 'Closed') return 'COMPLETED';
+    if (status === 'Failed') return 'CANCELLED';
+    return 'PENDING';
+  }
+}
+
+async function persistLeadStatus(lead: Lead, newStatus: LeadStatus) {
+  const dbStatus = leadStatusToDb(newStatus, lead.sourceType);
+  const url = lead.sourceType === 'enquiry'
+    ? `/api/enquiries/${lead.id}`
+    : `/api/inspections/${lead.id}`;
+  await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: dbStatus }) });
+}
 
 function toLeadStatus(s: string): LeadStatus {
   if (s === 'NEW') return 'New';
@@ -1351,27 +1377,23 @@ function inspectionToLeadStatus(s: string): LeadStatus {
 function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onRefresh: () => void; onSelectLead: (lead: Lead) => void }) {
   const buildLeads = () => {
     const fromEnquiries: Lead[] = enquiries.map(e => ({
-      name: e.name,
-      email: e.email,
+      id: e.id, sourceType: 'enquiry' as const,
+      name: e.name, email: e.email,
       property: e.property?.title || (e.howHeard === 'Instagram' ? 'Instagram DM' : 'General Enquiry'),
       date: new Date(e.createdAt).toLocaleDateString(),
       status: toLeadStatus(e.status),
       source: (e.howHeard === 'Instagram' ? 'instagram' : 'website') as LeadSource,
-      phone: e.phone,
-      budget: e.budget || undefined,
-      intent: e.intent || undefined,
+      phone: e.phone, budget: e.budget || undefined, intent: e.intent || undefined,
       notes: e.intent === 'Instagram DM' ? 'Via Instagram Direct' : undefined,
     }));
     const fromInspections: Lead[] = inspections.map(i => ({
+      id: i.id, sourceType: 'inspection' as const,
       name: i.clientName,
       property: i.property?.title || 'Unknown Property',
-      date: i.preferredDate,
-      time: i.preferredTime,
+      date: i.preferredDate, time: i.preferredTime,
       status: inspectionToLeadStatus(i.status),
       source: 'inspection' as LeadSource,
-      phone: i.clientPhone,
-      referenceNo: i.referenceNo || undefined,
-      notes: i.notes || undefined,
+      phone: i.clientPhone, referenceNo: i.referenceNo || undefined, notes: i.notes || undefined,
     }));
     const allNames = new Set(fromEnquiries.map(l => l.name));
     const dedupedInspections = fromInspections.filter(l => !allNames.has(l.name));
@@ -1388,8 +1410,9 @@ function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enq
 
   const columns = LEAD_COLUMNS;
 
-  const moveLead = (leadName: string, newStatus: LeadStatus) => {
-    setLeads(prev => prev.map(l => l.name === leadName ? { ...l, status: newStatus } : l));
+  const moveLead = (lead: Lead, newStatus: LeadStatus) => {
+    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: newStatus } : l));
+    persistLeadStatus(lead, newStatus).catch(() => {});
   };
 
   const filteredLeads = sourceFilter === 'all' ? leads : leads.filter(l => l.source === sourceFilter);
@@ -1467,7 +1490,7 @@ function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enq
                         style={{ width: 'auto', padding: '3px 26px 3px 8px', fontSize: 10, border: '1px solid rgba(192,168,112,0.18)' }}
                         value={lead.status}
                         onClick={e => e.stopPropagation()}
-                        onChange={e => moveLead(lead.name, e.target.value as LeadStatus)}
+                        onChange={e => moveLead(lead, e.target.value as LeadStatus)}
                       >
                         {columns.map(c => <option key={c.key} value={c.key}>→ {c.label}</option>)}
                       </select>
@@ -2412,6 +2435,7 @@ function ContactsSection({ enquiries, inspections, onSelectLead }: { enquiries: 
 
   const contacts: Lead[] = (() => {
     const fromEnquiries: Lead[] = enquiries.map(e => ({
+      id: e.id, sourceType: 'enquiry' as const,
       name: e.name, email: e.email, phone: e.phone,
       property: e.property?.title || (e.howHeard === 'Instagram' ? 'Instagram DM' : 'General Enquiry'),
       date: new Date(e.createdAt).toLocaleDateString(),
@@ -2420,6 +2444,7 @@ function ContactsSection({ enquiries, inspections, onSelectLead }: { enquiries: 
       budget: e.budget || undefined, intent: e.intent || undefined,
     }));
     const fromInspections: Lead[] = inspections.map(i => ({
+      id: i.id, sourceType: 'inspection' as const,
       name: i.clientName, phone: i.clientPhone,
       property: i.property?.title || 'Unknown Property',
       date: i.preferredDate, time: i.preferredTime,
@@ -2690,7 +2715,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         <ContactPanel
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
-          onMove={(status) => setSelectedLead(prev => prev ? { ...prev, status } : null)}
+          onMove={(status) => {
+            if (selectedLead) persistLeadStatus(selectedLead, status).catch(() => {});
+            setSelectedLead(prev => prev ? { ...prev, status } : null);
+          }}
         />
       )}
     </div>
