@@ -7,7 +7,7 @@ import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
 
-type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'reminders' | 'settings';
+type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'contacts' | 'reminders' | 'settings';
 type BookingTab = 'calendar' | 'link' | 'inspections';
 type SettingsTab = 'integration' | 'team' | 'notifications' | 'account';
 type ListingFilter = 'All' | 'Active' | 'Rented' | 'Sold' | 'Pending';
@@ -178,6 +178,13 @@ const IconSettings = () => (
   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="3" />
     <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+  </svg>
+);
+const IconContacts = () => (
+  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24">
+    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
   </svg>
 );
 const IconBell = () => (
@@ -2382,7 +2389,8 @@ const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }
   { key: 'dashboard', label: 'Dashboard', Icon: IconDashboard },
   { key: 'listings', label: 'Listings', Icon: IconListings },
   { key: 'bookings', label: 'Bookings', Icon: IconBookings },
-  { key: 'leads', label: 'Leads', Icon: IconLeads },
+  { key: 'leads', label: 'Leads Pipeline', Icon: IconLeads },
+  { key: 'contacts', label: 'Contacts', Icon: IconContacts },
   { key: 'reminders', label: 'Reminders', Icon: IconReminders },
   { key: 'settings', label: 'Settings', Icon: IconSettings },
 ];
@@ -2392,9 +2400,103 @@ const SECTION_TITLES: Record<Section, string> = {
   listings: 'Listings',
   bookings: 'Bookings',
   leads: 'Leads Pipeline',
+  contacts: 'Contacts',
   reminders: 'Reminders',
   settings: 'Settings',
 };
+
+// ─── CONTACTS SECTION ───────────────────────────────────────────────────────
+
+function ContactsSection({ enquiries, inspections, onSelectLead }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onSelectLead: (lead: Lead) => void }) {
+  const [search, setSearch] = useState('');
+
+  const contacts: Lead[] = (() => {
+    const fromEnquiries: Lead[] = enquiries.map(e => ({
+      name: e.name, email: e.email, phone: e.phone,
+      property: e.property?.title || (e.howHeard === 'Instagram' ? 'Instagram DM' : 'General Enquiry'),
+      date: new Date(e.createdAt).toLocaleDateString(),
+      status: toLeadStatus(e.status),
+      source: (e.howHeard === 'Instagram' ? 'instagram' : 'website') as LeadSource,
+      budget: e.budget || undefined, intent: e.intent || undefined,
+    }));
+    const fromInspections: Lead[] = inspections.map(i => ({
+      name: i.clientName, phone: i.clientPhone,
+      property: i.property?.title || 'Unknown Property',
+      date: i.preferredDate, time: i.preferredTime,
+      status: inspectionToLeadStatus(i.status),
+      source: 'inspection' as LeadSource,
+      referenceNo: i.referenceNo || undefined, notes: i.notes || undefined,
+    }));
+    const allNames = new Set(fromEnquiries.map(l => l.name));
+    return [...fromEnquiries, ...fromInspections.filter(l => !allNames.has(l.name))];
+  })();
+
+  const filtered = contacts.filter(c =>
+    !search || c.name.toLowerCase().includes(search.toLowerCase()) ||
+    (c.phone || '').includes(search) || (c.email || '').toLowerCase().includes(search.toLowerCase()) ||
+    c.property.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div>
+      <div className={styles.secHdr} style={{ marginBottom: 20 }}>
+        <div className={styles.secTitle}>Contacts</div>
+        <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.35)' }}>{contacts.length} total</div>
+      </div>
+
+      <input
+        type="text"
+        placeholder="Search by name, phone, email or property…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{ width: '100%', maxWidth: 420, padding: '10px 14px', background: 'rgba(11,27,53,0.6)', border: '1px solid rgba(192,168,112,0.15)', borderRadius: 2, color: '#f4ede0', fontSize: 13, marginBottom: 24, outline: 'none', boxSizing: 'border-box' }}
+      />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Header row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 180px 150px 110px', gap: 12, padding: '8px 16px', fontSize: 8, letterSpacing: '0.25em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', borderBottom: '1px solid rgba(192,168,112,0.07)' }}>
+          <span>Contact</span><span>Phone</span><span>Property Interest</span><span>Source</span><span>Stage</span>
+        </div>
+
+        {filtered.length === 0 && (
+          <div style={{ padding: '40px 16px', textAlign: 'center', color: 'rgba(244,237,224,0.25)', fontSize: 13 }}>No contacts found</div>
+        )}
+
+        {filtered.map((c, i) => (
+          <div
+            key={i}
+            onClick={() => onSelectLead(c)}
+            style={{ display: 'grid', gridTemplateColumns: '1fr 140px 180px 150px 110px', gap: 12, padding: '13px 16px', borderRadius: 2, cursor: 'pointer', transition: 'background 0.15s', background: i % 2 === 0 ? 'rgba(11,27,53,0.3)' : 'transparent', alignItems: 'center' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,168,112,0.06)')}
+            onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'rgba(11,27,53,0.3)' : 'transparent')}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(192,168,112,0.1)', border: '1px solid rgba(192,168,112,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 500, color: '#C0A870', flexShrink: 0 }}>
+                  {nameInitials(c.name)}
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, color: '#f4ede0', fontWeight: 400 }}>{c.name}</div>
+                  {c.email && <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.35)', marginTop: 1 }}>{c.email}</div>}
+                </div>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)' }}>{c.phone || '—'}</div>
+            <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.property}</div>
+            <div>
+              <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 7px', borderRadius: 2, background: c.source === 'instagram' ? 'rgba(228,64,95,0.1)' : c.source === 'inspection' ? 'rgba(192,168,112,0.08)' : 'rgba(255,255,255,0.05)', color: c.source === 'instagram' ? '#E4405F' : c.source === 'inspection' ? '#C0A870' : 'rgba(244,237,224,0.4)', border: '1px solid', borderColor: c.source === 'instagram' ? 'rgba(228,64,95,0.2)' : c.source === 'inspection' ? 'rgba(192,168,112,0.15)' : 'rgba(255,255,255,0.07)' }}>
+                {c.source === 'instagram' ? '📸 IG' : c.source === 'inspection' ? '🏠 Booking' : '🌐 Web'}
+              </span>
+            </div>
+            <div style={{ fontSize: 10, color: LEAD_COLUMNS.find(col => col.key === c.status)?.color || 'rgba(244,237,224,0.35)' }}>
+              {LEAD_COLUMNS.find(col => col.key === c.status)?.label || c.status}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ─── DASHBOARD SHELL ────────────────────────────────────────────────────────
 
@@ -2402,7 +2504,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const VALID_SECTIONS: Section[] = ['dashboard', 'listings', 'bookings', 'leads', 'reminders', 'settings'];
+  const VALID_SECTIONS: Section[] = ['dashboard', 'listings', 'bookings', 'leads', 'contacts', 'reminders', 'settings'];
   const urlSection = searchParams.get('section') as Section | null;
   const [section, setSection] = useState<Section>(
     urlSection && VALID_SECTIONS.includes(urlSection) ? urlSection : 'dashboard'
@@ -2577,6 +2679,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} onSelectLead={setSelectedLead} />}
+          {section === 'contacts' && <ContactsSection enquiries={enquiries} inspections={inspections} onSelectLead={setSelectedLead} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
           {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
