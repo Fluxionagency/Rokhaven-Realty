@@ -1205,18 +1205,33 @@ const LEAD_COLUMNS: { key: LeadStatus; label: string; color?: string }[] = [
   { key: 'Failed', label: 'Failed', color: 'rgba(224,112,112,0.7)' },
 ];
 
+function parseNoteHistory(notes: string | undefined): { date: string; text: string }[] {
+  if (!notes) return [];
+  return notes.split('\n').filter(l => l.trim()).map(line => {
+    const m = line.match(/^\[(.+?)\] (.+)$/);
+    return m ? { date: m[1], text: m[2] } : { date: '', text: line };
+  }).reverse();
+}
+
 function ContactPanel({ lead, onClose, onMove, onUpdateNotes }: { lead: Lead; onClose: () => void; onMove: (status: LeadStatus) => void; onUpdateNotes: (notes: string) => void }) {
-  const [feedback, setFeedback] = useState(lead.notes || '');
+  const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  const noteHistory = parseNoteHistory(lead.notes);
+
   const saveFeedback = async () => {
+    if (!newNote.trim()) return;
     setSaving(true);
+    const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const entry = `[${dateStr}] ${newNote.trim()}`;
+    const combined = lead.notes ? `${lead.notes}\n${entry}` : entry;
     const url = lead.sourceType === 'enquiry' ? `/api/enquiries/${lead.id}` : `/api/inspections/${lead.id}`;
-    await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: feedback }) });
+    await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: combined }) });
     setSaving(false);
     setSaved(true);
-    onUpdateNotes(feedback);
+    setNewNote('');
+    onUpdateNotes(combined);
     setTimeout(() => setSaved(false), 2000);
   };
   return (
@@ -1308,25 +1323,42 @@ function ContactPanel({ lead, onClose, onMove, onUpdateNotes }: { lead: Lead; on
           )}
         </div>
 
-        {/* Feedback — always editable */}
+        {/* Feedback / Notes — history + new entry */}
         <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase' }}>Feedback / Notes</div>
+          <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 12 }}>Feedback / Notes</div>
+
+          {/* History entries — newest first */}
+          {noteHistory.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+              {noteHistory.map((entry, i) => (
+                <div key={i} style={{ padding: '8px 12px', background: 'rgba(6,15,28,0.45)', borderRadius: 2, borderLeft: '2px solid rgba(192,168,112,0.22)' }}>
+                  {entry.date && (
+                    <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.5)', letterSpacing: '0.1em', marginBottom: 3 }}>{entry.date}</div>
+                  )}
+                  <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.75)', lineHeight: 1.65 }}>{entry.text}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* New note input */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ fontSize: 8, color: 'rgba(192,168,112,0.35)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Add Note</div>
             {saved && <span style={{ fontSize: 10, color: '#5DC882' }}>Saved ✓</span>}
           </div>
           <textarea
-            value={feedback}
-            onChange={e => setFeedback(e.target.value)}
-            placeholder="Add feedback, observations, or follow-up notes…"
-            rows={4}
+            value={newNote}
+            onChange={e => setNewNote(e.target.value)}
+            placeholder="Write a note…"
+            rows={3}
             style={{ width: '100%', background: 'rgba(6,15,28,0.5)', border: '1px solid rgba(192,168,112,0.12)', borderRadius: 2, color: '#f4ede0', fontSize: 13, padding: '10px 12px', resize: 'vertical', outline: 'none', lineHeight: 1.75, boxSizing: 'border-box', fontFamily: 'DM Sans, sans-serif' }}
           />
           <button
             onClick={saveFeedback}
-            disabled={saving}
-            style={{ marginTop: 10, padding: '8px 18px', background: saving ? 'rgba(192,168,112,0.2)' : 'rgba(192,168,112,0.15)', border: '1px solid rgba(192,168,112,0.3)', borderRadius: 2, color: '#C0A870', fontSize: 11, cursor: saving ? 'default' : 'pointer', letterSpacing: '0.1em' }}
+            disabled={saving || !newNote.trim()}
+            style={{ marginTop: 8, padding: '8px 18px', background: 'rgba(192,168,112,0.15)', border: '1px solid rgba(192,168,112,0.3)', borderRadius: 2, color: '#C0A870', fontSize: 11, cursor: saving || !newNote.trim() ? 'default' : 'pointer', letterSpacing: '0.1em', opacity: !newNote.trim() ? 0.45 : 1 }}
           >
-            {saving ? 'Saving…' : 'Save Feedback'}
+            {saving ? 'Saving…' : 'Save Note'}
           </button>
         </div>
 
