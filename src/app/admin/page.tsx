@@ -1492,7 +1492,7 @@ function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enq
           {columns.map(col => {
             const colLeads = filteredLeads.filter(l => l.status === col.key);
             return (
-              <div key={col.key} className={styles.pipeCol} style={{ width: 190, flexShrink: 0, ...(col.key === 'Failed' ? { borderColor: 'rgba(224,112,112,0.15)' } : col.key === 'InspectionDone' || col.key === 'Closed' ? { borderColor: 'rgba(93,200,130,0.15)' } : {}) }}>
+              <div key={col.key} className={styles.pipeCol} style={{ width: 170, flexShrink: 0, ...(col.key === 'Failed' ? { borderColor: 'rgba(224,112,112,0.15)' } : col.key === 'InspectionDone' || col.key === 'Closed' ? { borderColor: 'rgba(93,200,130,0.15)' } : {}) }}>
                 <div className={styles.pipeHead} style={col.color ? { color: col.color } : {}}>
                   {col.label}
                   <span className={styles.pipeCount}>{colLeads.length}</span>

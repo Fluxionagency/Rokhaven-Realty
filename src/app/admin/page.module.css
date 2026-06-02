@@ -1217,6 +1217,7 @@
 .pipeBoard {
   display: flex;
   gap: 14px;
+  padding-right: 36px;
 }
 
 .pipeCol {
