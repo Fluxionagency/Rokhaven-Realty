@@ -1368,14 +1368,16 @@ function leadStatusToDb(status: LeadStatus, sourceType: 'enquiry' | 'inspection'
   if (sourceType === 'enquiry') {
     if (status === 'New') return 'NEW';
     if (status === 'Contacted') return 'CONTACTED';
-    if (status === 'Booked' || status === 'InspectionDone') return 'IN_PROGRESS';
+    if (status === 'Booked') return 'IN_PROGRESS';
+    if (status === 'InspectionDone') return 'INSPECTION_DONE';
     if (status === 'Closed') return 'CLOSED';
-    if (status === 'Failed') return 'CLOSED';
+    if (status === 'Failed') return 'FAILED';
     return 'NEW';
   } else {
     if (status === 'New' || status === 'Contacted') return 'PENDING';
     if (status === 'Booked') return 'CONFIRMED';
-    if (status === 'InspectionDone' || status === 'Closed') return 'COMPLETED';
+    if (status === 'InspectionDone') return 'COMPLETED';
+    if (status === 'Closed') return 'COMPLETED';
     if (status === 'Failed') return 'CANCELLED';
     return 'PENDING';
   }
@@ -1393,13 +1395,17 @@ function toLeadStatus(s: string): LeadStatus {
   if (s === 'NEW') return 'New';
   if (s === 'CONTACTED') return 'Contacted';
   if (s === 'IN_PROGRESS') return 'Booked';
-  return 'Closed';
+  if (s === 'INSPECTION_DONE') return 'InspectionDone';
+  if (s === 'FAILED') return 'Failed';
+  if (s === 'CLOSED') return 'Closed';
+  return 'New';
 }
 
 function inspectionToLeadStatus(s: string): LeadStatus {
   if (s === 'PENDING') return 'New';
   if (s === 'CONFIRMED') return 'Booked';
   if (s === 'COMPLETED') return 'InspectionDone';
+  if (s === 'CANCELLED') return 'Failed';
   return 'Closed';
 }
 

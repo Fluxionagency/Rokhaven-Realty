@@ -136,7 +136,9 @@ enum EnquiryStatus {
   NEW
   CONTACTED
   IN_PROGRESS
+  INSPECTION_DONE
   CLOSED
+  FAILED
 }
 
 model PropertySubmission {
