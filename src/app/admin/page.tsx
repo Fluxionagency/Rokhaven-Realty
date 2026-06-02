@@ -1184,6 +1184,142 @@ function BookingsSection({ properties, inspections, onRefresh }: {
 
 // ─── LEADS SECTION ──────────────────────────────────────────────────────────
 
+function nameInitials(name: string) {
+  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+}
+
+const LEAD_COLUMNS: { key: LeadStatus; label: string; color?: string }[] = [
+  { key: 'New', label: 'New Leads' },
+  { key: 'Contacted', label: 'Contacted' },
+  { key: 'Booked', label: 'Inspection Booked' },
+  { key: 'InspectionDone', label: 'Inspection Done', color: '#5DC882' },
+  { key: 'Closed', label: 'Closed', color: '#5DC882' },
+  { key: 'Failed', label: 'Failed', color: 'rgba(224,112,112,0.7)' },
+];
+
+function ContactPanel({ lead, onClose, onMove }: { lead: Lead; onClose: () => void; onMove: (status: LeadStatus) => void }) {
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(6,15,28,0.72)', display: 'flex', justifyContent: 'flex-end' }}
+      onClick={onClose}
+    >
+      <div
+        style={{ width: 420, maxWidth: '100vw', background: '#0e1f38', borderLeft: '1px solid rgba(192,168,112,0.14)', height: '100%', overflowY: 'auto', padding: '32px 28px 48px', display: 'flex', flexDirection: 'column', gap: 0 }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+          <div style={{ fontSize: 9, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.45)', textTransform: 'uppercase' }}>Contact Session</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(244,237,224,0.4)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(192,168,112,0.12)', border: '1px solid rgba(192,168,112,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 500, color: '#C0A870', flexShrink: 0 }}>
+            {nameInitials(lead.name)}
+          </div>
+          <div>
+            <div style={{ fontSize: 18, fontFamily: "'DM Serif Display', serif", color: '#f4ede0', marginBottom: 4 }}>{lead.name}</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 2, background: lead.source === 'instagram' ? 'rgba(228,64,95,0.12)' : lead.source === 'inspection' ? 'rgba(192,168,112,0.1)' : 'rgba(255,255,255,0.06)', color: lead.source === 'instagram' ? '#E4405F' : lead.source === 'inspection' ? '#C0A870' : 'rgba(244,237,224,0.5)', border: '1px solid', borderColor: lead.source === 'instagram' ? 'rgba(228,64,95,0.25)' : lead.source === 'inspection' ? 'rgba(192,168,112,0.2)' : 'rgba(255,255,255,0.08)' }}>
+                {lead.source === 'instagram' ? '📸 Instagram' : lead.source === 'inspection' ? '🏠 Inspection' : '🌐 Website'}
+              </span>
+              <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 2, background: 'rgba(255,255,255,0.04)', color: 'rgba(244,237,224,0.4)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {LEAD_COLUMNS.find(c => c.key === lead.status)?.label || lead.status}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
+          <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 12 }}>Contact Details</div>
+          {lead.phone && (
+            <a href={`tel:${lead.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, textDecoration: 'none' }}>
+              <span style={{ fontSize: 14 }}>📞</span>
+              <span style={{ fontSize: 13, color: '#f4ede0' }}>{lead.phone}</span>
+            </a>
+          )}
+          {lead.email && (
+            <a href={`mailto:${lead.email}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, textDecoration: 'none' }}>
+              <span style={{ fontSize: 14 }}>✉️</span>
+              <span style={{ fontSize: 13, color: '#f4ede0' }}>{lead.email}</span>
+            </a>
+          )}
+          {lead.phone && (
+            <a
+              href={`https://wa.me/${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${lead.name}, this is RokHaven Realty reaching out regarding your enquiry.`)}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 4, padding: '7px 14px', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: 2, fontSize: 11, color: '#25D366', textDecoration: 'none', letterSpacing: '0.06em' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893C23.943 5.337 18.608.001 12.05 0z"/></svg>
+              Message on WhatsApp
+            </a>
+          )}
+        </div>
+
+        <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
+          <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 12 }}>What They Want</div>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Property</div>
+            <div style={{ fontSize: 13, color: '#f4ede0' }}>{lead.property}</div>
+          </div>
+          {lead.intent && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Intent</div>
+              <div style={{ fontSize: 13, color: '#f4ede0' }}>{lead.intent}</div>
+            </div>
+          )}
+          {lead.budget && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Budget</div>
+              <div style={{ fontSize: 13, color: '#C0A870', fontWeight: 500 }}>{lead.budget}</div>
+            </div>
+          )}
+          {lead.time && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Preferred Time</div>
+              <div style={{ fontSize: 13, color: '#f4ede0' }}>{lead.date} at {lead.time}</div>
+            </div>
+          )}
+          {lead.referenceNo && (
+            <div>
+              <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Reference</div>
+              <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)', fontFamily: 'monospace' }}>{lead.referenceNo}</div>
+            </div>
+          )}
+        </div>
+
+        {lead.notes && (
+          <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
+            <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 8 }}>Notes</div>
+            <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.65)', lineHeight: 1.75 }}>{lead.notes}</div>
+          </div>
+        )}
+
+        <div style={{ marginTop: 'auto', paddingTop: 24 }}>
+          <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 10 }}>Move Stage</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {LEAD_COLUMNS.map(c => (
+              <button
+                key={c.key}
+                onClick={() => onMove(c.key)}
+                style={{
+                  padding: '9px 14px', borderRadius: 2, fontSize: 11, cursor: 'pointer', textAlign: 'left',
+                  border: '1px solid',
+                  borderColor: lead.status === c.key ? (c.color || 'rgba(192,168,112,0.5)') : 'rgba(192,168,112,0.1)',
+                  background: lead.status === c.key ? 'rgba(192,168,112,0.1)' : 'transparent',
+                  color: lead.status === c.key ? (c.color || '#C0A870') : 'rgba(244,237,224,0.4)',
+                  fontWeight: lead.status === c.key ? 500 : 400,
+                }}
+              >
+                {lead.status === c.key ? '● ' : '○ '}{c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type LeadSource = 'website' | 'instagram' | 'inspection';
 type Lead = {
   name: string; email?: string; property: string; date: string;
@@ -1205,7 +1341,7 @@ function inspectionToLeadStatus(s: string): LeadStatus {
   return 'Closed';
 }
 
-function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onRefresh: () => void }) {
+function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enquiries: AdminEnquiry[]; inspections: AdminInspection[]; onRefresh: () => void; onSelectLead: (lead: Lead) => void }) {
   const buildLeads = () => {
     const fromEnquiries: Lead[] = enquiries.map(e => ({
       name: e.name,
@@ -1237,21 +1373,13 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
 
   const [leads, setLeads] = useState<Lead[]>(buildLeads);
   const [sourceFilter, setSourceFilter] = useState<'all' | LeadSource>('all');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   useEffect(() => {
     setLeads(buildLeads());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enquiries, inspections]);
 
-  const columns: { key: LeadStatus; label: string; color?: string }[] = [
-    { key: 'New', label: 'New Leads' },
-    { key: 'Contacted', label: 'Contacted' },
-    { key: 'Booked', label: 'Inspection Booked' },
-    { key: 'InspectionDone', label: 'Inspection Done', color: '#5DC882' },
-    { key: 'Closed', label: 'Closed', color: '#5DC882' },
-    { key: 'Failed', label: 'Failed', color: 'rgba(224,112,112,0.7)' },
-  ];
+  const columns = LEAD_COLUMNS;
 
   const moveLead = (leadName: string, newStatus: LeadStatus) => {
     setLeads(prev => prev.map(l => l.name === leadName ? { ...l, status: newStatus } : l));
@@ -1259,8 +1387,6 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
 
   const filteredLeads = sourceFilter === 'all' ? leads : leads.filter(l => l.source === sourceFilter);
   const igCount = leads.filter(l => l.source === 'instagram').length;
-
-  const initials = (name: string) => name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 
   return (
     <div>
@@ -1307,7 +1433,7 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
                   <span className={styles.pipeCount}>{colLeads.length}</span>
                 </div>
                 {colLeads.map((lead, i) => (
-                  <div key={i} className={styles.leadCard} onClick={() => setSelectedLead(lead)}>
+                  <div key={i} className={styles.leadCard} onClick={() => onSelectLead(lead)}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
                       <div className={styles.leadName}>{lead.name}</div>
                       {lead.source === 'instagram' && (
@@ -1347,133 +1473,6 @@ function LeadsSection({ enquiries, inspections, onRefresh }: { enquiries: AdminE
         </div>
       </div>
 
-      {/* ── CONTACT SESSION PANEL ── */}
-      {selectedLead && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(6,15,28,0.65)', display: 'flex', justifyContent: 'flex-end' }}
-          onClick={() => setSelectedLead(null)}
-        >
-          <div
-            style={{ width: 420, maxWidth: '100vw', background: '#0e1f38', borderLeft: '1px solid rgba(192,168,112,0.14)', height: '100%', overflowY: 'auto', padding: '32px 28px 48px', display: 'flex', flexDirection: 'column', gap: 0 }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-              <div style={{ fontSize: 9, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.45)', textTransform: 'uppercase' }}>Contact Session</div>
-              <button onClick={() => setSelectedLead(null)} style={{ background: 'none', border: 'none', color: 'rgba(244,237,224,0.4)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}>×</button>
-            </div>
-
-            {/* Avatar + name */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(192,168,112,0.12)', border: '1px solid rgba(192,168,112,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 500, color: '#C0A870', flexShrink: 0 }}>
-                {initials(selectedLead.name)}
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontFamily: "'DM Serif Display', serif", color: '#f4ede0', marginBottom: 4 }}>{selectedLead.name}</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 2, background: selectedLead.source === 'instagram' ? 'rgba(228,64,95,0.12)' : selectedLead.source === 'inspection' ? 'rgba(192,168,112,0.1)' : 'rgba(255,255,255,0.06)', color: selectedLead.source === 'instagram' ? '#E4405F' : selectedLead.source === 'inspection' ? '#C0A870' : 'rgba(244,237,224,0.5)', border: '1px solid', borderColor: selectedLead.source === 'instagram' ? 'rgba(228,64,95,0.25)' : selectedLead.source === 'inspection' ? 'rgba(192,168,112,0.2)' : 'rgba(255,255,255,0.08)' }}>
-                    {selectedLead.source === 'instagram' ? '📸 Instagram' : selectedLead.source === 'inspection' ? '🏠 Inspection' : '🌐 Website'}
-                  </span>
-                  <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 2, background: 'rgba(255,255,255,0.04)', color: 'rgba(244,237,224,0.4)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                    {columns.find(c => c.key === selectedLead.status)?.label || selectedLead.status}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact info */}
-            <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 12 }}>Contact Details</div>
-              {selectedLead.phone && (
-                <a href={`tel:${selectedLead.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, textDecoration: 'none' }}>
-                  <span style={{ fontSize: 14 }}>📞</span>
-                  <span style={{ fontSize: 13, color: '#f4ede0' }}>{selectedLead.phone}</span>
-                </a>
-              )}
-              {selectedLead.email && (
-                <a href={`mailto:${selectedLead.email}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, textDecoration: 'none' }}>
-                  <span style={{ fontSize: 14 }}>✉️</span>
-                  <span style={{ fontSize: 13, color: '#f4ede0' }}>{selectedLead.email}</span>
-                </a>
-              )}
-              {selectedLead.phone && (
-                <a
-                  href={`https://wa.me/${selectedLead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${selectedLead.name}, this is RokHaven Realty reaching out regarding your enquiry.`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 4, padding: '7px 14px', background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: 2, fontSize: 11, color: '#25D366', textDecoration: 'none', letterSpacing: '0.06em' }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893C23.943 5.337 18.608.001 12.05 0z"/></svg>
-                  Message on WhatsApp
-                </a>
-              )}
-            </div>
-
-            {/* What they want */}
-            <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 12 }}>What They Want</div>
-              <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Property</div>
-                <div style={{ fontSize: 13, color: '#f4ede0' }}>{selectedLead.property}</div>
-              </div>
-              {selectedLead.intent && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Intent</div>
-                  <div style={{ fontSize: 13, color: '#f4ede0' }}>{selectedLead.intent}</div>
-                </div>
-              )}
-              {selectedLead.budget && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Budget</div>
-                  <div style={{ fontSize: 13, color: '#C0A870', fontWeight: 500 }}>{selectedLead.budget}</div>
-                </div>
-              )}
-              {selectedLead.time && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Preferred Time</div>
-                  <div style={{ fontSize: 13, color: '#f4ede0' }}>{selectedLead.date} at {selectedLead.time}</div>
-                </div>
-              )}
-              {selectedLead.referenceNo && (
-                <div>
-                  <div style={{ fontSize: 9, color: 'rgba(192,168,112,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>Reference</div>
-                  <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.5)', fontFamily: 'monospace' }}>{selectedLead.referenceNo}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Notes */}
-            {selectedLead.notes && (
-              <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
-                <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 8 }}>Notes</div>
-                <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.65)', lineHeight: 1.75 }}>{selectedLead.notes}</div>
-              </div>
-            )}
-
-            {/* Move stage */}
-            <div style={{ marginTop: 'auto', paddingTop: 24 }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 10 }}>Move Stage</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {columns.map(c => (
-                  <button
-                    key={c.key}
-                    onClick={() => { moveLead(selectedLead.name, c.key); setSelectedLead(prev => prev ? { ...prev, status: c.key } : null); }}
-                    style={{
-                      padding: '9px 14px', borderRadius: 2, fontSize: 11, cursor: 'pointer', textAlign: 'left',
-                      border: '1px solid',
-                      borderColor: selectedLead.status === c.key ? (c.color || 'rgba(192,168,112,0.5)') : 'rgba(192,168,112,0.1)',
-                      background: selectedLead.status === c.key ? 'rgba(192,168,112,0.1)' : 'transparent',
-                      color: selectedLead.status === c.key ? (c.color || '#C0A870') : 'rgba(244,237,224,0.4)',
-                      fontWeight: selectedLead.status === c.key ? 500 : 400,
-                    }}
-                  >
-                    {selectedLead.status === c.key ? '● ' : '○ '}{c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -2413,6 +2412,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [inspections, setInspections] = useState<AdminInspection[]>([]);
   const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const userName = session?.user?.name || 'Admin';
   const userInitials = userName.split(' ').map((p: string) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -2576,11 +2576,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {section === 'dashboard' && <DashboardSection onNav={navigateTo} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
-          {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
+          {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} onSelectLead={setSelectedLead} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
           {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
       </div>
+
+      {/* ── CONTACT SESSION PANEL — rendered at top level, always on top ── */}
+      {selectedLead && (
+        <ContactPanel
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onMove={(status) => setSelectedLead(prev => prev ? { ...prev, status } : null)}
+        />
+      )}
     </div>
   );
 }
