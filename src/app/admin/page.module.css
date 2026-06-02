@@ -1191,6 +1191,34 @@
   overflow-x: auto;
 }
 
+.pipeScroll {
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+.pipeScroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.pipeScroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+}
+
+.pipeScroll::-webkit-scrollbar-thumb {
+  background: rgba(192, 168, 112, 0.3);
+  border-radius: 3px;
+}
+
+.pipeScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(192, 168, 112, 0.55);
+}
+
+.pipeBoard {
+  display: flex;
+  gap: 14px;
+}
+
 .pipeCol {
   background: rgba(11, 27, 53, 0.45);
   border: 1px solid rgba(192, 168, 112, 0.07);

@@ -1486,13 +1486,13 @@ function LeadsSection({ enquiries, inspections, onRefresh, onSelectLead }: { enq
         ))}
       </div>
 
-      {/* Pipeline board — flex layout so horizontal scroll is always reliable */}
-      <div style={{ overflowX: 'auto', paddingBottom: 12, marginRight: -36, paddingRight: 36 }}>
-        <div style={{ display: 'flex', gap: 14 }}>
+      {/* Pipeline board — horizontally scrollable */}
+      <div className={styles.pipeScroll}>
+        <div className={styles.pipeBoard}>
           {columns.map(col => {
             const colLeads = filteredLeads.filter(l => l.status === col.key);
             return (
-              <div key={col.key} className={styles.pipeCol} style={{ width: 210, flexShrink: 0, ...(col.key === 'Failed' ? { borderColor: 'rgba(224,112,112,0.15)' } : col.key === 'InspectionDone' || col.key === 'Closed' ? { borderColor: 'rgba(93,200,130,0.15)' } : {}) }}>
+              <div key={col.key} className={styles.pipeCol} style={{ width: 190, flexShrink: 0, ...(col.key === 'Failed' ? { borderColor: 'rgba(224,112,112,0.15)' } : col.key === 'InspectionDone' || col.key === 'Closed' ? { borderColor: 'rgba(93,200,130,0.15)' } : {}) }}>
                 <div className={styles.pipeHead} style={col.color ? { color: col.color } : {}}>
                   {col.label}
                   <span className={styles.pipeCount}>{colLeads.length}</span>
