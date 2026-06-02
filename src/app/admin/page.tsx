@@ -53,6 +53,7 @@ interface AdminEnquiry {
   budget: string | null;
   intent: string | null;
   howHeard: string | null;
+  notes: string | null;
 }
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
@@ -1204,7 +1205,20 @@ const LEAD_COLUMNS: { key: LeadStatus; label: string; color?: string }[] = [
   { key: 'Failed', label: 'Failed', color: 'rgba(224,112,112,0.7)' },
 ];
 
-function ContactPanel({ lead, onClose, onMove }: { lead: Lead; onClose: () => void; onMove: (status: LeadStatus) => void }) {
+function ContactPanel({ lead, onClose, onMove, onUpdateNotes }: { lead: Lead; onClose: () => void; onMove: (status: LeadStatus) => void; onUpdateNotes: (notes: string) => void }) {
+  const [feedback, setFeedback] = useState(lead.notes || '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const saveFeedback = async () => {
+    setSaving(true);
+    const url = lead.sourceType === 'enquiry' ? `/api/enquiries/${lead.id}` : `/api/inspections/${lead.id}`;
+    await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: feedback }) });
+    setSaving(false);
+    setSaved(true);
+    onUpdateNotes(feedback);
+    setTimeout(() => setSaved(false), 2000);
+  };
   return (
     <div
       style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(6,15,28,0.72)', display: 'flex', justifyContent: 'flex-end' }}
@@ -1294,12 +1308,27 @@ function ContactPanel({ lead, onClose, onMove }: { lead: Lead; onClose: () => vo
           )}
         </div>
 
-        {lead.notes && (
-          <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
-            <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 8 }}>Notes</div>
-            <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.65)', lineHeight: 1.75 }}>{lead.notes}</div>
+        {/* Feedback — always editable */}
+        <div style={{ background: 'rgba(11,27,53,0.5)', border: '1px solid rgba(192,168,112,0.08)', borderRadius: 3, padding: '16px 18px', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase' }}>Feedback / Notes</div>
+            {saved && <span style={{ fontSize: 10, color: '#5DC882' }}>Saved ✓</span>}
           </div>
-        )}
+          <textarea
+            value={feedback}
+            onChange={e => setFeedback(e.target.value)}
+            placeholder="Add feedback, observations, or follow-up notes…"
+            rows={4}
+            style={{ width: '100%', background: 'rgba(6,15,28,0.5)', border: '1px solid rgba(192,168,112,0.12)', borderRadius: 2, color: '#f4ede0', fontSize: 13, padding: '10px 12px', resize: 'vertical', outline: 'none', lineHeight: 1.75, boxSizing: 'border-box', fontFamily: 'DM Sans, sans-serif' }}
+          />
+          <button
+            onClick={saveFeedback}
+            disabled={saving}
+            style={{ marginTop: 10, padding: '8px 18px', background: saving ? 'rgba(192,168,112,0.2)' : 'rgba(192,168,112,0.15)', border: '1px solid rgba(192,168,112,0.3)', borderRadius: 2, color: '#C0A870', fontSize: 11, cursor: saving ? 'default' : 'pointer', letterSpacing: '0.1em' }}
+          >
+            {saving ? 'Saving…' : 'Save Feedback'}
+          </button>
+        </div>
 
         <div style={{ marginTop: 'auto', paddingTop: 24 }}>
           <div style={{ fontSize: 8, letterSpacing: '0.3em', color: 'rgba(192,168,112,0.4)', textTransform: 'uppercase', marginBottom: 10 }}>Move Stage</div>
@@ -2718,6 +2747,15 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           onMove={(status) => {
             if (selectedLead) persistLeadStatus(selectedLead, status).catch(() => {});
             setSelectedLead(prev => prev ? { ...prev, status } : null);
+          }}
+          onUpdateNotes={(notes) => {
+            // Update the source data so Contacts + Pipeline both reflect the new notes
+            if (selectedLead.sourceType === 'enquiry') {
+              setEnquiries(prev => prev.map(e => e.id === selectedLead.id ? { ...e, notes } : e));
+            } else {
+              setInspections(prev => prev.map(i => i.id === selectedLead.id ? { ...i, notes } : i));
+            }
+            setSelectedLead(prev => prev ? { ...prev, notes } : null);
           }}
         />
       )}
