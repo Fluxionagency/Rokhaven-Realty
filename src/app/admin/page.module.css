@@ -1186,8 +1186,9 @@
 /* LEADS KANBAN */
 .leadsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, minmax(200px, 1fr));
   gap: 14px;
+  overflow-x: auto;
 }
 
 .pipeCol {
