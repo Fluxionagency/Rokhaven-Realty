@@ -74,6 +74,7 @@ export default function Nav({ backHref, backLabel }: NavProps) {
           <Link href="/listings" className={pathname === '/listings' ? 'active' : ''}>Sales</Link>
           <Link href="/listings?cat=rent">Rent</Link>
           <Link href="/listings?cat=shortlet">Shortlets</Link>
+          <Link href="/journal" className={pathname === '/journal' ? 'active' : ''}>Journal</Link>
           <Link href="/contact" className={pathname === '/contact' ? 'active' : ''}>Contact</Link>
           <Link href="/list-your-property" className={`nav-list${pathname === '/list-your-property' ? ' active' : ''}`}>List a Property</Link>
         </div>
@@ -134,6 +135,18 @@ export default function Nav({ backHref, backLabel }: NavProps) {
         </div>
       </div>
 
+      {/* Haven Floating Chat Bubble */}
+      {pathname !== '/haven' && (
+        <Link href="/haven" title="Chat with Haven" style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 400, width: 52, height: 52, borderRadius: '50%', background: '#C0A870', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 24px rgba(0,0,0,.4)', transition: 'transform .2s, box-shadow .2s' }}
+          onMouseOver={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.transform = 'scale(1.08)'; el.style.boxShadow = '0 8px 32px rgba(0,0,0,.5)'; }}
+          onMouseOut={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.transform = 'none'; el.style.boxShadow = '0 4px 24px rgba(0,0,0,.4)'; }}
+        >
+          <svg width="24" height="24" viewBox="0 0 60 60" fill="#060F1C">
+            <path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/>
+          </svg>
+        </Link>
+      )}
+
       {/* Mobile Drawer */}
       <div id="mobDrawer" className={drawerOpen ? 'open' : ''}>
         <div onClick={() => setDrawerOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(6,15,28,.5)' }}></div>
@@ -151,6 +164,7 @@ export default function Nav({ backHref, backLabel }: NavProps) {
           <Link href="/listings" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Sales</Link>
           <Link href="/listings?cat=rent" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Rent</Link>
           <Link href="/listings?cat=shortlet" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Shortlets</Link>
+          <Link href="/journal" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Journal</Link>
           <Link href="/contact" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Contact</Link>
           <Link href="/list-your-property" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#C0A870', padding: '14px 0' }}>List a Property</Link>
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 24, borderTop: '1px solid rgba(192,168,112,.1)' }}>
