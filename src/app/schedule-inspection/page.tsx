@@ -261,10 +261,13 @@ function ScheduleInspectionContent() {
                           onChange={e => setInspTime(e.target.value)}
                         >
                           <option value="">Any time</option>
-                          <option>Morning (9am – 12pm)</option>
-                          <option>Midday (12pm – 2pm)</option>
-                          <option>Afternoon (2pm – 5pm)</option>
-                          <option>Evening (5pm – 7pm)</option>
+                          {Array.from({ length: 19 }, (_, i) => {
+                            const totalMins = 9 * 60 + i * 30;
+                            const h = Math.floor(totalMins / 60);
+                            const m = totalMins % 60;
+                            const label = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                            return <option key={label} value={label}>{label}</option>;
+                          })}
                         </select>
                       </div>
                     </div>
