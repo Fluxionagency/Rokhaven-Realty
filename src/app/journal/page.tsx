@@ -8,118 +8,161 @@ import styles from './page.module.css';
 
 const MARK_PATH = 'M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z';
 
-const ARTICLES = [
+const CAT_LABELS: Record<string, string> = {
+  market: 'MARKET INSIGHTS',
+  living: 'LUXURY LIVING',
+  neighbourhood: 'NEIGHBOURHOODS',
+  investment: 'INVESTMENT',
+  news: 'NEWS',
+};
+
+const GRAD_CLASSES = [
+  styles.grad1, styles.grad2, styles.grad3,
+  styles.grad4, styles.grad5, styles.grad6,
+];
+
+const STATIC_ARTICLES = [
   {
-    id: 1,
+    _id: '1',
     slug: 'waterfront-living-lagos',
-    cat: 'market',
-    catLabel: 'MARKET INSIGHTS',
+    category: 'market',
     title: 'The Rise of Waterfront Living in Lagos: Why Ikoyi & Victoria Island Command Premium Prices',
     excerpt: "Nigeria's coastal luxury market has undergone a profound transformation over the past decade. We examine the forces reshaping premium waterfront real estate in Lagos — and what it means for buyers and investors alike.",
-    date: '28 May 2026',
+    publishedAt: '2026-05-28T00:00:00Z',
     readTime: '8 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad1,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: true,
+    tags: ['Lagos', 'Ikoyi', 'Victoria Island', 'Waterfront', 'Investment'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 2,
+    _id: '2',
     slug: 'investment-outlook-2026',
-    cat: 'investment',
-    catLabel: 'INVESTMENT',
+    category: 'investment',
     title: '2026 Outlook: Where Smart Money Is Moving in Nigerian Real Estate',
-    excerpt: 'A detailed analysis of emerging investment corridors, yield expectations, and the macro trends shaping portfolio decisions for Nigeria\'s high-net-worth investors.',
-    date: '22 May 2026',
+    excerpt: "A detailed analysis of emerging investment corridors, yield expectations, and the macro trends shaping portfolio decisions for Nigeria's high-net-worth investors.",
+    publishedAt: '2026-05-22T00:00:00Z',
     readTime: '6 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad2,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Investment', 'Nigeria', 'Portfolio'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 3,
+    _id: '3',
     slug: 'banana-island-guide',
-    cat: 'neighbourhood',
-    catLabel: 'NEIGHBOURHOODS',
+    category: 'neighbourhood',
     title: "Banana Island: Understanding Africa's Most Coveted Address",
     excerpt: "A guided tour of Nigeria's most exclusive residential enclave — its history, architecture, residents, and why a property here remains the ultimate status acquisition.",
-    date: '15 May 2026',
+    publishedAt: '2026-05-15T00:00:00Z',
     readTime: '7 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad3,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Banana Island', 'Neighbourhoods', 'Lagos'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 4,
+    _id: '4',
     slug: 'shortlet-economy',
-    cat: 'living',
-    catLabel: 'LUXURY LIVING',
+    category: 'living',
     title: 'The New Shortlet Economy: How Furnished Residences Are Reshaping Nigerian Hospitality',
     excerpt: 'Premium furnished apartments are redefining short-stay culture in Lagos and Abuja. We explore the rise of the luxury shortlet and its implications for buyers and investors.',
-    date: '10 May 2026',
+    publishedAt: '2026-05-10T00:00:00Z',
     readTime: '5 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad4,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Shortlet', 'Lagos', 'Abuja'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 5,
+    _id: '5',
     slug: 'maitama-abuja',
-    cat: 'neighbourhood',
-    catLabel: 'NEIGHBOURHOODS',
+    category: 'neighbourhood',
     title: 'Maitama, Abuja: Where Prestige, Privacy and Premium Returns Converge',
     excerpt: "The Federal Capital Territory's premier residential district has quietly become one of Nigeria's strongest property markets. A deep dive into what makes Maitama compelling.",
-    date: '3 May 2026',
+    publishedAt: '2026-05-03T00:00:00Z',
     readTime: '6 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad5,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Maitama', 'Abuja', 'Investment'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 6,
+    _id: '6',
     slug: 'naira-valuations',
-    cat: 'market',
-    catLabel: 'MARKET INSIGHTS',
+    category: 'market',
     title: 'Understanding Naira-Denominated Property Valuations in a Post-Float Era',
     excerpt: "The naira's liberalisation has created both complexity and opportunity in Nigeria's luxury property market. Here is what buyers, sellers, and investors need to understand.",
-    date: '26 Apr 2026',
+    publishedAt: '2026-04-26T00:00:00Z',
     readTime: '9 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad6,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Naira', 'Valuations', 'Market Insights'],
+    coverImageUrl: null,
+    body: null,
   },
   {
-    id: 7,
+    _id: '7',
     slug: 'private-estates',
-    cat: 'living',
-    catLabel: 'LUXURY LIVING',
+    category: 'living',
     title: "Inside Nigeria's Most Exclusive Private Estates: Architecture, Community and Legacy",
     excerpt: 'A curated look at the gated communities that define ultra-premium residential living in Nigeria — the amenities, the architecture, and the communities they have cultivated.',
-    date: '18 Apr 2026',
+    publishedAt: '2026-04-18T00:00:00Z',
     readTime: '7 min',
     author: 'Amara Obi',
     authorRole: 'Senior Property Advisor',
-    authorInitial: 'A',
-    gradClass: styles.grad1,
+    authorBio: '12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.',
     featured: false,
+    tags: ['Private Estates', 'Lagos', 'Architecture'],
+    coverImageUrl: null,
+    body: null,
   },
 ];
 
+type Article = typeof STATIC_ARTICLES[0];
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function authorInitial(name: string) {
+  return name.charAt(0).toUpperCase();
+}
+
 export default function JournalPage() {
   const [activeFilter, setActiveFilter] = useState('all');
-  const [openArticle, setOpenArticle] = useState<typeof ARTICLES[0] | null>(null);
+  const [openArticle, setOpenArticle] = useState<Article | null>(null);
   const [progress, setProgress] = useState(0);
+  const [articles, setArticles] = useState<Article[]>(STATIC_ARTICLES);
+
+  useEffect(() => {
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+    if (!projectId) return;
+    import('@/sanity/client').then(({ client }) =>
+      import('@/sanity/queries').then(({ allPostsQuery }) =>
+        client.fetch(allPostsQuery).then((data: Article[]) => {
+          if (data && data.length > 0) setArticles(data);
+        }).catch(() => {})
+      )
+    );
+  }, []);
 
   useEffect(() => {
     if (!openArticle) return;
@@ -134,7 +177,7 @@ export default function JournalPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [openArticle]);
 
-  function openArt(article: typeof ARTICLES[0]) {
+  function openArt(article: Article) {
     setOpenArticle(article);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -145,16 +188,21 @@ export default function JournalPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const featured = ARTICLES.find(a => a.featured)!;
-  const gridArticles = ARTICLES.filter(a => !a.featured);
+  const featured = articles.find(a => a.featured) ?? articles[0];
+  const gridArticles = articles.filter(a => !a.featured);
 
-  const showFeatured =
-    activeFilter === 'all' || activeFilter === 'market';
+  const showFeatured = activeFilter === 'all' || activeFilter === featured?.category;
   const visibleGrid = gridArticles.filter(
-    a => activeFilter === 'all' || a.cat === activeFilter
+    a => activeFilter === 'all' || a.category === activeFilter
   );
 
+  function gradFor(article: Article) {
+    const idx = articles.findIndex(a => a._id === article._id);
+    return GRAD_CLASSES[idx % GRAD_CLASSES.length];
+  }
+
   if (openArticle) {
+    const relPosts = articles.filter(a => a._id !== openArticle._id).slice(0, 3);
     return (
       <>
         <Nav />
@@ -166,73 +214,78 @@ export default function JournalPage() {
             <div className={styles.artBc}>
               <button onClick={backToIndex}>← Back to Journal</button>
             </div>
-            <div className={styles.artCat}>{openArticle.catLabel}</div>
+            <div className={styles.artCat}>{CAT_LABELS[openArticle.category] ?? openArticle.category.toUpperCase()}</div>
             <h1>{openArticle.title}</h1>
             <p className={styles.artDeck}>{openArticle.excerpt}</p>
             <div className={styles.artByline}>
-              <div className={styles.artAv}>{openArticle.authorInitial}</div>
+              <div className={styles.artAv}>{authorInitial(openArticle.author)}</div>
               <div>
                 <div className={styles.artAuthor}>{openArticle.author} &nbsp;·&nbsp; {openArticle.authorRole}</div>
-                <div className={styles.artDate}>{openArticle.date} &nbsp;·&nbsp; {openArticle.readTime} read</div>
+                <div className={styles.artDate}>{formatDate(openArticle.publishedAt)} &nbsp;·&nbsp; {openArticle.readTime} read</div>
               </div>
             </div>
           </header>
 
-          <div className={`${styles.artHero} ${openArticle.gradClass}`}>
-            <svg width="400" height="400" viewBox="0 0 60 60" fill="#C0A870">
-              <path d={MARK_PATH} />
-            </svg>
-          </div>
+          {openArticle.coverImageUrl ? (
+            <div className={styles.artHero} style={{ backgroundImage: `url(${openArticle.coverImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          ) : (
+            <div className={`${styles.artHero} ${gradFor(openArticle)}`}>
+              <svg width="400" height="400" viewBox="0 0 60 60" fill="#C0A870">
+                <path d={MARK_PATH} />
+              </svg>
+            </div>
+          )}
 
           <div className={styles.artLayout}>
             <div className={styles.artBody}>
-              <p className={styles.lead}>
-                Lagos&apos;s relationship with its waterfront is, at its heart, a story about aspiration. For generations, proximity to the Atlantic — to the lagoons, the creeks, the shimmering expanse of Victoria Island&apos;s southern edge — has signalled arrival.
-              </p>
-              <p>Over the past decade, that relationship has deepened into something more structural. Waterfront properties in Lagos&apos;s premium corridors have not merely appreciated; they have redefined what luxury residential living means in sub-Saharan Africa&apos;s largest city.</p>
-              <p>The numbers are instructive. Between 2016 and 2026, prime waterfront properties in Ikoyi have delivered compound annual returns of between 14 and 22 per cent in Naira terms — significantly outpacing broader Lagos real estate indices and, in USD-adjusted terms, offering competitive returns even against global benchmarks.</p>
-              <h2>The Ikoyi Premium: Old Money, New Architecture</h2>
-              <p>Ikoyi has occupied a singular position in Lagos&apos;s social and architectural imagination since the colonial era. Originally the preserve of British administrators, its leafy avenues and generous plot sizes established a standard of residential amenity that the rest of Lagos has spent decades attempting to replicate without quite succeeding.</p>
-              <p>What distinguishes contemporary Ikoyi from its historical antecedents is the quality of the built environment. The past eight years have seen a wave of architectural ambition — tower residences with full-floor apartments, low-rise compound developments with bespoke finishes, and standalone villas designed by internationally trained architects who understand both global standards and local conditions.</p>
-              <div className={styles.pullQuote}>
-                <p>&ldquo;Waterfront properties in Ikoyi have consistently outperformed the broader Lagos market by 18–28% over the past decade. The premium is structural, not cyclical.&rdquo;</p>
-                <cite>— RokHaven Market Intelligence Report, Q1 2026</cite>
-              </div>
-              <p>The supply constraint is real and deliberate. New waterfront plots in Ikoyi are extraordinarily scarce. What comes to market typically does so through off-market introductions — which is precisely why relationships with established brokers are not a luxury but a necessity for serious buyers.</p>
-              <h2>Victoria Island: The Commercial Heart with a Residential Soul</h2>
-              <p>Victoria Island presents a different proposition. Where Ikoyi is residential in character — quiet, verdant, discreet — VI exists at the intersection of commerce and lifestyle. Its southern edge, however, tells a different story: a stretch of increasingly sophisticated residential developments oriented towards the Atlantic, with amenity profiles that rival comparable product in Dubai or Cape Town.</p>
-              <p>The appeal for buyers is the density of service: restaurants, private clubs, medical facilities, financial institutions, and international schools are all within minutes. For the HNWI who conducts business from Lagos but travels frequently, this concentration of infrastructure has a value that transcends simple property metrics.</p>
-              <h3>What Drives the Waterfront Premium?</h3>
-              <p>Several factors underpin the consistent outperformance of waterfront assets in these markets. First, scarcity: the Lagos waterfront is finite, and no amount of political will or capital can manufacture more of it. Second, amenity: properties with water views or direct water access offer an irreplaceable lifestyle differentiator in a city where space is contested. Third, prestige: in Nigeria&apos;s gift-giving and status-signalling culture, a waterfront address carries social meaning that inland properties, however luxurious, cannot replicate.</p>
-              <p>For those prepared to invest the time, establish the right relationships, and engage with the market with genuine patience and discernment, Lagos&apos;s waterfront presents one of Africa&apos;s most compelling luxury real estate opportunities. The window, however, is not open indefinitely.</p>
-              <div className={styles.artTags}>
-                {['Lagos', 'Ikoyi', 'Victoria Island', 'Waterfront', 'Investment', 'Market Insights'].map(tag => (
-                  <span key={tag} className={styles.tag}>{tag}</span>
-                ))}
-              </div>
+              {openArticle.body ? (
+                <SanityBody body={openArticle.body} />
+              ) : (
+                <>
+                  <p className={styles.lead}>
+                    Lagos&apos;s relationship with its waterfront is, at its heart, a story about aspiration. For generations, proximity to the Atlantic — to the lagoons, the creeks, the shimmering expanse of Victoria Island&apos;s southern edge — has signalled arrival.
+                  </p>
+                  <p>Over the past decade, that relationship has deepened into something more structural. Waterfront properties in Lagos&apos;s premium corridors have not merely appreciated; they have redefined what luxury residential living means in sub-Saharan Africa&apos;s largest city.</p>
+                  <p>The numbers are instructive. Between 2016 and 2026, prime waterfront properties in Ikoyi have delivered compound annual returns of between 14 and 22 per cent in Naira terms — significantly outpacing broader Lagos real estate indices and, in USD-adjusted terms, offering competitive returns even against global benchmarks.</p>
+                  <h2>The Ikoyi Premium: Old Money, New Architecture</h2>
+                  <p>Ikoyi has occupied a singular position in Lagos&apos;s social and architectural imagination since the colonial era. Originally the preserve of British administrators, its leafy avenues and generous plot sizes established a standard of residential amenity that the rest of Lagos has spent decades attempting to replicate without quite succeeding.</p>
+                  <div className={styles.pullQuote}>
+                    <p>&ldquo;Waterfront properties in Ikoyi have consistently outperformed the broader Lagos market by 18–28% over the past decade. The premium is structural, not cyclical.&rdquo;</p>
+                    <cite>— RokHaven Market Intelligence Report, Q1 2026</cite>
+                  </div>
+                  <p>The supply constraint is real and deliberate. New waterfront plots in Ikoyi are extraordinarily scarce. What comes to market typically does so through off-market introductions — which is precisely why relationships with established brokers are not a luxury but a necessity for serious buyers.</p>
+                </>
+              )}
+              {openArticle.tags && openArticle.tags.length > 0 && (
+                <div className={styles.artTags}>
+                  {openArticle.tags.map(tag => (
+                    <span key={tag} className={styles.tag}>{tag}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <aside className={styles.artSidebar}>
               <div className={styles.sidebarCard}>
                 <div className={styles.sidebarLbl}>About the Author</div>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div className={styles.artAv} style={{ flexShrink: 0 }}>A</div>
+                  <div className={styles.artAv} style={{ flexShrink: 0 }}>{authorInitial(openArticle.author)}</div>
                   <div>
-                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 15, color: 'var(--ivory)', marginBottom: 4 }}>Amara Obi</div>
-                    <div style={{ fontSize: 10, color: 'var(--gold)', letterSpacing: '.12em', marginBottom: 10 }}>SENIOR PROPERTY ADVISOR</div>
-                    <div style={{ fontSize: 12, color: 'rgba(244,237,224,.42)', lineHeight: 1.75, fontWeight: 300 }}>12 years advising ultra-high-net-worth clients on luxury acquisitions across Lagos and Abuja.</div>
+                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 15, color: 'var(--ivory)', marginBottom: 4 }}>{openArticle.author}</div>
+                    <div style={{ fontSize: 10, color: 'var(--gold)', letterSpacing: '.12em', marginBottom: 10 }}>{openArticle.authorRole.toUpperCase()}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(244,237,224,.42)', lineHeight: 1.75, fontWeight: 300 }}>{openArticle.authorBio}</div>
                   </div>
                 </div>
               </div>
 
               <div className={styles.sidebarCard}>
                 <div className={styles.sidebarLbl}>Related Articles</div>
-                {[ARTICLES[1], ARTICLES[2], ARTICLES[4]].map(rel => (
-                  <div key={rel.id} className={styles.relPost} onClick={() => openArt(rel)}>
-                    <div className={`${styles.relImg} ${rel.gradClass}`} />
+                {relPosts.map(rel => (
+                  <div key={rel._id} className={styles.relPost} onClick={() => openArt(rel)}>
+                    <div className={`${styles.relImg} ${gradFor(rel)}`} />
                     <div>
                       <h4>{rel.title}</h4>
-                      <div className={styles.relMeta}>{rel.catLabel} · {rel.readTime}</div>
+                      <div className={styles.relMeta}>{CAT_LABELS[rel.category] ?? rel.category.toUpperCase()} · {rel.readTime}</div>
                     </div>
                   </div>
                 ))}
@@ -288,20 +341,26 @@ export default function JournalPage() {
           ))}
         </div>
 
-        {showFeatured && (
+        {showFeatured && featured && (
           <section className={styles.featuredWrap}>
             <div className={styles.featuredLbl}>Featured</div>
             <article className={styles.featuredCard} onClick={() => openArt(featured)}>
-              <div className={`${styles.featImg} ${featured.gradClass}`}>
-                <div className={styles.catBadge}>{featured.catLabel}</div>
-                <svg width="280" height="280" viewBox="0 0 60 60" fill="#C0A870" style={{ opacity: .06, position: 'relative' }}>
-                  <path d={MARK_PATH} />
-                </svg>
-              </div>
+              {featured.coverImageUrl ? (
+                <div className={styles.featImg} style={{ backgroundImage: `url(${featured.coverImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                  <div className={styles.catBadge}>{CAT_LABELS[featured.category]}</div>
+                </div>
+              ) : (
+                <div className={`${styles.featImg} ${gradFor(featured)}`}>
+                  <div className={styles.catBadge}>{CAT_LABELS[featured.category]}</div>
+                  <svg width="280" height="280" viewBox="0 0 60 60" fill="#C0A870" style={{ opacity: .06, position: 'relative' }}>
+                    <path d={MARK_PATH} />
+                  </svg>
+                </div>
+              )}
               <div className={styles.featBody}>
                 <div>
                   <div className={styles.featMeta}>
-                    <span>{featured.date}</span>
+                    <span>{formatDate(featured.publishedAt)}</span>
                     <span>·</span>
                     <span>{featured.readTime} read</span>
                   </div>
@@ -310,7 +369,7 @@ export default function JournalPage() {
                 </div>
                 <div className={styles.featFooter}>
                   <div className={styles.authorRow}>
-                    <div className={styles.authorAv}>{featured.authorInitial}</div>
+                    <div className={styles.authorAv}>{authorInitial(featured.author)}</div>
                     <div>
                       <div className={styles.authorName}>{featured.author}</div>
                       <div className={styles.authorRole}>{featured.authorRole}</div>
@@ -328,23 +387,29 @@ export default function JournalPage() {
           <div className={styles.articleGrid}>
             {visibleGrid.map(article => (
               <article
-                key={article.id}
+                key={article._id}
                 className={styles.acard}
                 onClick={() => openArt(article)}
               >
-                <div className={`${styles.acardImg} ${article.gradClass}`}>
-                  <div className={styles.gradWm}>
-                    <svg width="100" height="100" viewBox="0 0 60 60" fill="#C0A870">
-                      <path d={MARK_PATH} />
-                    </svg>
+                {article.coverImageUrl ? (
+                  <div className={styles.acardImg} style={{ backgroundImage: `url(${article.coverImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    <div className={styles.catBadge}>{CAT_LABELS[article.category]}</div>
                   </div>
-                  <div className={styles.catBadge}>{article.catLabel}</div>
-                </div>
+                ) : (
+                  <div className={`${styles.acardImg} ${gradFor(article)}`}>
+                    <div className={styles.gradWm}>
+                      <svg width="100" height="100" viewBox="0 0 60 60" fill="#C0A870">
+                        <path d={MARK_PATH} />
+                      </svg>
+                    </div>
+                    <div className={styles.catBadge}>{CAT_LABELS[article.category]}</div>
+                  </div>
+                )}
                 <div className={styles.acardBody}>
                   <h3>{article.title}</h3>
                   <p className={styles.acardExcerpt}>{article.excerpt}</p>
                   <div className={styles.acardFooter}>
-                    <span className={styles.acardMeta}>{article.date} · {article.readTime}</span>
+                    <span className={styles.acardMeta}>{formatDate(article.publishedAt)} · {article.readTime}</span>
                     <span className={styles.acardRead}>Read →</span>
                   </div>
                 </div>
@@ -355,5 +420,35 @@ export default function JournalPage() {
       </div>
       <Footer />
     </>
+  );
+}
+
+function SanityBody({ body }: { body: unknown[] }) {
+  return (
+    <div>
+      {body.map((block: unknown, i: number) => {
+        const b = block as { _type: string; _key: string; style?: string; children?: { text: string; marks?: string[] }[]; asset?: { url: string }; alt?: string };
+        if (b._type === 'block') {
+          const text = b.children?.map(c => c.text).join('') ?? '';
+          if (b.style === 'h2') return <h2 key={b._key ?? i}>{text}</h2>;
+          if (b.style === 'h3') return <h3 key={b._key ?? i}>{text}</h3>;
+          if (b.style === 'blockquote') return (
+            <div key={b._key ?? i} className={styles.pullQuote}><p>&ldquo;{text}&rdquo;</p></div>
+          );
+          if (!text.trim()) return null;
+          return <p key={b._key ?? i}>{b.children?.map((c, ci) => {
+            const isBold = c.marks?.includes('strong');
+            const isItalic = c.marks?.includes('em');
+            if (isBold) return <strong key={ci}>{c.text}</strong>;
+            if (isItalic) return <em key={ci}>{c.text}</em>;
+            return c.text;
+          })}</p>;
+        }
+        if (b._type === 'image' && b.asset?.url) {
+          return <img key={b._key ?? i} src={b.asset.url} alt={b.alt ?? ''} style={{ width: '100%', borderRadius: 2, margin: '24px 0' }} />;
+        }
+        return null;
+      })}
+    </div>
   );
 }
