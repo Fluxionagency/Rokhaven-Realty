@@ -44,7 +44,7 @@ function firstImage(images: string): string {
   } catch { return ''; }
 }
 
-function getVideoEmbed(url: string): { type: 'iframe' | 'video'; src: string } | null {
+function getVideoEmbed(url: string): { type: 'iframe' | 'video' | 'instagram'; src: string } | null {
   if (!url) return null;
 
   // YouTube
@@ -58,6 +58,14 @@ function getVideoEmbed(url: string): { type: 'iframe' | 'video'; src: string } |
   // Google Drive — convert to /preview embed
   const gd = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (gd) return { type: 'iframe', src: `https://drive.google.com/file/d/${gd[1]}/preview` };
+
+  // Instagram reel or post
+  const ig = url.match(/instagram\.com\/(reel|p)\/([a-zA-Z0-9_-]+)/);
+  if (ig) return { type: 'instagram', src: `https://www.instagram.com/${ig[1]}/${ig[2]}/embed/` };
+
+  // TikTok
+  const tt = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+  if (tt) return { type: 'iframe', src: `https://www.tiktok.com/embed/v2/${tt[1]}` };
 
   // Direct video file (Supabase storage or any .mp4/.mov/etc)
   if (/\.(mp4|mov|webm|ogg|avi)(\?|$)/i.test(url) || url.includes('supabase')) {
@@ -280,12 +288,13 @@ export default function PropertyDetailPage({ params }: PageProps) {
               <div className={styles.videoSection}>
                 <h2 className={styles.secHeading}>Property Video</h2>
                 <div className={styles.videoWrap}>
-                  {embed.type === 'iframe' ? (
+                  {embed.type === 'iframe' || embed.type === 'instagram' ? (
                     <iframe
                       src={embed.src}
                       allowFullScreen
                       allow="autoplay; encrypted-media; picture-in-picture"
                       frameBorder="0"
+                      style={embed.type === 'instagram' ? { maxWidth: 540, margin: '0 auto', display: 'block', borderRadius: 4 } : undefined}
                     />
                   ) : (
                     <video controls playsInline>

@@ -670,31 +670,48 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                     type="file"
                     accept="video/*"
                     style={{ display: 'none' }}
-                    onChange={e => {
+                    onChange={async e => {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       setFVideoFileName(file.name);
                       setFVideo('');
                       setVideoUploading(true);
                       setVideoUploadProgress(0);
-                      const fd = new FormData();
-                      fd.append('file', file);
-                      fd.append('folder', 'videos');
-                      const xhr = new XMLHttpRequest();
-                      xhr.upload.onprogress = (ev) => {
-                        if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
-                      };
-                      xhr.onload = () => {
+                      try {
+                        // Get a signed URL from Supabase so upload goes directly — bypasses Vercel's 4.5MB limit
+                        const tokenRes = await fetch('/api/upload-token', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ fileName: file.name, contentType: file.type, folder: 'videos' }),
+                        });
+                        if (!tokenRes.ok) throw new Error('Failed to get upload token');
+                        const { signedUrl, publicUrl } = await tokenRes.json();
+
+                        // Upload directly to Supabase with progress tracking
+                        await new Promise<void>((resolve, reject) => {
+                          const xhr = new XMLHttpRequest();
+                          xhr.upload.onprogress = (ev) => {
+                            if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+                          };
+                          xhr.onload = () => {
+                            if (xhr.status >= 200 && xhr.status < 300) resolve();
+                            else reject(new Error(`Upload failed: ${xhr.status}`));
+                          };
+                          xhr.onerror = () => reject(new Error('Network error'));
+                          xhr.open('PUT', signedUrl);
+                          xhr.setRequestHeader('Content-Type', file.type);
+                          xhr.send(file);
+                        });
+
+                        setFVideo(publicUrl);
+                      } catch (err) {
+                        console.error(err);
+                        alert('Video upload failed. Please try again.');
+                      } finally {
                         setVideoUploading(false);
                         setVideoUploadProgress(null);
-                        if (xhr.status === 200) {
-                          try { setFVideo(JSON.parse(xhr.responseText).url); } catch { alert('Video upload failed.'); }
-                        } else { alert('Video upload failed. Please try again.'); }
                         e.target.value = '';
-                      };
-                      xhr.onerror = () => { setVideoUploading(false); setVideoUploadProgress(null); alert('Video upload failed.'); };
-                      xhr.open('POST', '/api/upload');
-                      xhr.send(fd);
+                      }
                     }}
                   />
                   <input
