@@ -9,6 +9,7 @@ export default defineConfig({
   title: 'RokHaven Realty',
   projectId,
   dataset,
+  basePath: '/studio',
   plugins: [structureTool(), visionTool({ defaultApiVersion: apiVersion })],
   schema: { types: schemaTypes },
 });
