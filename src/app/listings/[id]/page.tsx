@@ -67,8 +67,8 @@ function getVideoEmbed(url: string): { type: 'iframe' | 'video' | 'instagram'; s
   const tt = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
   if (tt) return { type: 'iframe', src: `https://www.tiktok.com/embed/v2/${tt[1]}` };
 
-  // Direct video file (Supabase storage or any .mp4/.mov/etc)
-  if (/\.(mp4|mov|webm|ogg|avi)(\?|$)/i.test(url) || url.includes('supabase')) {
+  // Direct video file (Cloudinary, Supabase storage, or any .mp4/.mov/etc)
+  if (/\.(mp4|mov|webm|ogg|avi)(\?|$)/i.test(url) || url.includes('supabase') || url.includes('cloudinary')) {
     return { type: 'video', src: url };
   }
 

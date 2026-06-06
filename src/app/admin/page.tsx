@@ -678,35 +678,44 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                       setVideoUploading(true);
                       setVideoUploadProgress(0);
                       try {
-                        // Get a signed URL from Supabase so upload goes directly — bypasses Vercel's 4.5MB limit
-                        const tokenRes = await fetch('/api/upload-token', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ fileName: file.name, contentType: file.type, folder: 'videos' }),
-                        });
+                        // Get signed upload params from server
+                        const tokenRes = await fetch('/api/cloudinary-token', { method: 'POST' });
                         if (!tokenRes.ok) throw new Error('Failed to get upload token');
-                        const { signedUrl, publicUrl } = await tokenRes.json();
+                        const { signature, timestamp, folder, cloudName, apiKey } = await tokenRes.json();
 
-                        // Upload directly to Supabase with progress tracking
+                        // Upload directly to Cloudinary — no file size limit, progress tracking
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        fd.append('signature', signature);
+                        fd.append('timestamp', String(timestamp));
+                        fd.append('folder', folder);
+                        fd.append('api_key', apiKey);
+                        fd.append('resource_type', 'video');
+
                         await new Promise<void>((resolve, reject) => {
                           const xhr = new XMLHttpRequest();
                           xhr.upload.onprogress = (ev) => {
                             if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
                           };
                           xhr.onload = () => {
-                            if (xhr.status >= 200 && xhr.status < 300) resolve();
-                            else reject(new Error(`Upload failed: ${xhr.status}`));
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                              try {
+                                const data = JSON.parse(xhr.responseText);
+                                setFVideo(data.secure_url);
+                                resolve();
+                              } catch { reject(new Error('Invalid response from Cloudinary')); }
+                            } else {
+                              reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText}`));
+                            }
                           };
                           xhr.onerror = () => reject(new Error('Network error'));
-                          xhr.open('PUT', signedUrl);
-                          xhr.setRequestHeader('Content-Type', file.type);
-                          xhr.send(file);
+                          xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`);
+                          xhr.send(fd);
                         });
-
-                        setFVideo(publicUrl);
                       } catch (err) {
-                        console.error(err);
-                        alert('Video upload failed. Please try again.');
+                        const msg = err instanceof Error ? err.message : String(err);
+                        console.error('Video upload error:', msg);
+                        alert(`Video upload failed: ${msg}`);
                       } finally {
                         setVideoUploading(false);
                         setVideoUploadProgress(null);
