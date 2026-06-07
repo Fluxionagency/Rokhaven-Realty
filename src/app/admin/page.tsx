@@ -688,11 +688,21 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                         setVideoUploading(false);
                         setVideoUploadProgress(null);
                         if (xhr.status === 200) {
-                          try { setFVideo(JSON.parse(xhr.responseText).secure_url); } catch { alert('Video upload failed.'); }
-                        } else { alert(`Video upload failed (${xhr.status}). Please try again.`); }
+                          try { setFVideo(JSON.parse(xhr.responseText).secure_url); } catch { alert('Video upload failed: bad response'); }
+                        } else {
+                          let msg = `Video upload failed (HTTP ${xhr.status}).`;
+                          try { const j = JSON.parse(xhr.responseText); if (j.error?.message) msg += ' ' + j.error.message; } catch { /* ignore */ }
+                          console.error('Cloudinary error:', xhr.status, xhr.responseText);
+                          alert(msg);
+                        }
                         e.target.value = '';
                       };
-                      xhr.onerror = () => { setVideoUploading(false); setVideoUploadProgress(null); alert('Video upload failed.'); };
+                      xhr.onerror = () => {
+                        setVideoUploading(false);
+                        setVideoUploadProgress(null);
+                        console.error('Cloudinary upload network error (CORS or connectivity)');
+                        alert('Video upload network error. Check browser console (F12) for details.');
+                      };
                       xhr.open('POST', 'https://api.cloudinary.com/v1_1/dz4lqehjv/video/upload');
                       xhr.send(fd);
                     }}
