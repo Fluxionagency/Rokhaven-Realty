@@ -670,48 +670,31 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                     type="file"
                     accept="video/*"
                     style={{ display: 'none' }}
-                    onChange={async e => {
+                    onChange={e => {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       setFVideoFileName(file.name);
                       setFVideo('');
                       setVideoUploading(true);
                       setVideoUploadProgress(0);
-                      try {
-                        // Upload via our server route — avoids CORS issues with direct Cloudinary uploads
-                        const fd = new FormData();
-                        fd.append('file', file);
-
-                        await new Promise<void>((resolve, reject) => {
-                          const xhr = new XMLHttpRequest();
-                          xhr.upload.onprogress = (ev) => {
-                            if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
-                          };
-                          xhr.onload = () => {
-                            if (xhr.status >= 200 && xhr.status < 300) {
-                              try {
-                                const data = JSON.parse(xhr.responseText);
-                                setFVideo(data.url);
-                                resolve();
-                              } catch { reject(new Error('Invalid response')); }
-                            } else {
-                              const errText = (() => { try { return JSON.parse(xhr.responseText).error; } catch { return xhr.responseText; } })();
-                              reject(new Error(`Upload failed (${xhr.status}): ${errText}`));
-                            }
-                          };
-                          xhr.onerror = () => reject(new Error('Network error — check your connection'));
-                          xhr.open('POST', '/api/cloudinary-upload');
-                          xhr.send(fd);
-                        });
-                      } catch (err) {
-                        const msg = err instanceof Error ? err.message : String(err);
-                        console.error('Video upload error:', msg);
-                        alert(`Video upload failed: ${msg}`);
-                      } finally {
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      fd.append('upload_preset', 'rokhaven_videos');
+                      const xhr = new XMLHttpRequest();
+                      xhr.upload.onprogress = (ev) => {
+                        if (ev.lengthComputable) setVideoUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+                      };
+                      xhr.onload = () => {
                         setVideoUploading(false);
                         setVideoUploadProgress(null);
+                        if (xhr.status === 200) {
+                          try { setFVideo(JSON.parse(xhr.responseText).secure_url); } catch { alert('Video upload failed.'); }
+                        } else { alert(`Video upload failed (${xhr.status}). Please try again.`); }
                         e.target.value = '';
-                      }
+                      };
+                      xhr.onerror = () => { setVideoUploading(false); setVideoUploadProgress(null); alert('Video upload failed.'); };
+                      xhr.open('POST', 'https://api.cloudinary.com/v1_1/dz4lqehjv/video/upload');
+                      xhr.send(fd);
                     }}
                   />
                   <input
