@@ -678,19 +678,9 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                       setVideoUploading(true);
                       setVideoUploadProgress(0);
                       try {
-                        // Get signed upload params from server
-                        const tokenRes = await fetch('/api/cloudinary-token', { method: 'POST' });
-                        if (!tokenRes.ok) throw new Error('Failed to get upload token');
-                        const { signature, timestamp, folder, cloudName, apiKey } = await tokenRes.json();
-
-                        // Upload directly to Cloudinary — no file size limit, progress tracking
+                        // Upload via our server route — avoids CORS issues with direct Cloudinary uploads
                         const fd = new FormData();
                         fd.append('file', file);
-                        fd.append('signature', signature);
-                        fd.append('timestamp', String(timestamp));
-                        fd.append('folder', folder);
-                        fd.append('api_key', apiKey);
-                        fd.append('resource_type', 'video');
 
                         await new Promise<void>((resolve, reject) => {
                           const xhr = new XMLHttpRequest();
@@ -701,15 +691,16 @@ function ListingsSection({ properties, onRefresh }: { properties: AdminProperty[
                             if (xhr.status >= 200 && xhr.status < 300) {
                               try {
                                 const data = JSON.parse(xhr.responseText);
-                                setFVideo(data.secure_url);
+                                setFVideo(data.url);
                                 resolve();
-                              } catch { reject(new Error('Invalid response from Cloudinary')); }
+                              } catch { reject(new Error('Invalid response')); }
                             } else {
-                              reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText}`));
+                              const errText = (() => { try { return JSON.parse(xhr.responseText).error; } catch { return xhr.responseText; } })();
+                              reject(new Error(`Upload failed (${xhr.status}): ${errText}`));
                             }
                           };
-                          xhr.onerror = () => reject(new Error('Network error'));
-                          xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`);
+                          xhr.onerror = () => reject(new Error('Network error — check your connection'));
+                          xhr.open('POST', '/api/cloudinary-upload');
                           xhr.send(fd);
                         });
                       } catch (err) {
