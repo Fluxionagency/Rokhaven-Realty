@@ -2813,7 +2813,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const VALID_SECTIONS: Section[] = ['dashboard', 'listings', 'bookings', 'leads', 'contacts', 'reminders', 'settings'];
+  const VALID_SECTIONS: Section[] = ['dashboard', 'listings', 'bookings', 'leads', 'contacts', 'reminders', 'downloads', 'settings'];
   const urlSection = searchParams.get('section') as Section | null;
   const [section, setSection] = useState<Section>(
     urlSection && VALID_SECTIONS.includes(urlSection) ? urlSection : 'dashboard'
