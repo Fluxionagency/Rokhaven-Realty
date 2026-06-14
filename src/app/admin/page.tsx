@@ -7,7 +7,7 @@ import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
 
-type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'contacts' | 'reminders' | 'settings';
+type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'contacts' | 'reminders' | 'downloads' | 'settings';
 type BookingTab = 'calendar' | 'link' | 'inspections';
 type SettingsTab = 'integration' | 'team' | 'notifications' | 'account';
 type ListingFilter = 'All' | 'Active' | 'Rented' | 'Sold' | 'Pending';
@@ -2451,6 +2451,200 @@ function AccountTab() {
   );
 }
 
+// ─── DOWNLOADS SECTION ──────────────────────────────────────────────────────
+
+interface AdminDownload {
+  id: string;
+  title: string;
+  description: string | null;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number | null;
+  category: string | null;
+  createdAt: string;
+}
+
+function DownloadsSection() {
+  const lbl: React.CSSProperties = { display: 'block', fontSize: 9, fontWeight: 500, color: 'rgba(192,168,112,0.5)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 6 };
+  const [downloads, setDownloads] = useState<AdminDownload[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [fTitle, setFTitle] = useState('');
+  const [fDesc, setFDesc] = useState('');
+  const [fCat, setFCat] = useState('');
+  const [fFile, setFFile] = useState<File | null>(null);
+  const [fFileUrl, setFFileUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const fetchDownloads = async () => {
+    try {
+      const res = await fetch('/api/downloads');
+      if (res.ok) setDownloads(await res.json());
+    } catch { /* ignore */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchDownloads(); }, []);
+
+  const resetModal = () => {
+    setFTitle(''); setFDesc(''); setFCat(''); setFFile(null); setFFileUrl('');
+    setUploadProgress(null); setUploading(false);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFFile(file);
+    setUploading(true);
+    setUploadProgress(0);
+    const fd = new FormData();
+    fd.append('file', file);
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (ev) => {
+      if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+    };
+    xhr.onload = () => {
+      setUploading(false);
+      if (xhr.status === 200) {
+        try { setFFileUrl(JSON.parse(xhr.responseText).url); } catch { alert('File upload failed.'); }
+      } else { alert('File upload failed.'); }
+    };
+    xhr.onerror = () => { setUploading(false); alert('File upload failed.'); };
+    xhr.open('POST', '/api/upload');
+    xhr.send(fd);
+  };
+
+  const handleSave = async () => {
+    if (!fTitle || !fFileUrl) { alert('Please fill in the title and upload a file.'); return; }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/downloads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: fTitle,
+          description: fDesc || null,
+          fileUrl: fFileUrl,
+          fileName: fFile?.name || fFileUrl.split('/').pop() || 'file',
+          fileSize: fFile?.size || null,
+          category: fCat || null,
+        }),
+      });
+      if (res.ok) {
+        await fetchDownloads();
+        setModalOpen(false);
+        resetModal();
+      } else { alert('Failed to save download.'); }
+    } catch { alert('Failed to save download.'); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this download?')) return;
+    setDeleting(id);
+    await fetch(`/api/downloads/${id}`, { method: 'DELETE' });
+    setDownloads(d => d.filter(x => x.id !== id));
+    setDeleting(null);
+  };
+
+  const fmtSize = (bytes: number | null) => {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  return (
+    <div>
+      <div className={styles.secHdr} style={{ marginBottom: 24 }}>
+        <div className={styles.secTitle}>Downloads</div>
+        <button className={styles.btnAdd} onClick={() => { resetModal(); setModalOpen(true); }}>+ Add Resource</button>
+      </div>
+
+      {loading ? (
+        <div style={{ color: 'rgba(244,237,224,0.3)', fontSize: 13 }}>Loading…</div>
+      ) : downloads.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(244,237,224,0.25)', fontSize: 13 }}>
+          No downloadable resources yet. Click &quot;Add Resource&quot; to upload your first whitepaper or material.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {downloads.map(d => (
+            <div key={d.id} style={{ background: 'var(--card)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 3, background: 'rgba(192,168,112,0.08)', border: '1px solid rgba(192,168,112,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C0A870" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: 'var(--ivory)', fontWeight: 500, marginBottom: 2 }}>{d.title}</div>
+                {d.description && <div style={{ fontSize: 11, color: 'rgba(244,237,224,0.4)', marginBottom: 2 }}>{d.description}</div>}
+                <div style={{ fontSize: 10, color: 'rgba(192,168,112,0.5)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {d.category && <span>{d.category}</span>}
+                  {d.fileSize && <span>{fmtSize(d.fileSize)}</span>}
+                  <span>{new Date(d.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <a href={d.fileUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#C0A870', border: '1px solid rgba(192,168,112,0.25)', borderRadius: 3, padding: '6px 12px', textDecoration: 'none' }}>Preview</a>
+                <button onClick={() => handleDelete(d.id)} disabled={deleting === d.id} style={{ fontSize: 11, color: 'rgba(224,80,80,0.6)', border: '1px solid rgba(224,80,80,0.2)', borderRadius: 3, padding: '6px 12px', background: 'none', cursor: 'pointer' }}>
+                  {deleting === d.id ? '…' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {modalOpen && (
+        <div className={styles.modalOverlay} onClick={() => { setModalOpen(false); resetModal(); }}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ivory)' }}>Add Downloadable Resource</div>
+              <button onClick={() => { setModalOpen(false); resetModal(); }} style={{ background: 'none', border: 'none', color: 'rgba(244,237,224,0.4)', fontSize: 20, cursor: 'pointer', lineHeight: 1 }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={lbl}>Title *</label>
+                <input className={styles.fi} value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder="e.g. Lagos Real Estate Market Report 2025" />
+              </div>
+              <div>
+                <label style={lbl}>Description</label>
+                <textarea className={styles.fi} value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Brief description of this resource…" rows={2} style={{ resize: 'vertical' }} />
+              </div>
+              <div>
+                <label style={lbl}>Category</label>
+                <input className={styles.fi} value={fCat} onChange={e => setFCat(e.target.value)} placeholder="e.g. Whitepaper, Market Report, Investment Guide" />
+              </div>
+              <div>
+                <label style={lbl}>File *</label>
+                {!fFileUrl ? (
+                  <label style={{ display: 'block', border: '1px dashed rgba(192,168,112,0.25)', borderRadius: 3, padding: '20px', textAlign: 'center', cursor: 'pointer', color: 'rgba(244,237,224,0.35)', fontSize: 12 }}>
+                    {uploading ? `Uploading… ${uploadProgress ?? 0}%` : 'Click to select file (PDF, DOC, XLSX…)'}
+                    <input type="file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.zip" style={{ display: 'none' }} onChange={handleFileChange} disabled={uploading} />
+                  </label>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(93,200,130,0.06)', border: '1px solid rgba(93,200,130,0.2)', borderRadius: 3 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5DC882" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+                    <span style={{ fontSize: 12, color: 'rgba(244,237,224,0.65)', flex: 1 }}>{fFile?.name || 'File uploaded'}</span>
+                    <button onClick={() => { setFFile(null); setFFileUrl(''); }} style={{ background: 'none', border: 'none', color: 'rgba(244,237,224,0.3)', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 }}>
+              <button onClick={() => { setModalOpen(false); resetModal(); }} style={{ background: 'none', border: '1px solid rgba(192,168,112,0.2)', borderRadius: 2, padding: '10px 20px', color: 'rgba(244,237,224,0.5)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--fb)' }}>Cancel</button>
+              <button onClick={handleSave} disabled={saving || uploading} style={{ background: '#C0A870', border: 'none', borderRadius: 2, padding: '10px 24px', color: '#060F1C', fontSize: 12, fontWeight: 600, cursor: (saving || uploading) ? 'not-allowed' : 'pointer', opacity: (saving || uploading) ? 0.6 : 1 }}>
+                {saving ? 'Saving…' : 'Save Resource'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── SETTINGS SECTION ───────────────────────────────────────────────────────
 
 function SettingsSection({ defaultTab }: { defaultTab?: SettingsTab }) {
@@ -2492,6 +2686,10 @@ function SettingsSection({ defaultTab }: { defaultTab?: SettingsTab }) {
 
 // ─── NAV CONFIG ─────────────────────────────────────────────────────────────
 
+function IconDownloads() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>;
+}
+
 const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }[] = [
   { key: 'dashboard', label: 'Dashboard', Icon: IconDashboard },
   { key: 'listings', label: 'Listings', Icon: IconListings },
@@ -2499,6 +2697,7 @@ const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }
   { key: 'leads', label: 'Leads Pipeline', Icon: IconLeads },
   { key: 'contacts', label: 'Contacts', Icon: IconContacts },
   { key: 'reminders', label: 'Reminders', Icon: IconReminders },
+  { key: 'downloads', label: 'Downloads', Icon: IconDownloads },
   { key: 'settings', label: 'Settings', Icon: IconSettings },
 ];
 
@@ -2509,6 +2708,7 @@ const SECTION_TITLES: Record<Section, string> = {
   leads: 'Leads Pipeline',
   contacts: 'Contacts',
   reminders: 'Reminders',
+  downloads: 'Downloads',
   settings: 'Settings',
 };
 
@@ -2790,6 +2990,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} onSelectLead={setSelectedLead} />}
           {section === 'contacts' && <ContactsSection enquiries={enquiries} inspections={inspections} onSelectLead={setSelectedLead} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
+          {section === 'downloads' && <DownloadsSection />}
           {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
       </div>

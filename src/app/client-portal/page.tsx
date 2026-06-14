@@ -8,7 +8,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
-type TabId = 'dashboard' | 'inspections' | 'saved' | 'enquiries' | 'profile';
+type TabId = 'dashboard' | 'inspections' | 'saved' | 'enquiries' | 'downloads' | 'profile';
 type InspFilterId = 'all' | 'upcoming' | 'completed' | 'cancelled';
 type ContactPref = 'WhatsApp' | 'SMS' | 'Email';
 
@@ -90,6 +90,8 @@ export default function ClientPortalPage() {
 
   const [inspections, setInspections] = useState<PortalInspection[]>([]);
   const [enquiries, setEnquiries] = useState<PortalEnquiry[]>([]);
+  const [downloads, setDownloads] = useState<{ id: string; title: string; description: string | null; fileUrl: string; fileName: string; fileSize: number | null; category: string | null; createdAt: string }[]>([]);
+  const [downloadsLoaded, setDownloadsLoaded] = useState(false);
 
   const userEmail = session?.user?.email;
 
@@ -140,11 +142,20 @@ export default function ClientPortalPage() {
       .catch(() => {});
   }, [userEmail]);
 
+  useEffect(() => {
+    if (activeTab !== 'downloads' || downloadsLoaded) return;
+    fetch('/api/downloads')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setDownloads(data); setDownloadsLoaded(true); })
+      .catch(() => setDownloadsLoaded(true));
+  }, [activeTab, downloadsLoaded]);
+
   const topLabels: Record<TabId, string> = {
     dashboard: 'Client Dashboard',
     inspections: 'My Inspections',
     saved: 'Saved Properties',
     enquiries: 'My Enquiries',
+    downloads: 'Downloads',
     profile: 'My Profile',
   };
 
@@ -204,6 +215,7 @@ export default function ClientPortalPage() {
               { id: 'inspections', label: 'My Inspections', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
               { id: 'saved', label: 'Saved Properties', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg> },
               { id: 'enquiries', label: 'My Enquiries', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> },
+              { id: 'downloads', label: 'Downloads', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg> },
               { id: 'profile', label: 'My Profile', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
             ] as { id: TabId; label: string; icon: React.ReactNode }[]
           ).map(({ id, label, icon }) => (
@@ -531,6 +543,51 @@ export default function ClientPortalPage() {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* ── DOWNLOADS ── */}
+          {activeTab === 'downloads' && (
+            <div>
+              <div className={styles.pgH}>Downloads</div>
+              <p style={{ fontSize: 13, color: 'rgba(244,237,224,0.45)', marginBottom: 28, lineHeight: 1.6 }}>
+                Access exclusive whitepapers, market reports, and investment guides from RokHaven Realty.
+              </p>
+              {!downloadsLoaded ? (
+                <div style={{ color: 'rgba(244,237,224,0.3)', fontSize: 13 }}>Loading…</div>
+              ) : downloads.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(244,237,224,0.25)', fontSize: 13 }}>
+                  No resources available yet. Check back soon.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {downloads.map(d => (
+                    <div key={d.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(192,168,112,0.1)', borderRadius: 4, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 3, background: 'rgba(192,168,112,0.07)', border: '1px solid rgba(192,168,112,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C0A870" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, color: '#f4ede0', fontWeight: 500, marginBottom: 3 }}>{d.title}</div>
+                        {d.description && <div style={{ fontSize: 12, color: 'rgba(244,237,224,0.4)', marginBottom: 4 }}>{d.description}</div>}
+                        <div style={{ fontSize: 11, color: 'rgba(192,168,112,0.5)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                          {d.category && <span>{d.category}</span>}
+                          {d.fileSize && <span>{d.fileSize < 1048576 ? `${(d.fileSize / 1024).toFixed(0)} KB` : `${(d.fileSize / 1048576).toFixed(1)} MB`}</span>}
+                        </div>
+                      </div>
+                      <a
+                        href={d.fileUrl}
+                        download={d.fileName}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#0e0e0e', background: '#C0A870', border: 'none', borderRadius: 3, padding: '8px 16px', textDecoration: 'none', fontWeight: 600, flexShrink: 0, letterSpacing: '0.04em' }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+                        Download
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
