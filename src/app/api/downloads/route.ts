@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendDownloadNotification } from '@/lib/email';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -23,5 +24,14 @@ export async function POST(request: NextRequest) {
   const download = await prisma.download.create({
     data: { title, description, fileUrl, fileName, fileSize: fileSize || null, category: category || null },
   });
+
+  // Notify all CLIENT users in the background
+  prisma.user.findMany({ where: { role: 'CLIENT' }, select: { email: true } })
+    .then(clients => {
+      const emails = clients.map(c => c.email).filter(Boolean);
+      if (emails.length) return sendDownloadNotification(emails, { title, description, category });
+    })
+    .catch(() => { /* don't fail the request if email fails */ });
+
   return NextResponse.json(download, { status: 201 });
 }
