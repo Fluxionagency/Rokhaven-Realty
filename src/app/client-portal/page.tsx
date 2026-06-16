@@ -579,6 +579,7 @@ export default function ClientPortalPage() {
                         download={d.fileName}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => { fetch(`/api/downloads/${d.id}/track`, { method: 'POST' }).catch(() => {}); }}
                         style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#0e0e0e', background: '#C0A870', border: 'none', borderRadius: 3, padding: '8px 16px', textDecoration: 'none', fontWeight: 600, flexShrink: 0, letterSpacing: '0.04em' }}
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>

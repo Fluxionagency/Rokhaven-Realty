@@ -6,7 +6,7 @@ import styles from './page.module.css';
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────
 
-type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'reminders' | 'downloads' | 'settings';
+type Section = 'dashboard' | 'listings' | 'bookings' | 'leads' | 'reminders' | 'downloads' | 'analytics' | 'settings';
 type BookingTab = 'calendar' | 'link' | 'inspections';
 type SettingsTab = 'integration' | 'team' | 'notifications' | 'account';
 type ListingFilter = 'All' | 'Active' | 'Rented' | 'Sold' | 'Pending';
@@ -2190,6 +2190,232 @@ function AccountTab() {
   );
 }
 
+// ─── ANALYTICS SECTION ──────────────────────────────────────────────────────
+
+interface DownloadEventRow {
+  id: string;
+  downloadId: string;
+  userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
+  createdAt: string;
+  download: { title: string; category: string | null } | null;
+}
+
+interface DownloadLeadRow {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+}
+
+type DateRangeKey = 'today' | '7d' | '30d' | 'month' | 'all';
+
+function AnalyticsSection() {
+  const [events, setEvents] = useState<DownloadEventRow[]>([]);
+  const [leads, setLeads] = useState<DownloadLeadRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<DateRangeKey>('30d');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+
+  const rangeToDates = (r: DateRangeKey): { from?: string; to?: string } => {
+    const now = new Date();
+    if (r === 'today') {
+      const from = new Date(now); from.setHours(0, 0, 0, 0);
+      return { from: from.toISOString() };
+    }
+    if (r === '7d') {
+      const from = new Date(now); from.setDate(from.getDate() - 7);
+      return { from: from.toISOString() };
+    }
+    if (r === '30d') {
+      const from = new Date(now); from.setDate(from.getDate() - 30);
+      return { from: from.toISOString() };
+    }
+    if (r === 'month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1);
+      return { from: from.toISOString() };
+    }
+    return {};
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { from, to } = customFrom || customTo
+      ? { from: customFrom ? new Date(customFrom).toISOString() : undefined, to: customTo ? new Date(customTo).toISOString() : undefined }
+      : rangeToDates(range);
+    const params = new URLSearchParams();
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    try {
+      const res = await fetch(`/api/admin/downloads-analytics?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data.events);
+        setLeads(data.leads);
+      }
+    } catch { /* ignore */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, [range, customFrom, customTo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const totalDownloads = events.length;
+  const uniqueUsers = new Set(events.map(e => e.userEmail || e.userId || 'anonymous')).size;
+  const totalLeads = leads.length;
+
+  const byFile = events.reduce<Record<string, number>>((acc, e) => {
+    const key = e.download?.title || 'Unknown';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  const topFiles = Object.entries(byFile).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxFileCount = topFiles.length ? topFiles[0][1] : 1;
+
+  const fmt = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  return (
+    <div>
+      <div className={styles.secHdr} style={{ marginBottom: 24 }}>
+        <div className={styles.secTitle}>Analytics</div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20, alignItems: 'center' }}>
+        {([
+          { key: 'today', label: 'Today' },
+          { key: '7d', label: 'Last 7 Days' },
+          { key: '30d', label: 'Last 30 Days' },
+          { key: 'month', label: 'This Month' },
+          { key: 'all', label: 'All Time' },
+        ] as { key: DateRangeKey; label: string }[]).map(r => (
+          <button
+            key={r.key}
+            onClick={() => { setRange(r.key); setCustomFrom(''); setCustomTo(''); }}
+            style={{
+              padding: '7px 14px',
+              fontSize: 12,
+              borderRadius: 3,
+              border: '1px solid',
+              cursor: 'pointer',
+              borderColor: range === r.key && !customFrom && !customTo ? 'rgba(192,168,112,0.6)' : 'rgba(192,168,112,0.18)',
+              background: range === r.key && !customFrom && !customTo ? 'rgba(192,168,112,0.12)' : 'transparent',
+              color: range === r.key && !customFrom && !customTo ? '#C0A870' : 'rgba(244,237,224,0.45)',
+            }}
+          >
+            {r.label}
+          </button>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+          <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className={styles.fsel} style={{ padding: '6px 10px', fontSize: 12 }} />
+          <span style={{ color: 'rgba(244,237,224,0.3)', fontSize: 12 }}>to</span>
+          <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className={styles.fsel} style={{ padding: '6px 10px', fontSize: 12 }} />
+        </div>
+      </div>
+
+      <div className={styles.stats}>
+        <div className={styles.sc}>
+          <div className={styles.scNum}>{totalDownloads}</div>
+          <div className={styles.scLbl}>Total Downloads</div>
+        </div>
+        <div className={styles.sc}>
+          <div className={styles.scNum}>{uniqueUsers}</div>
+          <div className={styles.scLbl}>Unique Downloaders</div>
+        </div>
+        <div className={styles.sc}>
+          <div className={styles.scNum}>{totalLeads}</div>
+          <div className={styles.scLbl}>Download Leads Captured</div>
+        </div>
+        <div className={styles.sc}>
+          <div className={styles.scNum}>{topFiles[0]?.[0] ?? '—'}</div>
+          <div className={styles.scLbl}>Most Downloaded</div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ color: 'rgba(244,237,224,0.3)', fontSize: 13 }}>Loading…</div>
+      ) : (
+        <>
+          <div className={styles.secHdr}>
+            <div className={styles.secTitle}>Downloads by File</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
+            {topFiles.length === 0 ? (
+              <div style={{ color: 'rgba(244,237,224,0.25)', fontSize: 13 }}>No downloads in this range.</div>
+            ) : topFiles.map(([title, count]) => (
+              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 200, fontSize: 12.5, color: 'rgba(244,237,224,0.6)', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</div>
+                <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 2, height: 8, overflow: 'hidden' }}>
+                  <div style={{ width: `${(count / maxFileCount) * 100}%`, height: '100%', background: '#C0A870' }} />
+                </div>
+                <div style={{ width: 30, fontSize: 12, color: '#C0A870', textAlign: 'right', flexShrink: 0 }}>{count}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.secHdr}>
+            <div className={styles.secTitle}>Download Activity</div>
+          </div>
+          <div className={styles.tblWrap}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>File</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.length === 0 ? (
+                  <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.25)', padding: '30px 0' }}>No download activity in this range.</td></tr>
+                ) : events.map(e => (
+                  <tr key={e.id}>
+                    <td>{fmt(e.createdAt)}</td>
+                    <td className={styles.strong}>{e.userName || 'Anonymous'}</td>
+                    <td>{e.userEmail || '—'}</td>
+                    <td>{e.download?.title || 'Unknown'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.secHdr}>
+            <div className={styles.secTitle}>Download Lead Signups</div>
+          </div>
+          <div className={styles.tblWrap}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.length === 0 ? (
+                  <tr><td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.25)', padding: '30px 0' }}>No leads captured in this range.</td></tr>
+                ) : leads.map(l => (
+                  <tr key={l.id}>
+                    <td>{fmt(l.createdAt)}</td>
+                    <td className={styles.strong}>{l.firstName} {l.lastName}</td>
+                    <td>{l.email}</td>
+                    <td>{l.phone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── DOWNLOADS SECTION ──────────────────────────────────────────────────────
 
 interface AdminDownload {
@@ -2442,6 +2668,10 @@ function IconDownloads() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>;
 }
 
+function IconAnalytics() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/></svg>;
+}
+
 const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }[] = [
   { key: 'dashboard', label: 'Dashboard', Icon: IconDashboard },
   { key: 'listings', label: 'Listings', Icon: IconListings },
@@ -2449,6 +2679,7 @@ const NAV_ITEMS: { key: Section; label: string; Icon: () => React.ReactElement }
   { key: 'leads', label: 'Leads', Icon: IconLeads },
   { key: 'reminders', label: 'Reminders', Icon: IconReminders },
   { key: 'downloads', label: 'Downloads', Icon: IconDownloads },
+  { key: 'analytics', label: 'Analytics', Icon: IconAnalytics },
   { key: 'settings', label: 'Settings', Icon: IconSettings },
 ];
 
@@ -2459,6 +2690,7 @@ const SECTION_TITLES: Record<Section, string> = {
   leads: 'Leads Pipeline',
   reminders: 'Reminders',
   downloads: 'Downloads',
+  analytics: 'Analytics',
   settings: 'Settings',
 };
 
@@ -2632,6 +2864,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'reminders' && <RemindersSection inspections={inspections} />}
           {section === 'downloads' && <DownloadsSection />}
+          {section === 'analytics' && <AnalyticsSection />}
           {section === 'settings' && <SettingsSection defaultTab={settingsTab} />}
         </div>
       </div>

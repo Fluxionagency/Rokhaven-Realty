@@ -21,10 +21,11 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  inspections  Inspection[]
-  enquiries    Enquiry[]
-  properties   Property[]
-  submissions  PropertySubmission[]
+  inspections    Inspection[]
+  enquiries      Enquiry[]
+  properties     Property[]
+  submissions    PropertySubmission[]
+  downloadEvents DownloadEvent[]
 }
 
 enum Role {
@@ -247,6 +248,19 @@ model Download {
   category    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  events DownloadEvent[]
+}
+
+model DownloadEvent {
+  id         String   @id @default(cuid())
+  downloadId String
+  download   Download @relation(fields: [downloadId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  userName   String?
+  userEmail  String?
+  createdAt  DateTime @default(now())
 }
 
 model DownloadLead {
