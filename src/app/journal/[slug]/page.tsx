@@ -4,6 +4,7 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import styles from '../page.module.css';
 import SanityBody from '../ArticleBody';
+import NewsletterForm from '../NewsletterForm';
 import { MARK_PATH, CAT_LABELS, STATIC_ARTICLES, Article, formatDate, authorInitial } from '../articles';
 
 const GRAD_CLASSES = [
@@ -125,10 +126,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
             <div className={styles.sidebarCard}>
               <div className={styles.sidebarLbl}>Newsletter</div>
-              <form className={styles.nlForm} onSubmit={e => e.preventDefault()}>
-                <input type="email" placeholder="Your email address" required />
-                <button type="submit">Subscribe</button>
-              </form>
+              <NewsletterForm />
             </div>
           </aside>
         </div>
