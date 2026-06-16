@@ -142,36 +142,34 @@ export async function sendDownloadNotification(to: string[], data: {
   title: string; description?: string | null; category?: string | null;
 }) {
   if (!to.length) return;
-  await resend.emails.send({
-    from: FROM,
-    to: to.length === 1 ? to[0] : FROM,
-    bcc: to.length > 1 ? to : undefined,
-    subject: `New Resource Available — ${data.title}`,
-    html: `
-      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
-        <div style="margin-bottom:28px;">
-          <span style="font-size:22px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
-          <span style="font-size:11px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
-        </div>
-        <h1 style="font-size:22px;font-weight:400;margin:0 0 12px;">New Resource Available</h1>
-        <p style="color:rgba(244,237,224,.65);line-height:1.7;margin:0 0 24px;">
-          A new resource has just been added to your RokHaven client portal.
-        </p>
-        <div style="background:rgba(192,168,112,.08);border:1px solid rgba(192,168,112,.2);border-radius:4px;padding:20px 24px;margin-bottom:28px;">
-          ${data.category ? `<div style="font-size:10px;letter-spacing:0.15em;color:rgba(192,168,112,.6);text-transform:uppercase;margin-bottom:8px;">${data.category}</div>` : ''}
-          <div style="font-size:17px;font-weight:500;color:#f4ede0;margin-bottom:8px;">${data.title}</div>
-          ${data.description ? `<div style="font-size:13px;color:rgba(244,237,224,.55);line-height:1.6;">${data.description}</div>` : ''}
-        </div>
-        <a href="https://rokhaven.com/client-portal" style="display:inline-block;background:#C0A870;color:#060F1C;padding:12px 24px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px;">
-          Download Now →
-        </a>
-        <p style="color:rgba(244,237,224,.3);font-size:11px;margin-top:32px;line-height:1.6;">
-          Log in to your client portal and navigate to the <strong style="color:rgba(244,237,224,.5);">Downloads</strong> section to access this resource.<br/>
-          © ${new Date().getFullYear()} RokHaven Realty Ltd. · <a href="https://rokhaven.com/contact" style="color:rgba(192,168,112,.4);">Unsubscribe</a>
-        </p>
+  const from = 'RokHaven Realty <info@rokhaven.com>';
+  const subject = `New Resource Available — ${data.title}`;
+  const html = `
+    <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
+      <div style="margin-bottom:28px;">
+        <span style="font-size:22px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
+        <span style="font-size:11px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
       </div>
-    `,
-  });
+      <h1 style="font-size:22px;font-weight:400;margin:0 0 12px;">New Resource Available</h1>
+      <p style="color:rgba(244,237,224,.65);line-height:1.7;margin:0 0 24px;">
+        A new resource has just been added to your RokHaven client portal.
+      </p>
+      <div style="background:rgba(192,168,112,.08);border:1px solid rgba(192,168,112,.2);border-radius:4px;padding:20px 24px;margin-bottom:28px;">
+        ${data.category ? `<div style="font-size:10px;letter-spacing:0.15em;color:rgba(192,168,112,.6);text-transform:uppercase;margin-bottom:8px;">${data.category}</div>` : ''}
+        <div style="font-size:17px;font-weight:500;color:#f4ede0;margin-bottom:8px;">${data.title}</div>
+        ${data.description ? `<div style="font-size:13px;color:rgba(244,237,224,.55);line-height:1.6;">${data.description}</div>` : ''}
+      </div>
+      <a href="https://rokhaven.com/client-portal" style="display:inline-block;background:#C0A870;color:#060F1C;padding:12px 24px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px;">
+        Download Now →
+      </a>
+      <p style="color:rgba(244,237,224,.3);font-size:11px;margin-top:32px;line-height:1.6;">
+        Log in to your client portal and navigate to the <strong style="color:rgba(244,237,224,.5);">Downloads</strong> section to access this resource.<br/>
+        © ${new Date().getFullYear()} RokHaven Realty Ltd. · <a href="https://rokhaven.com/contact" style="color:rgba(192,168,112,.4);">Contact Us</a>
+      </p>
+    </div>
+  `;
+  // Send individually so each client sees their own email in the To: field
+  await resend.batch.send(to.map(email => ({ from, to: email, subject, html })));
 }
 
 export async function sendPrincipalWelcome(to: string, name: string, password: string) {
