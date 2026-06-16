@@ -2238,21 +2238,34 @@ function DownloadsSection() {
     setFFile(file);
     setUploading(true);
     setUploadProgress(0);
-    const fd = new FormData();
-    fd.append('file', file);
-    const xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = (ev) => {
-      if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
-    };
-    xhr.onload = () => {
+    try {
+      const sigRes = await fetch('/api/cloudinary-sign?folder=rokhaven/downloads');
+      const { signature, api_key, timestamp, cloud_name, folder } = await sigRes.json();
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('api_key', api_key);
+      fd.append('timestamp', String(timestamp));
+      fd.append('signature', signature);
+      fd.append('folder', folder);
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (ev) => {
+        if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+      };
+      xhr.onload = () => {
+        setUploading(false);
+        if (xhr.status === 200) {
+          try { setFFileUrl(JSON.parse(xhr.responseText).secure_url); } catch { alert('File upload failed.'); }
+        } else { alert('File upload failed.'); }
+      };
+      xhr.onerror = () => { setUploading(false); alert('File upload failed.'); };
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloud_name}/raw/upload`);
+      xhr.send(fd);
+    } catch {
       setUploading(false);
-      if (xhr.status === 200) {
-        try { setFFileUrl(JSON.parse(xhr.responseText).url); } catch { alert('File upload failed.'); }
-      } else { alert('File upload failed.'); }
-    };
-    xhr.onerror = () => { setUploading(false); alert('File upload failed.'); };
-    xhr.open('POST', '/api/upload');
-    xhr.send(fd);
+      alert('File upload failed.');
+    }
   };
 
   const handleSave = async () => {
