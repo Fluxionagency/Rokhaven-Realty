@@ -232,3 +232,26 @@ model ImportSyncLog {
   status        String    @default("RUNNING") // RUNNING | COMPLETED | FAILED
   errorMessage  String?
 }
+
+// ─── Downloads ────────────────────────────────────────────────────────────────
+
+model Download {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String
+  fileName    String
+  fileSize    Int?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DownloadLead {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  createdAt DateTime @default(now())
+}
