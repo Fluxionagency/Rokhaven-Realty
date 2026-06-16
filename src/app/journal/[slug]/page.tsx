@@ -58,7 +58,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <h1>{article.title}</h1>
           <p className={styles.artDeck}>{article.excerpt}</p>
           <div className={styles.artByline}>
-            <div className={styles.artAv}>{authorInitial(article.author)}</div>
+            {article.authorImageUrl ? (
+              <div className={styles.artAv} style={{ backgroundImage: `url(${article.authorImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            ) : (
+              <div className={styles.artAv}>{authorInitial(article.author)}</div>
+            )}
             <div>
               <div className={styles.artAuthor}>{article.author}</div>
               <div className={styles.artDate}>{formatDate(article.publishedAt)} · {article.readTime} read</div>
@@ -96,7 +100,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className={styles.sidebarCard}>
               <div className={styles.sidebarLbl}>About the Author</div>
               <div className={styles.artByline} style={{ borderTop: 'none', paddingTop: 0 }}>
-                <div className={styles.artAv}>{authorInitial(article.author)}</div>
+                {article.authorImageUrl ? (
+                  <div className={styles.artAv} style={{ backgroundImage: `url(${article.authorImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                ) : (
+                  <div className={styles.artAv}>{authorInitial(article.author)}</div>
+                )}
                 <div>
                   <div className={styles.artAuthor}>{article.author}</div>
                   <div className={styles.artDate}>{article.authorRole}</div>

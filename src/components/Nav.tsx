@@ -74,6 +74,7 @@ export default function Nav({ backHref, backLabel }: NavProps) {
           <Link href="/listings" className={pathname === '/listings' ? 'active' : ''}>Sales</Link>
           <Link href="/listings?cat=rent">Rent</Link>
           <Link href="/listings?cat=shortlet">Shortlets</Link>
+          <Link href="/journal" className={pathname?.startsWith('/journal') ? 'active' : ''}>Journal</Link>
           <Link href="/contact" className={pathname === '/contact' ? 'active' : ''}>Contact</Link>
           <Link href="/list-your-property" className={`nav-list${pathname === '/list-your-property' ? ' active' : ''}`}>List a Property</Link>
         </div>
@@ -151,6 +152,7 @@ export default function Nav({ backHref, backLabel }: NavProps) {
           <Link href="/listings" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Sales</Link>
           <Link href="/listings?cat=rent" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Rent</Link>
           <Link href="/listings?cat=shortlet" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Shortlets</Link>
+          <Link href="/journal" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Journal</Link>
           <Link href="/contact" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#F4EDE0', padding: '14px 0', borderBottom: '1px solid rgba(192,168,112,.08)' }}>Contact</Link>
           <Link href="/list-your-property" onClick={() => setDrawerOpen(false)} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: '#C0A870', padding: '14px 0' }}>List a Property</Link>
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 24, borderTop: '1px solid rgba(192,168,112,.1)' }}>

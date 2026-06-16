@@ -1,5 +1,22 @@
 import styles from './page.module.css';
 
+const URL_PATTERN = /((?:https?:\/\/)?(?:www\.)?[a-z0-9-]+\.[a-z]{2,}(?:\/[^\s]*)?)/gi;
+
+function linkify(text: string, key: number | string) {
+  const parts = text.split(URL_PATTERN);
+  return parts.map((part, i) => {
+    if (i % 2 === 1 && part) {
+      const href = part.startsWith('http') ? part : `https://${part}`;
+      return (
+        <a key={`${key}-${i}`} href={href} target="_blank" rel="noopener noreferrer" className={styles.tag} style={{ display: 'inline', border: 'none', padding: 0, color: 'var(--gold)', textDecoration: 'underline' }}>
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 export default function SanityBody({ body }: { body: unknown[] }) {
   return (
     <div>
@@ -16,9 +33,10 @@ export default function SanityBody({ body }: { body: unknown[] }) {
           return <p key={b._key ?? i}>{b.children?.map((c, ci) => {
             const isBold = c.marks?.includes('strong');
             const isItalic = c.marks?.includes('em');
-            if (isBold) return <strong key={ci}>{c.text}</strong>;
-            if (isItalic) return <em key={ci}>{c.text}</em>;
-            return c.text;
+            const content = linkify(c.text, ci);
+            if (isBold) return <strong key={ci}>{content}</strong>;
+            if (isItalic) return <em key={ci}>{content}</em>;
+            return <span key={ci}>{content}</span>;
           })}</p>;
         }
         if (b._type === 'image' && b.asset?.url) {

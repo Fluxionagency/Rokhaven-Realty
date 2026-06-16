@@ -123,7 +123,7 @@ export const STATIC_ARTICLES = [
   },
 ];
 
-export type Article = Omit<typeof STATIC_ARTICLES[0], 'body'> & { body?: unknown[] | null };
+export type Article = Omit<typeof STATIC_ARTICLES[0], 'body'> & { body?: unknown[] | null; authorImageUrl?: string | null };
 
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });

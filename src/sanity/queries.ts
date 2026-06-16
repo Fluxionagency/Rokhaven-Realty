@@ -23,6 +23,7 @@ export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
   author,
   authorRole,
   authorBio,
+  "authorImageUrl": authorImage.asset->url,
   readTime,
   publishedAt,
   tags,

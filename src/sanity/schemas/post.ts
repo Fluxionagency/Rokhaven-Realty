@@ -65,6 +65,12 @@ export default defineType({
       initialValue: 'Senior Property Advisor',
     }),
     defineField({
+      name: 'authorImage',
+      title: 'Author Photo',
+      type: 'image',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'authorBio',
       title: 'Author Bio',
       type: 'text',
