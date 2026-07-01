@@ -326,34 +326,19 @@ export default function ClientPortalPage() {
                 );
               })()}
 
-              {/* Recently Viewed */}
+              {/* Explore Listings */}
               <div className={styles.secHdr}>
-                <span className={styles.slbl} style={{ marginBottom: 0 }}>Recently Viewed</span>
+                <span className={styles.slbl} style={{ marginBottom: 0 }}>Explore Listings</span>
                 <Link href="/listings" className={styles.linkGold} style={{ borderBottom: '1px solid rgba(192,168,112,.28)', paddingBottom: '1px' }}>
-                  View All Listings →
+                  View All →
                 </Link>
               </div>
-              <div className={styles.scrollRow}>
-                {[
-                  { name: 'The Grand Arkadia', price: '₦1,200,000,000', img: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=70&auto=format&fit=crop', saved: true },
-                  { name: 'Oceanfront Penthouse', price: '₦780,000,000', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70&auto=format&fit=crop', saved: false },
-                  { name: 'Prestige Court, Ikoyi', price: '₦450,000,000', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70&auto=format&fit=crop', saved: true },
-                  { name: 'The Meridian, Lekki', price: '₦320,000,000', img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70&auto=format&fit=crop', saved: false },
-                ].map((p, i) => (
-                  <div key={i} className={styles.miniCard}>
-                    <div className={styles.miniImg}>
-                      <img src={p.img} alt={p.name} />
-                      <button className={styles.bmBtn} aria-label={p.saved ? 'Remove bookmark' : 'Add bookmark'}>
-                        🔖
-                      </button>
-                    </div>
-                    <div className={styles.miniBody}>
-                      <div className={styles.miniName}>{p.name}</div>
-                      <div className={styles.miniPrice}>{p.price}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Link href="/listings" style={{ textDecoration: 'none', display: 'block', background: 'rgba(192,168,112,0.05)', border: '1px solid rgba(192,168,112,0.12)', borderRadius: 6, padding: '20px', marginBottom: 8 }}>
+                <div style={{ fontSize: 13, color: 'rgba(244,237,224,0.5)', lineHeight: 1.7 }}>
+                  Browse our curated collection of luxury properties across Lagos, Abuja and beyond — sales, rentals and shortlets.
+                </div>
+                <div style={{ marginTop: 12, fontSize: 11, fontWeight: 600, color: '#C0A870', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Browse Properties →</div>
+              </Link>
 
               {/* Quick Actions */}
               <span className={styles.slbl}>Quick Actions</span>
@@ -742,6 +727,7 @@ export default function ClientPortalPage() {
           [
             { id: 'dashboard', label: 'Home', icon: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
             { id: 'inspections', label: 'Inspections', icon: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+            { id: 'downloads', label: 'Downloads', icon: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M12 2v10m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg> },
             { id: 'saved', label: 'Saved', icon: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg> },
             { id: 'profile', label: 'Profile', icon: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
           ] as { id: TabId; label: string; icon: React.ReactNode }[]

@@ -1475,9 +1475,57 @@
 @media (max-width: 540px) {
   .stats {
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .sc {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sc::after {
+    display: none;
+  }
+
+  .scNum {
+    font-size: 28px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+    min-width: 48px;
+  }
+
+  .scLbl {
+    font-size: 12px;
+  }
+
+  .scDelta {
+    display: none;
   }
 
   .qaGrid {
     grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 20px 16px 90px;
+  }
+
+  .pgGreeting {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .pgSub {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .pgH {
+    font-size: 22px;
+    margin-bottom: 16px;
   }
 }
