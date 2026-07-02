@@ -459,7 +459,7 @@ export default function ListYourPropertyPage() {
                 </svg>
               </div>
               <div className={styles.ccInfo}>
-                <strong>+234 9167619009</strong>
+                <strong>+234 916 761 9009</strong>
                 Mon – Fri, 9am – 6pm WAT
               </div>
             </div>
@@ -497,7 +497,7 @@ export default function ListYourPropertyPage() {
             <Link href="/listings?cat=shortlet">Shortlets</Link>
             <Link href="/contact">Contact</Link>
           </div>
-          <div className={styles.footCopy}>© 2025 RokHaven Realty Ltd.</div>
+          <div className={styles.footCopy}>© 2026 RokHaven Realty</div>
         </div>
       </footer>
     </>

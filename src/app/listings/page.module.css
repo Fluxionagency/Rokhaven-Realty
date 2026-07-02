@@ -26,6 +26,13 @@
   margin-bottom: 10px;
   line-height: 1.1;
 }
+.pageIntro {
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(244,237,224,.55);
+  max-width: 680px;
+  margin: 12px 0 0;
+}
 .pageCount {
   font-size: 12px;
   font-weight: 400;

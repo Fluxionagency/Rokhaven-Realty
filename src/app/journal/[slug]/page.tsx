@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
@@ -32,6 +33,25 @@ async function getArticle(slug: string): Promise<{ article: Article; all: Articl
   return { article, all: STATIC_ARTICLES };
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getArticle(slug);
+  if (!result) return {};
+  const { article } = result;
+  const desc = article.excerpt
+    ? article.excerpt.slice(0, 160)
+    : `Read "${article.title}" on the RokHaven Realty Journal.`;
+  return {
+    title: `${article.title} | RokHaven Journal`,
+    description: desc,
+    openGraph: {
+      title: article.title,
+      description: desc,
+      images: article.coverImageUrl ? [article.coverImageUrl] : [],
+    },
+  };
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const result = await getArticle(slug);
@@ -42,8 +62,24 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const gradClass = GRAD_CLASSES[(idx === -1 ? 0 : idx) % GRAD_CLASSES.length];
   const related = all.filter(a => a._id !== article._id).slice(0, 3);
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.excerpt || '',
+    author: { "@type": "Person", name: article.author },
+    publisher: { "@type": "Organization", name: "RokHaven Realty", url: "https://rokhaven.com" },
+    datePublished: article.publishedAt,
+    image: article.coverImageUrl || undefined,
+    url: `https://rokhaven.com/journal/${article.slug}`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <Nav />
       <div style={{ background: 'var(--navy)', minHeight: '100vh' }}>
         <header className={styles.artHdr}>

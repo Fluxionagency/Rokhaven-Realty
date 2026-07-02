@@ -158,7 +158,7 @@ export default function ContactPage() {
               <div>
                 <div className={styles.infoLabel}>Phone</div>
                 <div className={styles.infoValue}>
-                  <a href="tel:+2349167619009">+234 9167619009</a>
+                  <a href="tel:+2349167619009">+234 916 761 9009</a>
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function ContactPage() {
                 <div className={styles.infoLabel}>WhatsApp</div>
                 <div className={styles.infoValue}>
                   <a href="https://wa.me/2349167619009" target="_blank" rel="noopener noreferrer">
-                    +234 9167619009
+                    +234 916 761 9009
                   </a>
                 </div>
               </div>
