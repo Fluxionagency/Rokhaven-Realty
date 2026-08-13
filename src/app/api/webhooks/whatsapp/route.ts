@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-// Meta calls GET to verify the webhook endpoint
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const mode = searchParams.get('hub.mode')
@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 }
 
-// Meta calls POST for incoming messages and status updates
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -21,16 +20,17 @@ export async function POST(request: NextRequest) {
     const change = entry?.changes?.[0]
     const value = change?.value
 
-    // Incoming message from a client
     if (value?.messages?.[0]) {
       const msg = value.messages[0]
-      const from = msg.from
-      const text = msg.text?.body || ''
-      console.log(`WhatsApp message from ${from}: ${text}`)
-      // Future: save to DB, notify admin, auto-reply
+      const from = msg.from as string
+      const text = (msg.text?.body || msg.type || '') as string
+      const waMessageId = msg.id as string | undefined
+
+      await prisma.whatsAppMessage.create({
+        data: { from, text, waMessageId: waMessageId || null },
+      }).catch(console.error)
     }
 
-    // Delivery status update
     if (value?.statuses?.[0]) {
       const status = value.statuses[0]
       console.log(`WhatsApp status: ${status.status} for message ${status.id}`)
@@ -39,6 +39,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('WhatsApp webhook error:', err)
-    return NextResponse.json({ ok: true }) // always 200 to Meta
+    return NextResponse.json({ ok: true })
   }
 }

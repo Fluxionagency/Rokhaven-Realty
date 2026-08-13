@@ -15,19 +15,35 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        otp: { label: 'OTP', type: 'text' },
         role: { label: 'Role', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email) return null
 
         const email = credentials.email.toLowerCase()
         const expectedRole = credentials.role || 'CLIENT'
 
-        // Database lookup
         try {
           const user = await prisma.user.findUnique({ where: { email } })
           if (!user) return null
           if (user.role !== expectedRole && user.role !== 'ADMIN') return null
+
+          // OTP path
+          if (credentials.otp) {
+            const token = await prisma.otpToken.findFirst({
+              where: { email, used: false, expiresAt: { gt: new Date() } },
+              orderBy: { createdAt: 'desc' },
+            })
+            if (!token) return null
+            const valid = await bcrypt.compare(credentials.otp, token.codeHash)
+            if (!valid) return null
+            await prisma.otpToken.update({ where: { id: token.id }, data: { used: true } })
+            return { id: user.id, email: user.email, name: user.name, role: user.role }
+          }
+
+          // Password path
+          if (!credentials.password) return null
           const valid = await bcrypt.compare(credentials.password, user.passwordHash)
           if (!valid) return null
           return { id: user.id, email: user.email, name: user.name, role: user.role }

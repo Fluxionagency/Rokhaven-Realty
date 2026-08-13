@@ -172,6 +172,33 @@ export async function sendDownloadNotification(to: string[], data: {
   await resend.batch.send(to.map(email => ({ from, to: email, subject, html })));
 }
 
+export async function sendOtpEmail(to: string, name: string, code: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Your RokHaven Login Code — ${code}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;background:#060F1C;color:#f4ede0;padding:40px 32px;">
+        <div style="margin-bottom:28px;">
+          <span style="font-size:20px;font-weight:700;letter-spacing:2px;color:#C0A870;">ROKHAVEN</span>
+          <span style="font-size:10px;letter-spacing:3px;color:rgba(192,168,112,.5);margin-left:8px;">REALTY</span>
+        </div>
+        <h2 style="font-size:20px;font-weight:400;margin:0 0 12px;color:#f4ede0;">Your Login Code</h2>
+        <p style="color:rgba(244,237,224,.6);line-height:1.7;margin:0 0 28px;">
+          Hi ${name.split(' ')[0]}, use the code below to sign in to your RokHaven portal. It expires in 5 minutes.
+        </p>
+        <div style="background:rgba(192,168,112,.08);border:1px solid rgba(192,168,112,.25);border-radius:6px;padding:28px;text-align:center;margin-bottom:28px;">
+          <div style="font-family:monospace;font-size:40px;font-weight:700;letter-spacing:0.35em;color:#C0A870;">${code}</div>
+        </div>
+        <p style="color:rgba(244,237,224,.35);font-size:12px;line-height:1.6;margin:0;">
+          If you did not request this code, please ignore this email.<br/>
+          © ${new Date().getFullYear()} RokHaven Realty Ltd.
+        </p>
+      </div>
+    `,
+  })
+}
+
 export async function sendPrincipalWelcome(to: string, name: string, password: string) {
   await resend.emails.send({
     from: FROM,
