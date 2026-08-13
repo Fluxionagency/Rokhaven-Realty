@@ -17,7 +17,7 @@ function getInitials(name?: string | null): string {
   return ((parts[0][0] ?? '') + (parts[parts.length - 1][0] ?? '')).toUpperCase();
 }
 
-interface MockProperty {
+interface PortalProperty {
   id: number;
   name: string;
   location: string;
@@ -29,47 +29,14 @@ interface MockProperty {
   img: string | null;
 }
 
-const MOCK_PROPERTIES: MockProperty[] = [
-  {
-    id: 1,
-    name: 'Oceanfront Penthouse',
-    location: 'Victoria Island, Lagos',
-    dateListed: 'Listed with RokHaven: 14 March 2026',
-    status: 'active',
-    inspections: 4,
-    enquiries: 9,
-    lastInspection: '18 May 2026',
-    img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80&auto=format&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'Lekki Garden Mansion',
-    location: 'Lekki Phase 2, Lagos',
-    dateListed: 'Listed with RokHaven: 2 April 2026',
-    status: 'active',
-    inspections: 3,
-    enquiries: 6,
-    lastInspection: '20 May 2026',
-    img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80&auto=format&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Ikoyi Terrace (3-bedroom)',
-    location: 'Ikoyi, Lagos',
-    dateListed: 'Submitted: 22 May 2026',
-    status: 'pending',
-    inspections: 0,
-    enquiries: 0,
-    lastInspection: null,
-    img: null,
-  },
-];
-
-const INSPECTIONS_DATA: Record<string, { p: string; t: string; confirmed: boolean }[]> = {
-  '2026-05-30': [{ p: 'Oceanfront', t: '11am', confirmed: true }],
-  '2026-06-04': [{ p: 'Lekki Garden', t: '2pm', confirmed: false }],
-  '2026-06-09': [{ p: 'Oceanfront', t: '2pm', confirmed: true }],
-};
+interface PortalInspection {
+  id: string;
+  preferredDate: string;
+  preferredTime: string;
+  status: string;
+  notes: string | null;
+  property: { title: string; location: string } | null;
+}
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -104,7 +71,8 @@ export default function PrincipalPortalPage() {
   const [notifEnquiry, setNotifEnquiry] = useState(true);
   const [notifListing, setNotifListing] = useState(true);
   const [saveMsg, setSaveMsg] = useState('Save Changes');
-  const [submissions, setSubmissions] = useState<MockProperty[]>([]);
+  const [submissions, setSubmissions] = useState<PortalProperty[]>([]);
+  const [portalInspections, setPortalInspections] = useState<PortalInspection[]>([]);
 
   // Form refs for submit section
   const titleRef = useRef<HTMLInputElement>(null);
@@ -148,9 +116,33 @@ export default function PrincipalPortalPage() {
         })));
       })
       .catch(() => {});
+    fetch('/api/inspections')
+      .then(r => r.json())
+      .then((data: PortalInspection[]) => {
+        if (Array.isArray(data)) setPortalInspections(data);
+      })
+      .catch(() => {});
   }, []);
 
-  const allProperties = [...MOCK_PROPERTIES, ...submissions];
+  const allProperties = submissions;
+  const activeCount = submissions.filter(p => p.status === 'active').length;
+  const pendingCount = submissions.filter(p => p.status === 'pending').length;
+  const soldRentedCount = submissions.filter(p => p.status === 'sold' || p.status === 'rented').length;
+  const inspectionsThisMonth = portalInspections.filter(i => {
+    const d = new Date(i.preferredDate);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).length;
+  const inspectionsByDate = portalInspections.reduce<Record<string, { p: string; t: string; confirmed: boolean }[]>>((acc, insp) => {
+    const key = insp.preferredDate;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({
+      p: (insp.property?.title || 'Property').substring(0, 12),
+      t: insp.preferredTime,
+      confirmed: insp.status === 'CONFIRMED',
+    });
+    return acc;
+  }, {});
 
   const filteredProperties = allProperties.filter((p) => {
     if (propFilter === 'all') return true;
@@ -239,7 +231,7 @@ export default function PrincipalPortalPage() {
       const isWeekend = dow === 0 || dow === 6;
       const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day;
       const key = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const slots = INSPECTIONS_DATA[key] ?? [];
+      const slots = inspectionsByDate[key] ?? [];
 
       days.push(
         <div
@@ -272,7 +264,7 @@ export default function PrincipalPortalPage() {
     }
 
     return days;
-  }, [calYear, calMonth]);
+  }, [calYear, calMonth, inspectionsByDate]);
 
   const navCal = (dir: -1 | 1) => {
     let m = calMonth + dir;
@@ -387,30 +379,32 @@ export default function PrincipalPortalPage() {
 
               <div className={styles.stats}>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>2</div>
+                  <div className={styles.scNum}>{activeCount}</div>
                   <div className={styles.scLbl}>Active Listings</div>
                 </div>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>7</div>
+                  <div className={styles.scNum}>{inspectionsThisMonth}</div>
                   <div className={styles.scLbl}>Inspections This Month</div>
                 </div>
                 <div className={styles.sc}>
-                  <div className={styles.scNum}>1</div>
+                  <div className={styles.scNum}>{soldRentedCount}</div>
                   <div className={styles.scLbl}>Properties Sold / Rented</div>
                 </div>
               </div>
 
               {/* Pending Banner */}
-              <div className={styles.amberBanner}>
-                <svg className={styles.abIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <div className={styles.abTxt}>
-                  <span className={styles.abTxtStrong}>1 property submission is under review.</span>
-                  {' '}Our team will notify you once it&apos;s approved and goes live — usually within 24–48 hours.
+              {pendingCount > 0 && (
+                <div className={styles.amberBanner}>
+                  <svg className={styles.abIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <div className={styles.abTxt}>
+                    <span className={styles.abTxtStrong}>{pendingCount} property submission{pendingCount > 1 ? 's are' : ' is'} under review.</span>
+                    {' '}Our team will notify you once {pendingCount > 1 ? 'they are' : 'it&apos;s'} approved and goes live — usually within 24–48 hours.
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Property Snapshot */}
               <div className={styles.secHdr}>
@@ -420,7 +414,12 @@ export default function PrincipalPortalPage() {
                 </button>
               </div>
 
-              {MOCK_PROPERTIES.map((p) => (
+              {submissions.length === 0 && (
+                <div className={styles.empty}>
+                  <div className={styles.emptyH}>No properties submitted yet</div>
+                </div>
+              )}
+              {submissions.slice(0, 3).map((p) => (
                 <div key={p.id} className={styles.propRow} onClick={() => setActiveTab('properties')}>
                   {p.img ? (
                     <div className={styles.prThumb}>
@@ -475,30 +474,31 @@ export default function PrincipalPortalPage() {
                   <thead>
                     <tr>
                       <th>Property</th>
-                      <th>Client</th>
                       <th>Date</th>
+                      <th>Time</th>
                       <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className={styles.tdStrong}>Oceanfront Penthouse</td>
-                      <td>Adaeze O.</td>
-                      <td>Fri, 30 May 2026</td>
-                      <td><span className={`${styles.badge} ${styles.bConf}`}>Confirmed</span></td>
-                    </tr>
-                    <tr>
-                      <td className={styles.tdStrong}>Lekki Garden Mansion</td>
-                      <td>Babatunde A.</td>
-                      <td>Wed, 4 Jun 2026</td>
-                      <td><span className={`${styles.badge} ${styles.bPend}`}>Pending</span></td>
-                    </tr>
-                    <tr>
-                      <td className={styles.tdStrong}>Oceanfront Penthouse</td>
-                      <td>Ngozi O.</td>
-                      <td>Mon, 9 Jun 2026</td>
-                      <td><span className={`${styles.badge} ${styles.bConf}`}>Confirmed</span></td>
-                    </tr>
+                    {portalInspections.length === 0 && (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', fontSize: '13px' }}>
+                          No upcoming inspections
+                        </td>
+                      </tr>
+                    )}
+                    {portalInspections.slice(0, 5).map(insp => (
+                      <tr key={insp.id}>
+                        <td className={styles.tdStrong}>{insp.property?.title || '—'}</td>
+                        <td>{insp.preferredDate}</td>
+                        <td>{insp.preferredTime}</td>
+                        <td>
+                          <span className={`${styles.badge} ${insp.status === 'CONFIRMED' ? styles.bConf : insp.status === 'COMPLETED' ? styles.bTeal : styles.bPend}`}>
+                            {insp.status.charAt(0) + insp.status.slice(1).toLowerCase()}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -633,8 +633,7 @@ export default function PrincipalPortalPage() {
                 <div className={styles.pgH} style={{ marginBottom: 0 }}>Inspection Calendar</div>
                 <select className={styles.calFilter}>
                   <option>All Properties</option>
-                  <option>Oceanfront Penthouse</option>
-                  <option>Lekki Garden Mansion</option>
+                  {submissions.map(p => <option key={p.id}>{p.name}</option>)}
                 </select>
               </div>
               <p style={{ fontSize: '13px', color: 'rgba(244,237,224,.3)', marginBottom: '22px' }}>
@@ -690,41 +689,33 @@ export default function PrincipalPortalPage() {
                     <thead>
                       <tr>
                         <th>Property</th>
-                        <th>Client</th>
                         <th>Date</th>
+                        <th>Time</th>
                         <th>Status</th>
                         <th>Notes</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td className={styles.tdStrong}>Oceanfront Penthouse</td>
-                        <td>Adaeze O.</td>
-                        <td>Fri, 30 May 2026</td>
-                        <td><span className={`${styles.badge} ${styles.bConf}`}>Confirmed</span></td>
-                        <td className={styles.tdNote}>Morning preferred</td>
-                      </tr>
-                      <tr>
-                        <td className={styles.tdStrong}>Lekki Garden Mansion</td>
-                        <td>Babatunde A.</td>
-                        <td>Wed, 4 Jun 2026</td>
-                        <td><span className={`${styles.badge} ${styles.bPend}`}>Pending</span></td>
-                        <td className={styles.tdNote}>—</td>
-                      </tr>
-                      <tr>
-                        <td className={styles.tdStrong}>Oceanfront Penthouse</td>
-                        <td>Ngozi O.</td>
-                        <td>Mon, 9 Jun 2026</td>
-                        <td><span className={`${styles.badge} ${styles.bConf}`}>Confirmed</span></td>
-                        <td className={styles.tdNote}>Afternoon slot</td>
-                      </tr>
-                      <tr className={styles.dimmedRow}>
-                        <td className={styles.tdStrong}>Oceanfront Penthouse</td>
-                        <td>Emeka B.</td>
-                        <td>Thu, 15 May 2026</td>
-                        <td><span className={`${styles.badge} ${styles.bTeal}`}>Completed</span></td>
-                        <td className={styles.tdNote}>—</td>
-                      </tr>
+                      {portalInspections.length === 0 && (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center', color: 'rgba(244,237,224,0.3)', fontSize: '13px' }}>
+                            No inspections scheduled
+                          </td>
+                        </tr>
+                      )}
+                      {portalInspections.map(insp => (
+                        <tr key={insp.id} className={insp.status === 'COMPLETED' ? styles.dimmedRow : undefined}>
+                          <td className={styles.tdStrong}>{insp.property?.title || '—'}</td>
+                          <td>{insp.preferredDate}</td>
+                          <td>{insp.preferredTime}</td>
+                          <td>
+                            <span className={`${styles.badge} ${insp.status === 'CONFIRMED' ? styles.bConf : insp.status === 'COMPLETED' ? styles.bTeal : styles.bPend}`}>
+                              {insp.status.charAt(0) + insp.status.slice(1).toLowerCase()}
+                            </span>
+                          </td>
+                          <td className={styles.tdNote}>{insp.notes || '—'}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -978,14 +969,14 @@ export default function PrincipalPortalPage() {
                   </div>
                   <div>
                     <label className={styles.fLbl}>Phone Number</label>
-                    <input className={styles.fi} defaultValue="+234 816 902 3340" placeholder="Your phone number" />
+                    <input className={styles.fi} placeholder="Your phone number" />
                   </div>
                   <div>
                     <label className={styles.fLbl}>
                       WhatsApp Number{' '}
                       <span className={styles.fLblNote}>— used for listing notifications</span>
                     </label>
-                    <input className={styles.fi} defaultValue="+234 816 902 3340" placeholder="WhatsApp number" />
+                    <input className={styles.fi} placeholder="WhatsApp number" />
                   </div>
                 </div>
               </div>
