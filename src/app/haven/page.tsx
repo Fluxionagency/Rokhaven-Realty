@@ -33,30 +33,67 @@ const getTime = () => {
   return `${h > 12 ? h - 12 : h || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
 };
 
-const RESPONSES: Array<{
+interface RealProperty {
+  id: string;
+  title: string;
+  location: string;
+  neighbourhood: string | null;
+  price: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqm: number | null;
+  category: string;
+  badge: string | null;
+}
+
+function propToCard(p: RealProperty): PropertyCard {
+  const catLabel = p.category === 'RENT' ? 'FOR RENT' : p.category === 'SHORTLET' ? 'SHORTLET' : 'FOR SALE';
+  const grad = p.category === 'SHORTLET'
+    ? 'linear-gradient(135deg,#162840,#0D2030)'
+    : 'linear-gradient(135deg,#0D2540,#162D45)';
+  return {
+    grad,
+    loc: (p.neighbourhood || p.location).toUpperCase(),
+    name: p.title,
+    price: p.price,
+    specs: `${p.bedrooms} Bed · ${p.bathrooms} Bath${p.sqm ? ` · ${p.sqm} sqm` : ''}`,
+    badge: p.badge || catLabel,
+  };
+}
+
+function buildResponses(realProperties: RealProperty[]): Array<{
   test: (t: string) => boolean;
   reply: (t: string) => { text: string; cards?: PropertyCard[]; follow?: string };
-}> = [
+}> {
+  return [
   {
     test: t => /\b(find|looking|4.bed|bedroom|pool|property|apartment|house|flat|duplex|villa|ikoyi|banana|vi|victoria|lekki|shortlet)\b/i.test(t),
     reply: t => {
       if (/shortlet/i.test(t)) {
+        const shortlets = realProperties.filter(p => p.category === 'SHORTLET').slice(0, 2);
+        if (shortlets.length > 0) {
+          return {
+            text: `I have curated ${shortlets.length > 1 ? shortlets.length + ' exceptional shortlet residences' : 'an exceptional shortlet residence'} that match your requirements.`,
+            cards: shortlets.map(propToCard),
+            follow: 'Shall I arrange a private viewing, or would you like more detail on this listing?',
+          };
+        }
         return {
-          text: 'I have curated two exceptional shortlet residences in Victoria Island that match your requirements. Both offer fully managed, hotel-grade amenities with complete privacy.',
-          cards: [
-            { grad: 'linear-gradient(135deg,#162840,#0D2030)', loc: 'VICTORIA ISLAND', name: 'The Maritime Suite', price: '₦2,800,000/wk', specs: '3 Bed · 3 Bath · Waterfront View · Serviced', badge: 'SHORTLET' },
-            { grad: 'linear-gradient(135deg,#1A1A2C,#282840)', loc: 'VICTORIA ISLAND', name: 'Skyloft Penthouse', price: '₦3,500,000/wk', specs: '2 Bed · 2 Bath · Rooftop Terrace · Pool', badge: 'SHORTLET' },
-          ],
-          follow: 'Both properties are available for your requested period. Shall I arrange a private viewing, or would you like more detail on either residence?',
+          text: 'Our shortlet portfolio is updated regularly. Please visit our listings page for the latest available residences, or contact the RokHaven team directly.',
+          follow: 'Would you like me to connect you with a RokHaven advisor?',
+        };
+      }
+      const matching = realProperties.filter(p => p.category === 'SALE').slice(0, 2);
+      if (matching.length > 0) {
+        return {
+          text: "I have identified properties that align closely with your brief. Each has been curated to meet the standard RokHaven clients expect.",
+          cards: matching.map(propToCard),
+          follow: 'Properties are available for private viewings at your convenience. Would you like me to arrange a tour, or do you have questions about a specific listing?',
         };
       }
       return {
-        text: "I have identified two properties that align closely with your brief. Both are in Ikoyi's most sought-after pockets, with the amenity profiles and discretion that RokHaven clients expect.",
-        cards: [
-          { grad: 'linear-gradient(135deg,#0D2540,#162D45)', loc: 'IKOYI, LAGOS', name: 'The Grand Arkadia', price: '₦750,000,000', specs: '4 Bed · 5 Bath · Pool · 680 sqm', badge: 'FOR SALE' },
-          { grad: 'linear-gradient(135deg,#0A2218,#173226)', loc: 'OLD IKOYI, LAGOS', name: 'Meridian Estate — No. 7', price: '₦820,000,000', specs: '4 Bed · 4 Bath · Pool · Garden · 720 sqm', badge: 'FOR SALE' },
-        ],
-        follow: 'Both properties are available for private viewings at your convenience. Would you like me to arrange a tour, or do you have questions about either listing?',
+        text: 'Please visit our listings page to explore our current portfolio, or share more details about what you are looking for and I will assist you further.',
+        follow: 'Would you like to tell me your preferred location and budget range?',
       };
     },
   },
@@ -100,13 +137,7 @@ const RESPONSES: Array<{
       text: 'Thank you for your enquiry. To ensure I provide you with the most relevant guidance, could you share a little more about what you are looking for? For instance:\n\n— Are you searching for a property to purchase, rent, or shortlet?\n— Do you have a preferred location or neighbourhood in mind?\n— What is your approximate budget range?\n\nWith these details, I can curate a selection that meets your exact requirements.',
     }),
   },
-];
-
-function getResponse(text: string) {
-  for (const r of RESPONSES) {
-    if (r.test(text)) return r.reply(text);
-  }
-  return RESPONSES[RESPONSES.length - 1].reply(text);
+  ];
 }
 
 function formatText(text: string) {
@@ -141,9 +172,17 @@ export default function HavenPage() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [showChips, setShowChips] = useState(true);
+  const [realProperties, setRealProperties] = useState<RealProperty[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   let nextId = useRef(1);
+
+  useEffect(() => {
+    fetch('/api/properties?limit=20')
+      .then(r => r.json())
+      .then(d => { if (d.properties && Array.isArray(d.properties)) setRealProperties(d.properties); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -173,8 +212,12 @@ export default function HavenPage() {
     setSending(true);
 
     const delay = 900 + Math.min(msg.length * 10, 1200);
+    const responses = buildResponses(realProperties);
     setTimeout(() => {
-      const resp = getResponse(msg);
+      let resp = responses[responses.length - 1].reply(msg);
+      for (const r of responses) {
+        if (r.test(msg)) { resp = r.reply(msg); break; }
+      }
       const replyMsg: Message = {
         id: nextId.current++,
         role: 'haven',

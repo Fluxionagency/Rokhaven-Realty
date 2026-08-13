@@ -251,10 +251,11 @@ function RescheduleModal({ inspection, onClose, onDone }: {
 
 // ─── DASHBOARD SECTION ──────────────────────────────────────────────────────
 
-function DashboardSection({ onNav, properties, inspections, onRefresh }: {
+function DashboardSection({ onNav, properties, inspections, enquiries, onRefresh }: {
   onNav: (section: Section) => void;
   properties: AdminProperty[];
   inspections: AdminInspection[];
+  enquiries: AdminEnquiry[];
   onRefresh: () => void;
 }) {
   const activeListings = properties.filter(p => p.status === 'ACTIVE').length;
@@ -281,24 +282,16 @@ function DashboardSection({ onNav, properties, inspections, onRefresh }: {
       )}
       <div className={styles.stats}>
         <div className={styles.sc}>
-          <span className={`${styles.scDelta} ${styles.up}`}>↑ 3 this week</span>
           <div className={styles.scNum}>{activeListings}</div>
           <div className={styles.scLbl}>Active Listings</div>
         </div>
         <div className={styles.sc}>
-          <span className={`${styles.scDelta} ${styles.pend}`}>{pendingInspections} today</span>
           <div className={styles.scNum}>{pendingInspections}</div>
-          <div className={styles.scLbl}>Inspections Today</div>
+          <div className={styles.scLbl}>Pending Inspections</div>
         </div>
         <div className={styles.sc}>
-          <span className={`${styles.scDelta} ${styles.up}`}>↑ 42% MoM</span>
-          <div className={styles.scNum}>8</div>
-          <div className={styles.scLbl}>New Enquiries</div>
-        </div>
-        <div className={styles.sc}>
-          <span className={`${styles.scDelta} ${styles.up}`}>↑ 18% MoM</span>
-          <div className={styles.scNum}>₦2.4B</div>
-          <div className={styles.scLbl}>Revenue</div>
+          <div className={styles.scNum}>{enquiries.length}</div>
+          <div className={styles.scLbl}>Total Enquiries</div>
         </div>
       </div>
 
@@ -2858,7 +2851,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         {/* CONTENT */}
         <div className={styles.content}>
-          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} onRefresh={fetchAll} />}
+          {section === 'dashboard' && <DashboardSection onNav={setSection} properties={properties} inspections={inspections} enquiries={enquiries} onRefresh={fetchAll} />}
           {section === 'listings' && <ListingsSection properties={properties} onRefresh={fetchAll} />}
           {section === 'bookings' && <BookingsSection properties={properties} inspections={inspections} onRefresh={fetchAll} />}
           {section === 'leads' && <LeadsSection enquiries={enquiries} inspections={inspections} onRefresh={fetchAll} />}
