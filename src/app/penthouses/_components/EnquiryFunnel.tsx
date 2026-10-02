@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import styles from './penthouse.module.css';
 import type { PenthouseConfig } from '../_config/penthouses';
 
-const LB_ENDPOINT = 'https://makarfi.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
+const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
 const CAL_EVENT = 'rokhaven-realty/private-call';
 
 type CalFn = ((...args: unknown[]) => void) & {
@@ -36,13 +36,26 @@ const COUNTRY_CODES = [
   { code: '+31',  flag: '🇳🇱', name: 'Netherlands' },
   { code: '+46',  flag: '🇸🇪', name: 'Sweden' },
   { code: '+47',  flag: '🇳🇴', name: 'Norway' },
-  { code: '+1',   flag: '🇨🇦', name: 'Canada' },
+  { code: '+1-CA', flag: '🇨🇦', name: 'Canada' },
   { code: '+61',  flag: '🇦🇺', name: 'Australia' },
   { code: '+65',  flag: '🇸🇬', name: 'Singapore' },
   { code: '+852', flag: '🇭🇰', name: 'Hong Kong' },
   { code: '+86',  flag: '🇨🇳', name: 'China' },
   { code: '+91',  flag: '🇮🇳', name: 'India' },
 ];
+
+function dialToCountry(code: string): string {
+  const map: Record<string, string> = {
+    '+234': 'Nigeria', '+1': 'United States', '+44': 'United Kingdom',
+    '+971': 'UAE', '+966': 'Saudi Arabia', '+974': 'Qatar', '+965': 'Kuwait',
+    '+973': 'Bahrain', '+968': 'Oman', '+27': 'South Africa', '+254': 'Kenya',
+    '+233': 'Ghana', '+251': 'Ethiopia', '+49': 'Germany', '+33': 'France',
+    '+31': 'Netherlands', '+46': 'Sweden', '+47': 'Norway', '+1-CA': 'Canada',
+    '+61': 'Australia', '+65': 'Singapore', '+852': 'Hong Kong', '+86': 'China',
+    '+91': 'India',
+  };
+  return map[code] ?? code;
+}
 
 interface Props {
   cfg: PenthouseConfig;
@@ -52,13 +65,17 @@ type Step = 'form' | 'cal';
 
 function EnquiryFunnelInner({ cfg }: Props) {
   const searchParams = useSearchParams();
+  const loadedAt = useRef(Date.now());
 
   const [step, setStep] = useState<Step>('form');
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [dialCode, setDialCode] = useState('+234');
   const [phoneNum, setPhoneNum] = useState('');
   const [timeline, setTimeline] = useState('');
+  const [buyingGoal, setBuyingGoal] = useState('');
+  const [paymentPref, setPaymentPref] = useState('');
+  const [callType, setCallType] = useState('');
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -66,11 +83,12 @@ function EnquiryFunnelInner({ cfg }: Props) {
   const [followUpToken, setFollowUpToken] = useState('');
   const calLoaded = useRef(false);
 
-  const fullPhone = `${dialCode}${phoneNum.trim()}`;
+  const fullPhone = `${dialCode.replace('-CA', '')}${phoneNum.trim()}`;
+  const country = dialToCountry(dialCode);
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Please enter your name.';
+    if (!fullName.trim()) errs.fullName = 'Please enter your name.';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Please enter a valid email address.';
     if (!phoneNum.trim()) errs.phone = 'Please enter your phone number.';
     if (!timeline) errs.timeline = 'Please select a timeline.';
@@ -87,7 +105,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
     setFormError('');
 
     try {
-      // Fetch antispam timestamp — non-fatal if it fails
+      // Fetch antispam timestamp — non-fatal
       let lb_ts = '';
       try {
         const schemaRes = await fetch(LB_ENDPOINT, { method: 'GET' });
@@ -96,8 +114,12 @@ function EnquiryFunnelInner({ cfg }: Props) {
           const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
           lb_ts = tsField?.value ?? '';
         }
-      } catch {
-        // lb_ts unavailable — continue without it
+      } catch { /* continue without */ }
+
+      // Enforce min 3s timing (Leadboard spam protection)
+      const elapsed = (Date.now() - loadedAt.current) / 1000;
+      if (elapsed < 3) {
+        await new Promise((r) => setTimeout(r, (3 - elapsed) * 1000));
       }
 
       const utmFields: Record<string, string> = {};
@@ -106,15 +128,18 @@ function EnquiryFunnelInner({ cfg }: Props) {
         if (v) utmFields[k] = v;
       }
 
-      // Send as multipart form-data (standard for web form endpoints)
       const fd = new FormData();
-      fd.append('name', name.trim());
+      fd.append('full_name', fullName.trim());
       fd.append('email', email.trim());
-      fd.append('phone', fullPhone);
+      fd.append('whatsapp', fullPhone);
+      fd.append('country', country);
       fd.append('timeline', timeline);
-      fd.append('consent', 'yes');
       fd.append('property', cfg.productName);
+      if (buyingGoal) fd.append('buying_goal', buyingGoal);
+      if (paymentPref) fd.append('payment_preference', paymentPref);
+      if (callType) fd.append('call_type', callType);
       if (lb_ts) fd.append('lb_ts', lb_ts);
+      fd.append('lb_351fd309', ''); // honeypot — must be empty
       for (const [k, v] of Object.entries(utmFields)) fd.append(k, v);
 
       const res = await fetch(LB_ENDPOINT, { method: 'POST', body: fd });
@@ -188,6 +213,8 @@ function EnquiryFunnelInner({ cfg }: Props) {
             </div>
             <form className={styles.form} onSubmit={handleSubmit} noValidate>
               <p className={styles.stepLabel}>STEP 1 OF 2 — YOUR DETAILS</p>
+
+              {/* Contact */}
               <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Contact information</legend>
                 <div className={styles.fieldGrid}>
@@ -196,11 +223,11 @@ function EnquiryFunnelInner({ cfg }: Props) {
                     <input
                       type="text"
                       autoComplete="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={errors.name ? styles.error : ''}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={errors.fullName ? styles.error : ''}
                     />
-                    {errors.name && <span className={styles.fieldError}>{errors.name}</span>}
+                    {errors.fullName && <span className={styles.fieldError}>{errors.fullName}</span>}
                   </label>
                   <label className={styles.fieldLabel}>
                     Email address
@@ -214,7 +241,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
                     {errors.email && <span className={styles.fieldError}>{errors.email}</span>}
                   </label>
                   <div className={styles.fieldLabel}>
-                    Phone number
+                    WhatsApp number
                     <div className={`${styles.phoneRow}${errors.phone ? ' ' + styles.phoneRowError : ''}`}>
                       <select
                         className={styles.dialSelect}
@@ -225,7 +252,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
                       >
                         {COUNTRY_CODES.map((c) => (
                           <option key={`${c.name}-${c.code}`} value={c.code}>
-                            {c.flag} {c.code} {c.name}
+                            {c.flag} {c.code.replace('-CA', '')} {c.name}
                           </option>
                         ))}
                       </select>
@@ -243,26 +270,103 @@ function EnquiryFunnelInner({ cfg }: Props) {
                   </div>
                 </div>
               </fieldset>
+
+              {/* Buying intent */}
               <fieldset className={styles.fieldset}>
-                <legend className={styles.legend}>Your buying timeline</legend>
-                <div className={styles.radioGroup}>
-                  <div className={styles.radioOptions}>
-                    {['Ready to buy', '3–6 months', 'Exploring'].map((opt) => (
-                      <label key={opt} className={styles.radioLabel}>
-                        <input
-                          type="radio"
-                          name="timeline"
-                          value={opt}
-                          checked={timeline === opt}
-                          onChange={() => setTimeline(opt)}
-                        />
-                        {opt}
-                      </label>
-                    ))}
+                <legend className={styles.legend}>Your plans</legend>
+                <div className={styles.fieldGrid}>
+                  <div className={styles.radioGroup}>
+                    <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 14 }}>Buying timeline</p>
+                    <div className={styles.radioOptions}>
+                      {[
+                        { label: 'Ready now', value: 'now' },
+                        { label: 'Within 3 months', value: '3m' },
+                        { label: '3–6 months', value: '3-6m' },
+                        { label: 'Just exploring', value: 'exploring' },
+                      ].map((opt) => (
+                        <label key={opt.value} className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            name="timeline"
+                            value={opt.value}
+                            checked={timeline === opt.value}
+                            onChange={() => setTimeline(opt.value)}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                    {errors.timeline && <span className={styles.fieldError}>{errors.timeline}</span>}
                   </div>
-                  {errors.timeline && <span className={styles.fieldError}>{errors.timeline}</span>}
+                  <div className={styles.radioGroup}>
+                    <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 14 }}>I&apos;m buying to <span style={{ fontWeight: 300 }}>(optional)</span></p>
+                    <div className={styles.radioOptions}>
+                      {[
+                        { label: 'Live in it', value: 'live' },
+                        { label: 'Invest / hold', value: 'invest' },
+                        { label: 'Both', value: 'both' },
+                      ].map((opt) => (
+                        <label key={opt.value} className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            name="buying_goal"
+                            value={opt.value}
+                            checked={buyingGoal === opt.value}
+                            onChange={() => setBuyingGoal(opt.value)}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.radioGroup}>
+                    <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 14 }}>Payment preference <span style={{ fontWeight: 300 }}>(optional)</span></p>
+                    <div className={styles.radioOptions}>
+                      {[
+                        { label: 'Outright', value: 'outright' },
+                        { label: 'Payment plan', value: 'plan' },
+                        { label: 'Not sure yet', value: 'unsure' },
+                      ].map((opt) => (
+                        <label key={opt.value} className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            name="payment_preference"
+                            value={opt.value}
+                            checked={paymentPref === opt.value}
+                            onChange={() => setPaymentPref(opt.value)}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.radioGroup}>
+                    <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 14 }}>How should we meet? <span style={{ fontWeight: 300 }}>(optional)</span></p>
+                    <div className={styles.radioOptions}>
+                      {[
+                        { label: 'Video call', value: 'video' },
+                        { label: 'Phone call', value: 'phone' },
+                        { label: 'WhatsApp call', value: 'whatsapp' },
+                      ].map((opt) => (
+                        <label key={opt.value} className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            name="call_type"
+                            value={opt.value}
+                            checked={callType === opt.value}
+                            onChange={() => setCallType(opt.value)}
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </fieldset>
+
+              {/* Honeypot — hidden from users, must stay empty */}
+              <input type="text" name="lb_351fd309" aria-hidden="true" tabIndex={-1} style={{ display: 'none' }} readOnly value="" />
+
               <label className={styles.consentLabel}>
                 <input
                   type="checkbox"
