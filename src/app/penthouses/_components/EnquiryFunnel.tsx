@@ -17,6 +17,33 @@ declare global {
   }
 }
 
+const COUNTRY_CODES = [
+  { code: '+234', flag: '🇳🇬', name: 'Nigeria' },
+  { code: '+1',   flag: '🇺🇸', name: 'United States' },
+  { code: '+44',  flag: '🇬🇧', name: 'United Kingdom' },
+  { code: '+971', flag: '🇦🇪', name: 'UAE' },
+  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
+  { code: '+974', flag: '🇶🇦', name: 'Qatar' },
+  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
+  { code: '+973', flag: '🇧🇭', name: 'Bahrain' },
+  { code: '+968', flag: '🇴🇲', name: 'Oman' },
+  { code: '+27',  flag: '🇿🇦', name: 'South Africa' },
+  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
+  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
+  { code: '+251', flag: '🇪🇹', name: 'Ethiopia' },
+  { code: '+49',  flag: '🇩🇪', name: 'Germany' },
+  { code: '+33',  flag: '🇫🇷', name: 'France' },
+  { code: '+31',  flag: '🇳🇱', name: 'Netherlands' },
+  { code: '+46',  flag: '🇸🇪', name: 'Sweden' },
+  { code: '+47',  flag: '🇳🇴', name: 'Norway' },
+  { code: '+1',   flag: '🇨🇦', name: 'Canada' },
+  { code: '+61',  flag: '🇦🇺', name: 'Australia' },
+  { code: '+65',  flag: '🇸🇬', name: 'Singapore' },
+  { code: '+852', flag: '🇭🇰', name: 'Hong Kong' },
+  { code: '+86',  flag: '🇨🇳', name: 'China' },
+  { code: '+91',  flag: '🇮🇳', name: 'India' },
+];
+
 interface Props {
   cfg: PenthouseConfig;
 }
@@ -29,7 +56,8 @@ function EnquiryFunnelInner({ cfg }: Props) {
   const [step, setStep] = useState<Step>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [dialCode, setDialCode] = useState('+234');
+  const [phoneNum, setPhoneNum] = useState('');
   const [timeline, setTimeline] = useState('');
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -38,11 +66,13 @@ function EnquiryFunnelInner({ cfg }: Props) {
   const [followUpToken, setFollowUpToken] = useState('');
   const calLoaded = useRef(false);
 
+  const fullPhone = `${dialCode}${phoneNum.trim()}`;
+
   function validate() {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Please enter your name.';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Please enter a valid email address.';
-    if (!phone.trim()) errs.phone = 'Please enter your phone number.';
+    if (!phoneNum.trim()) errs.phone = 'Please enter your phone number.';
     if (!timeline) errs.timeline = 'Please select a timeline.';
     if (!consent) errs.consent = 'Please confirm you have read the privacy notice.';
     return errs;
@@ -57,13 +87,11 @@ function EnquiryFunnelInner({ cfg }: Props) {
     setFormError('');
 
     try {
-      // Fetch schema for antispam timestamp
       const schemaRes = await fetch(LB_ENDPOINT);
       const schemaData = await schemaRes.json();
       const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
       const lb_ts = tsField?.value ?? '';
 
-      // Build UTM fields
       const utmFields: Record<string, string> = {};
       for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
         const v = searchParams.get(k);
@@ -73,7 +101,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
       const body = {
         name: name.trim(),
         email: email.trim(),
-        phone: phone.trim(),
+        phone: fullPhone,
         timeline,
         consent: 'yes',
         property: cfg.productName,
@@ -99,7 +127,6 @@ function EnquiryFunnelInner({ cfg }: Props) {
     }
   }
 
-  // Load Cal.com when step = 'cal'
   useEffect(() => {
     if (step !== 'cal' || calLoaded.current) return;
     calLoaded.current = true;
@@ -176,17 +203,34 @@ function EnquiryFunnelInner({ cfg }: Props) {
                     />
                     {errors.email && <span className={styles.fieldError}>{errors.email}</span>}
                   </label>
-                  <label className={styles.fieldLabel}>
-                    Phone number (with country code)
-                    <input
-                      type="tel"
-                      autoComplete="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className={errors.phone ? styles.error : ''}
-                    />
+                  <div className={styles.fieldLabel}>
+                    Phone number
+                    <div className={`${styles.phoneRow}${errors.phone ? ' ' + styles.phoneRowError : ''}`}>
+                      <select
+                        className={styles.dialSelect}
+                        value={dialCode}
+                        onChange={(e) => setDialCode(e.target.value)}
+                        autoComplete="tel-country-code"
+                        aria-label="Country code"
+                      >
+                        {COUNTRY_CODES.map((c) => (
+                          <option key={`${c.name}-${c.code}`} value={c.code}>
+                            {c.flag} {c.code} {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        autoComplete="tel-national"
+                        placeholder="800 000 0000"
+                        value={phoneNum}
+                        onChange={(e) => setPhoneNum(e.target.value)}
+                        className={styles.phoneInput}
+                        aria-label="Phone number"
+                      />
+                    </div>
                     {errors.phone && <span className={styles.fieldError}>{errors.phone}</span>}
-                  </label>
+                  </div>
                 </div>
               </fieldset>
               <fieldset className={styles.fieldset}>
