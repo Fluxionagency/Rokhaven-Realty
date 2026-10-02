@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pick a time for your call</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400;500&amp;family=DM+Serif+Display:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 100%; box-sizing: border-box; background: #FFFFFF; color: #0B1B35; font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.5; border: 1px solid #C9BFA9; padding: 36px 32px; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 12px; font-weight: 500; letter-spacing: 0.32em; color: #7A6638">STEP 2 OF 2 · PICK A TIME</div>
+<h3 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 30px; line-height: 1.15">When should we call you?</h3>
+<p style="margin: 0; color: #4F4A40">30-minute call about the {{ property }}. A calendar invite goes to your email as soon as you confirm.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-weight: 500; font-size: 15px">Your time region</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<sc-for list="{{ zones }}" as="z" hint-placeholder-count="4">
+<button type="button" onClick="{{ z.pick }}" aria-pressed="{{ z.pressed }}" style="{{ z.style }}">{{ z.label }}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<button type="button" onClick="{{ prevMonth }}" aria-label="Previous month" style="width: 44px; height: 44px; border: 1px solid #C9BFA9; background: #FFFFFF; color: #0B1B35; cursor: pointer; font-size: 18px">‹</button>
+<span style="font-family: 'DM Serif Display', serif; font-size: 22px">{{ monthLabel }}</span>
+<button type="button" onClick="{{ nextMonth }}" aria-label="Next month" style="width: 44px; height: 44px; border: 1px solid #C9BFA9; background: #FFFFFF; color: #0B1B35; cursor: pointer; font-size: 18px">›</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; color: #7A6638">
+<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="35">
+<button type="button" onClick="{{ d.pick }}" disabled="{{ d.disabled }}" aria-label="{{ d.aria }}" aria-pressed="{{ d.pressed }}" style="{{ d.style }}">{{ d.label }}</button>
+</sc-for>
+</div>
+<span style="font-size: 13px; color: #4F4A40">Calls run Monday to Saturday. Greyed-out days are unavailable.</span>
+</div>
+
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-weight: 500; font-size: 15px">{{ slotsTitle }}</div>
+<sc-if value="{{ noDate }}" hint-placeholder-val="{{ true }}">
+<div style="padding: 24px; border: 1px dashed #C9BFA9; color: #4F4A40; font-size: 15px">Pick a date to see available times.</div>
+</sc-if>
+<sc-if value="{{ hasDate }}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ slots }}" as="s" hint-placeholder-count="7">
+<button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.pressed }}" style="{{ s.style }}">{{ s.label }}</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+<div style="background: #F4EDE0; padding: 20px 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 500; letter-spacing: 0.3em; color: #7A6638">YOUR CALL</span>
+<span style="font-family: 'DM Serif Display', serif; font-size: 22px">{{ summary }}</span>
+<span style="font-size: 14px; color: #4F4A40">{{ summaryLagos }}</span>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+<a href="{{ thanks }}" style="display: inline-flex; align-items: center; min-height: 56px; padding: 0 40px; background: #0B1B35; color: #F4EDE0; text-decoration: none; font-weight: 500; font-size: 16px; letter-spacing: 0.06em">Confirm My Call</a>
+</sc-if>
+<sc-if value="{{ notReady }}" hint-placeholder-val="{{ true }}">
+<span style="display: inline-flex; align-items: center; min-height: 56px; padding: 0 40px; background: #D9D3C6; color: #4F4A40; font-weight: 500; font-size: 16px; letter-spacing: 0.06em">Confirm My Call</span>
+</sc-if>
+<button type="button" onClick="{{ onBack }}" style="min-height: 48px; padding: 0 18px; border: 0; background: transparent; color: #0B1B35; text-decoration: underline; font: 400 15px 'DM Sans', sans-serif; cursor: pointer">← Edit my details</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"property":{"editor":null,"default":"penthouse"},"thanks":{"editor":null,"default":"#"},"onBack":{"editor":null},"$preview":{"width":860,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var now = new Date();
+    this.state = { zone: 'Africa/Lagos', y: now.getFullYear(), m: now.getMonth(), date: null, slot: null };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var ZONES = [
+      { id: 'Africa/Lagos', label: 'Nigeria (WAT)' },
+      { id: 'Europe/London', label: 'United Kingdom' },
+      { id: 'America/New_York', label: 'US – Eastern' },
+      { id: 'America/Chicago', label: 'US – Central' },
+      { id: 'America/Los_Angeles', label: 'US – Pacific' }
+    ];
+    var pill = 'min-height: 44px; padding: 0 18px; font: 400 15px \'DM Sans\', sans-serif; cursor: pointer; border: 1px solid #0B1B35; ';
+    var zones = ZONES.map(function (z) {
+      var on = z.id === st.zone;
+      return { label: z.label, pressed: on ? 'true' : 'false',
+        style: pill + (on ? 'background: #0B1B35; color: #F4EDE0;' : 'background: #FFFFFF; color: #0B1B35;'),
+        pick: function () { self.setState({ zone: z.id }); } };
+    });
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var first = new Date(st.y, st.m, 1);
+    var lead = (first.getDay() + 6) % 7;
+    var dim = new Date(st.y, st.m + 1, 0).getDate();
+    var cell = 'height: 44px; border: 1px solid transparent; font: 400 15px \'DM Sans\', sans-serif; ';
+    var days = [];
+    for (var i = 0; i < lead; i++) days.push({ label: '', disabled: true, aria: 'empty', pressed: 'false', style: cell + 'background: transparent;', pick: function () {} });
+    for (var d = 1; d <= dim; d++) {
+      (function (d) {
+        var dt = new Date(st.y, st.m, d);
+        var key = st.y + '-' + (st.m + 1) + '-' + d;
+        var off = dt <= today || dt.getDay() === 0;
+        var on = st.date === key;
+        days.push({ label: String(d), disabled: off, pressed: on ? 'true' : 'false',
+          aria: dt.toDateString() + (off ? ', unavailable' : ''),
+          style: cell + (off ? 'background: transparent; color: #B8B2A5; cursor: default;' : on ? 'background: #0B1B35; color: #C0A870; cursor: pointer;' : 'background: #F4EDE0; color: #0B1B35; cursor: pointer;'),
+          pick: function () { if (!off) self.setState({ date: key, slot: null }); } });
+      })(d);
+    }
+    // Advisor hours, Lagos time (WAT = UTC+1)
+    var HOURS = [9, 10, 11, 12, 14, 15, 16, 17];
+    var fmtT = function (ms, tz) { return new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz }).format(new Date(ms)); };
+    var fmtD = function (ms, tz) { return new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date(ms)); };
+    var slots = [], slotsTitle = 'Available times', summary = '', summaryLagos = '';
+    var zoneLabel = ZONES.filter(function (z) { return z.id === st.zone; })[0].label;
+    if (st.date) {
+      var p = st.date.split('-').map(Number);
+      slotsTitle = 'Times shown in ' + zoneLabel;
+      slots = HOURS.map(function (h) {
+        var ms = Date.UTC(p[0], p[1] - 1, p[2], h - 1, 0);
+        var on = st.slot === ms;
+        return { label: fmtT(ms, st.zone), pressed: on ? 'true' : 'false',
+          style: 'min-height: 46px; font: 400 15px \'DM Sans\', sans-serif; cursor: pointer; border: 1px solid #0B1B35; ' + (on ? 'background: #0B1B35; color: #C0A870;' : 'background: #FFFFFF; color: #0B1B35;'),
+          pick: function () { self.setState({ slot: ms }); } };
+      });
+      if (st.slot) {
+        summary = fmtD(st.slot, st.zone) + ' · ' + fmtT(st.slot, st.zone) + ' (' + zoneLabel + ')';
+        summaryLagos = 'That’s ' + fmtT(st.slot, 'Africa/Lagos') + ' in Lagos, ' + fmtT(st.slot, 'Europe/London') + ' in London and ' + fmtT(st.slot, 'America/New_York') + ' in New York.';
+      }
+    }
+    var ready = !!(st.date && st.slot);
+    return {
+      property: this.props.property ?? 'penthouse',
+      thanks: this.props.thanks ?? '#',
+      onBack: this.props.onBack ?? function () {},
+      zones: zones, days: days, slots: slots, slotsTitle: slotsTitle,
+      monthLabel: MONTHS[st.m] + ' ' + st.y,
+      prevMonth: function () { var m = st.m - 1, y = st.y; if (m < 0) { m = 11; y--; } self.setState({ m: m, y: y }); },
+      nextMonth: function () { var m = st.m + 1, y = st.y; if (m > 11) { m = 0; y++; } self.setState({ m: m, y: y }); },
+      noDate: !st.date, hasDate: !!st.date,
+      ready: ready, notReady: !ready, summary: summary, summaryLagos: summaryLagos
+    };
+  }
+}
+</script>
+</body>
+</html>
