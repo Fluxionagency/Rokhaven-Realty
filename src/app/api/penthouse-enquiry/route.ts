@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const LB_SCHEMA   = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
-const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f/submit';
+const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
 
 // GET — returns lb_ts for the client to store on page load
 export async function GET() {
   try {
-    const res = await fetch(LB_SCHEMA, { method: 'GET', cache: 'no-store' });
+    const res = await fetch(LB_ENDPOINT, { method: 'GET', cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ lb_ts: '' });
     const data = await res.json();
     const tsField = data?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
@@ -20,30 +19,30 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Build url-encoded form payload for Leadboard
-    const fd = new URLSearchParams();
-    fd.append('full_name', body.full_name ?? '');
-    fd.append('email', body.email ?? '');
-    fd.append('whatsapp', body.whatsapp ?? '');
-    fd.append('country', body.country ?? '');
-    fd.append('timeline', body.timeline ?? '');
-    fd.append('property', body.property ?? '');
-    if (body.buying_goal)        fd.append('buying_goal', body.buying_goal);
-    if (body.payment_preference) fd.append('payment_preference', body.payment_preference);
-    if (body.call_type)          fd.append('call_type', body.call_type);
-    // lb_ts comes from the client (fetched on page load for correct timing)
-    if (body.lb_ts)              fd.append('lb_ts', body.lb_ts);
-    fd.append('lb_351fd309', ''); // honeypot — must be empty
+    // Build JSON payload for Leadboard
+    const payload: Record<string, string> = {
+      full_name: body.full_name ?? '',
+      email: body.email ?? '',
+      whatsapp: body.whatsapp ?? '',
+      country: body.country ?? '',
+      timeline: body.timeline ?? '',
+      property: body.property ?? '',
+      lb_351fd309: '', // honeypot — must be empty
+    };
+    if (body.buying_goal)        payload.buying_goal = body.buying_goal;
+    if (body.payment_preference) payload.payment_preference = body.payment_preference;
+    if (body.call_type)          payload.call_type = body.call_type;
+    if (body.lb_ts)              payload.lb_ts = body.lb_ts;
 
     // UTM passthrough
     for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
-      if (body[k]) fd.append(k, body[k]);
+      if (body[k]) payload[k] = body[k];
     }
 
     const lbRes = await fetch(LB_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: fd.toString(),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
     const lbText = await lbRes.text();
 
