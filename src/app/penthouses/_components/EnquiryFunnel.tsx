@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import styles from './penthouse.module.css';
 import type { PenthouseConfig } from '../_config/penthouses';
 
-const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
+const ENQUIRY_PROXY = '/api/penthouse-enquiry';
 const CAL_EVENT = 'rokhaven-realty/private-call';
 
 type CalFn = ((...args: unknown[]) => void) & {
@@ -105,17 +105,6 @@ function EnquiryFunnelInner({ cfg }: Props) {
     setFormError('');
 
     try {
-      // Fetch antispam timestamp — non-fatal
-      let lb_ts = '';
-      try {
-        const schemaRes = await fetch(LB_ENDPOINT, { method: 'GET' });
-        if (schemaRes.ok) {
-          const schemaData = await schemaRes.json();
-          const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
-          lb_ts = tsField?.value ?? '';
-        }
-      } catch { /* continue without */ }
-
       // Enforce min 3s timing (Leadboard spam protection)
       const elapsed = (Date.now() - loadedAt.current) / 1000;
       if (elapsed < 3) {
@@ -128,30 +117,33 @@ function EnquiryFunnelInner({ cfg }: Props) {
         if (v) utmFields[k] = v;
       }
 
-      const fd = new FormData();
-      fd.append('full_name', fullName.trim());
-      fd.append('email', email.trim());
-      fd.append('whatsapp', fullPhone);
-      fd.append('country', country);
-      fd.append('timeline', timeline);
-      fd.append('property', cfg.productName);
-      if (buyingGoal) fd.append('buying_goal', buyingGoal);
-      if (paymentPref) fd.append('payment_preference', paymentPref);
-      if (callType) fd.append('call_type', callType);
-      if (lb_ts) fd.append('lb_ts', lb_ts);
-      fd.append('lb_351fd309', ''); // honeypot — must be empty
-      for (const [k, v] of Object.entries(utmFields)) fd.append(k, v);
+      const payload = {
+        full_name: fullName.trim(),
+        email: email.trim(),
+        whatsapp: fullPhone,
+        country,
+        timeline,
+        property: cfg.productName,
+        buying_goal: buyingGoal || undefined,
+        payment_preference: paymentPref || undefined,
+        call_type: callType || undefined,
+        ...utmFields,
+      };
 
-      const res = await fetch(LB_ENDPOINT, { method: 'POST', body: fd });
+      const res = await fetch(ENQUIRY_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const errText = await res.text().catch(() => '');
-        console.error('Leadboard error', res.status, errText);
+        console.error('Enquiry proxy error', res.status, data);
         throw new Error(`HTTP ${res.status}`);
       }
 
-      const data = await res.json().catch(() => ({}));
-      if (data?.follow_up_token) setFollowUpToken(data.follow_up_token);
+      if (data?.data?.follow_up_token) setFollowUpToken(data.data.follow_up_token);
 
       setStep('cal');
     } catch (err) {
@@ -184,7 +176,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
           callback: async () => {
             if (followUpToken) {
               try {
-                await fetch(`${LB_ENDPOINT}/follow-up`, {
+                await fetch(`${ENQUIRY_PROXY}/follow-up`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ token: followUpToken, cal_booking: 'completed' }),
