@@ -87,10 +87,18 @@ function EnquiryFunnelInner({ cfg }: Props) {
     setFormError('');
 
     try {
-      const schemaRes = await fetch(LB_ENDPOINT);
-      const schemaData = await schemaRes.json();
-      const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
-      const lb_ts = tsField?.value ?? '';
+      // Fetch antispam timestamp — non-fatal if it fails
+      let lb_ts = '';
+      try {
+        const schemaRes = await fetch(LB_ENDPOINT, { method: 'GET' });
+        if (schemaRes.ok) {
+          const schemaData = await schemaRes.json();
+          const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
+          lb_ts = tsField?.value ?? '';
+        }
+      } catch {
+        // lb_ts unavailable — continue without it
+      }
 
       const utmFields: Record<string, string> = {};
       for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
@@ -98,30 +106,32 @@ function EnquiryFunnelInner({ cfg }: Props) {
         if (v) utmFields[k] = v;
       }
 
-      const body = {
-        name: name.trim(),
-        email: email.trim(),
-        phone: fullPhone,
-        timeline,
-        consent: 'yes',
-        property: cfg.productName,
-        lb_ts,
-        ...utmFields,
-      };
+      // Send as multipart form-data (standard for web form endpoints)
+      const fd = new FormData();
+      fd.append('name', name.trim());
+      fd.append('email', email.trim());
+      fd.append('phone', fullPhone);
+      fd.append('timeline', timeline);
+      fd.append('consent', 'yes');
+      fd.append('property', cfg.productName);
+      if (lb_ts) fd.append('lb_ts', lb_ts);
+      for (const [k, v] of Object.entries(utmFields)) fd.append(k, v);
 
-      const res = await fetch(LB_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const res = await fetch(LB_ENDPOINT, { method: 'POST', body: fd });
 
-      if (!res.ok) throw new Error('Submission failed');
-      const data = await res.json();
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        console.error('Leadboard error', res.status, errText);
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json().catch(() => ({}));
       if (data?.follow_up_token) setFollowUpToken(data.follow_up_token);
 
       setStep('cal');
-    } catch {
-      setFormError('Something went wrong. Please try again or call us directly.');
+    } catch (err) {
+      console.error('Form submission error:', err);
+      setFormError('Something went wrong. Please try again or call us on +234 916 761 9009.');
     } finally {
       setSubmitting(false);
     }
