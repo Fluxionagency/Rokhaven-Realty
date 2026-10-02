@@ -29,31 +29,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Missing formKey' }, { status: 400 });
     }
 
-    // Build JSON payload for Leadboard
-    const payload: Record<string, string> = {
-      full_name: body.full_name ?? '',
-      email: body.email ?? '',
-      whatsapp: body.whatsapp ?? '',
-      country: body.country ?? '',
-      timeline: body.timeline ?? '',
-      property: body.property ?? '',
-      lb_351fd309: '', // honeypot — must be empty
-    };
-    if (body.buying_goal)        payload.buying_goal = body.buying_goal;
-    if (body.payment_preference) payload.payment_preference = body.payment_preference;
-    if (body.call_type)          payload.call_type = body.call_type;
-    if (body.lb_ts)              payload.lb_ts = body.lb_ts;
+    // Build multipart/form-data payload for Leadboard
+    const fd = new FormData();
+    fd.append('full_name',  body.full_name  ?? '');
+    fd.append('email',      body.email      ?? '');
+    fd.append('whatsapp',   body.whatsapp   ?? '');
+    fd.append('country',    body.country    ?? '');
+    fd.append('timeline',   body.timeline   ?? '');
+    fd.append('property',   body.property   ?? '');
+    fd.append('lb_351fd309', ''); // honeypot — must be empty
+    if (body.buying_goal)        fd.append('buying_goal',        body.buying_goal);
+    if (body.payment_preference) fd.append('payment_preference', body.payment_preference);
+    if (body.call_type)          fd.append('call_type',          body.call_type);
+    if (body.lb_ts)              fd.append('lb_ts',              body.lb_ts);
 
     // UTM passthrough
     for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
-      if (body[k]) payload[k] = body[k];
+      if (body[k]) fd.append(k, body[k]);
     }
 
-    const lbRes = await fetch(lbUrl(formKey), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const lbRes = await fetch(lbUrl(formKey), { method: 'POST', body: fd });
     const lbText = await lbRes.text();
 
     let lbData: unknown = {};
