@@ -81,7 +81,16 @@ function EnquiryFunnelInner({ cfg }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [followUpToken, setFollowUpToken] = useState('');
+  const [lbTs, setLbTs] = useState('');
   const calLoaded = useRef(false);
+
+  // Fetch lb_ts on mount so Leadboard's timing check passes (needs ≥3s before submit)
+  useEffect(() => {
+    fetch('/api/penthouse-enquiry')
+      .then((r) => r.json())
+      .then((d) => { if (d.lb_ts) setLbTs(d.lb_ts); })
+      .catch(() => {});
+  }, []);
 
   const fullPhone = `${dialCode.replace('-CA', '')}${phoneNum.trim()}`;
   const country = dialToCountry(dialCode);
@@ -124,6 +133,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
         country,
         timeline,
         property: cfg.productName,
+        lb_ts: lbTs || undefined,
         buying_goal: buyingGoal || undefined,
         payment_preference: paymentPref || undefined,
         call_type: callType || undefined,

@@ -2,20 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
 
+// GET — returns lb_ts for the client to store on page load
+export async function GET() {
+  try {
+    const res = await fetch(LB_ENDPOINT, { method: 'GET', cache: 'no-store' });
+    if (!res.ok) return NextResponse.json({ lb_ts: '' });
+    const data = await res.json();
+    const tsField = data?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
+    return NextResponse.json({ lb_ts: tsField?.value ?? '' });
+  } catch {
+    return NextResponse.json({ lb_ts: '' });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
-    // Fetch lb_ts antispam timestamp from Leadboard schema
-    let lb_ts = '';
-    try {
-      const schemaRes = await fetch(LB_ENDPOINT, { method: 'GET' });
-      if (schemaRes.ok) {
-        const schemaData = await schemaRes.json();
-        const tsField = schemaData?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
-        lb_ts = tsField?.value ?? '';
-      }
-    } catch { /* continue without */ }
 
     // Build FormData for Leadboard
     const fd = new FormData();
@@ -28,7 +30,8 @@ export async function POST(req: NextRequest) {
     if (body.buying_goal)        fd.append('buying_goal', body.buying_goal);
     if (body.payment_preference) fd.append('payment_preference', body.payment_preference);
     if (body.call_type)          fd.append('call_type', body.call_type);
-    if (lb_ts)                   fd.append('lb_ts', lb_ts);
+    // lb_ts comes from the client (fetched on page load for correct timing)
+    if (body.lb_ts)              fd.append('lb_ts', body.lb_ts);
     fd.append('lb_351fd309', ''); // honeypot — must be empty
 
     // UTM passthrough
