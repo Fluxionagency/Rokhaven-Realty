@@ -44,6 +44,12 @@ export interface FAQItem {
   a: string;
 }
 
+export interface ProcessStep {
+  num: string;
+  title: string;
+  body: string;
+}
+
 export interface ThankYouRecapRow {
   label: string;
   value: string;
@@ -92,7 +98,7 @@ export interface PenthouseConfig {
 
   audienceCards: AudienceCard[];
 
-  processLastStep: string;
+  processSteps: ProcessStep[];
 
   faqHeading: string;
   faqs: FAQItem[];
@@ -211,7 +217,14 @@ export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
       { heading: 'Holding dollar assets', body: 'One of Lagos\'s scarcest addresses, secured before completion.' },
     ],
 
-    processLastStep: 'Site progress updates until completion.',
+    processSteps: [
+      { num: '01', title: 'Schedule a call', body: 'A virtual meeting with you, so we can be sure this is a good fit and also see if there are other options available.' },
+      { num: '02', title: 'Private viewing', body: 'In person on Banana Island, or by live video if you\'re abroad.' },
+      { num: '03', title: 'Offer letter', body: 'After your viewing, once you\'re pleased, we agree your unit, price and payment structure in writing.' },
+      { num: '04', title: 'Document pack', body: 'Once the offer letter is accepted, you receive the full set of documents for your own lawyer\'s due diligence.' },
+      { num: '05', title: 'Secure your unit', body: 'Make the deposit stated in your offer letter.' },
+      { num: '06', title: 'Updates to handover', body: 'Site progress updates until completion.' },
+    ],
 
     faqHeading: 'Questions buyers ask.',
     faqs: [
@@ -337,7 +350,14 @@ export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
       { heading: 'Holding a dollar asset', body: 'A penthouse in Lagos\'s most established address, priced in US Dollars.' },
     ],
 
-    processLastStep: 'We keep you updated and handle every detail through to your keys.',
+    processSteps: [
+      { num: '01', title: 'Schedule a call', body: 'A virtual meeting with you, so we can be sure this is a good fit and also see if there are other options available.' },
+      { num: '02', title: 'Private viewing', body: 'In person in Old Ikoyi, or by live video if you\'re abroad.' },
+      { num: '03', title: 'Offer letter', body: 'After your viewing, once you\'re pleased, we agree your unit, price and payment structure in writing.' },
+      { num: '04', title: 'Document pack', body: 'Once the offer letter is accepted, you receive the full set of documents for your own lawyer\'s due diligence.' },
+      { num: '05', title: 'Secure your unit', body: 'Make the deposit stated in your offer letter.' },
+      { num: '06', title: 'Updates to handover', body: 'We keep you updated and handle every detail through to your keys.' },
+    ],
 
     faqHeading: 'Questions buyers ask.',
     faqs: [
@@ -466,7 +486,14 @@ export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
       { heading: 'Investing early', body: 'Secure today\'s price before completion, at one of Ikoyi\'s most sought-after addresses.' },
     ],
 
-    processLastStep: 'Regular site progress updates until August 2027.',
+    processSteps: [
+      { num: '01', title: 'Schedule a call', body: 'A virtual meeting with you, so we can be sure this is a good fit and also see if there are other options available.' },
+      { num: '02', title: 'Private viewing', body: 'In person in Old Ikoyi, or by live video if you\'re abroad.' },
+      { num: '03', title: 'Offer letter', body: 'After your viewing, once you\'re pleased, we agree your unit, price and payment structure in writing.' },
+      { num: '04', title: 'Document pack', body: 'Once the offer letter is accepted, you receive the full set of documents for your own lawyer\'s due diligence.' },
+      { num: '05', title: 'Secure your unit', body: 'Make the deposit stated in your offer letter.' },
+      { num: '06', title: 'Updates to handover', body: 'Regular site progress updates until August 2027.' },
+    ],
 
     faqHeading: 'Questions buyers ask.',
     faqs: [

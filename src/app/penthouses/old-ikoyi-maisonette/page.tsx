@@ -76,7 +76,7 @@ export default function OldIkoyiMaisonettePage() {
         source={cfg.locationSource}
       />
       <AudienceCards cards={cfg.audienceCards} />
-      <ProcessSteps lastStepBody={cfg.processLastStep} />
+      <ProcessSteps steps={cfg.processSteps} />
       <EnquiryFunnel cfg={cfg} />
       <FAQAccordion heading={cfg.faqHeading} faqs={cfg.faqs} />
       <FinalCTA headingPlain={cfg.finalCTAPlain} headingGold={cfg.finalCTAGold} />

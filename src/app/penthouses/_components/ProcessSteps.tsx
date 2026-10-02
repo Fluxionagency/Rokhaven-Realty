@@ -1,28 +1,17 @@
 import styles from './penthouse.module.css';
-
-const STEPS = [
-  { num: '01', title: 'Schedule a call', body: 'Pick a time that works for you. The calendar is live — it takes 60 seconds.' },
-  { num: '02', title: 'Your private briefing', body: 'A short, no-pressure video call to understand your goals and answer your questions.' },
-  { num: '03', title: '', body: '' }, // overridden by prop
-];
+import type { ProcessStep } from '../_config/penthouses';
 
 interface Props {
-  lastStepBody: string;
+  steps: ProcessStep[];
 }
 
-export default function ProcessSteps({ lastStepBody }: Props) {
-  const steps = [
-    STEPS[0],
-    STEPS[1],
-    { num: '03', title: 'Next steps', body: lastStepBody },
-  ];
-
+export default function ProcessSteps({ steps }: Props) {
   return (
     <section>
       <div className={styles.process}>
         <div className={styles.processHead}>
           <p className={styles.capsLabel}>HOW IT WORKS</p>
-          <h2 className={styles.processH2}>Three steps to your next home.</h2>
+          <h2 className={styles.processH2}>From first call to your keys.</h2>
         </div>
         <ol className={styles.processList}>
           {steps.map((s) => (
