@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
+const LB_SCHEMA   = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
+const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f/submit';
 
 // GET — returns lb_ts for the client to store on page load
 export async function GET() {
   try {
-    const res = await fetch(LB_ENDPOINT, { method: 'GET', cache: 'no-store' });
+    const res = await fetch(LB_SCHEMA, { method: 'GET', cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ lb_ts: '' });
     const data = await res.json();
     const tsField = data?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
@@ -19,8 +20,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Build FormData for Leadboard
-    const fd = new FormData();
+    // Build url-encoded form payload for Leadboard
+    const fd = new URLSearchParams();
     fd.append('full_name', body.full_name ?? '');
     fd.append('email', body.email ?? '');
     fd.append('whatsapp', body.whatsapp ?? '');
@@ -39,7 +40,11 @@ export async function POST(req: NextRequest) {
       if (body[k]) fd.append(k, body[k]);
     }
 
-    const lbRes = await fetch(LB_ENDPOINT, { method: 'POST', body: fd });
+    const lbRes = await fetch(LB_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: fd.toString(),
+    });
     const lbText = await lbRes.text();
 
     let lbData: unknown = {};
