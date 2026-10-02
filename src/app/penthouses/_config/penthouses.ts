@@ -56,6 +56,7 @@ export interface ThankYouRecapRow {
 }
 
 export interface PenthouseConfig {
+  leadboardFormKey: string;
   productName: string;
   priceUSD: number;
   priceLabel: string;
@@ -121,6 +122,7 @@ const WA_BASE = 'https://wa.me/2349167619009';
 
 export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
   'banana-island': {
+    leadboardFormKey: 'lbf_b31875650fe98bf986c0f26783cdfaa3',
     productName: 'Banana Island Penthouse (5 Bed)',
     priceUSD: 4500000,
     priceLabel: 'US$4.5M',
@@ -256,6 +258,7 @@ export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
   },
 
   'old-ikoyi-maisonette': {
+    leadboardFormKey: 'lbf_e14a47a2e4e6b795de49907edbde831c',
     productName: 'Old Ikoyi Maisonette Penthouse (4 Bed)',
     priceUSD: 2600000,
     priceLabel: 'US$2.6M',
@@ -388,6 +391,7 @@ export const penthouses: Record<PenthouseKey, PenthouseConfig> = {
   },
 
   'old-ikoyi-triplex': {
+    leadboardFormKey: 'lbf_90ef47c79039547e789b30744bafd84a',
     productName: 'Old Ikoyi Triplex Penthouse (4 Bed)',
     priceUSD: 5000000,
     priceLabel: 'US$5M',

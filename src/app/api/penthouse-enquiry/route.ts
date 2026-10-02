@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const LB_ENDPOINT = 'https://www.leadboard.ng/api/v1/f/lbf_8f7c8e5ada8e79cbc992bf6147e5752f';
+const LB_BASE = 'https://www.leadboard.ng/api/v1/f';
+
+function lbUrl(formKey: string) {
+  return `${LB_BASE}/${formKey}`;
+}
 
 // GET — returns lb_ts for the client to store on page load
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const formKey = req.nextUrl.searchParams.get('formKey') ?? '';
+  if (!formKey) return NextResponse.json({ lb_ts: '' });
   try {
-    const res = await fetch(LB_ENDPOINT, { method: 'GET', cache: 'no-store' });
+    const res = await fetch(lbUrl(formKey), { method: 'GET', cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ lb_ts: '' });
     const data = await res.json();
     const tsField = data?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
@@ -18,6 +24,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const formKey: string = body.formKey ?? '';
+    if (!formKey) {
+      return NextResponse.json({ ok: false, error: 'Missing formKey' }, { status: 400 });
+    }
 
     // Build JSON payload for Leadboard
     const payload: Record<string, string> = {
@@ -39,7 +49,7 @@ export async function POST(req: NextRequest) {
       if (body[k]) payload[k] = body[k];
     }
 
-    const lbRes = await fetch(LB_ENDPOINT, {
+    const lbRes = await fetch(lbUrl(formKey), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

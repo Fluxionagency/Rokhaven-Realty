@@ -86,11 +86,11 @@ function EnquiryFunnelInner({ cfg }: Props) {
 
   // Fetch lb_ts on mount so Leadboard's timing check passes (needs ≥3s before submit)
   useEffect(() => {
-    fetch('/api/penthouse-enquiry')
+    fetch(`/api/penthouse-enquiry?formKey=${cfg.leadboardFormKey}`)
       .then((r) => r.json())
       .then((d) => { if (d.lb_ts) setLbTs(d.lb_ts); })
       .catch(() => {});
-  }, []);
+  }, [cfg.leadboardFormKey]);
 
   const fullPhone = `${dialCode.replace('-CA', '')}${phoneNum.trim()}`;
   const country = dialToCountry(dialCode);
@@ -127,6 +127,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
       }
 
       const payload = {
+        formKey: cfg.leadboardFormKey,
         full_name: fullName.trim(),
         email: email.trim(),
         whatsapp: fullPhone,
