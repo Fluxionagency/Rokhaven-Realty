@@ -128,6 +128,7 @@ function EnquiryFunnelInner({ cfg }: Props) {
 
       const payload = {
         formKey: cfg.leadboardFormKey,
+        honeypot: cfg.leadboardHoneypot,
         full_name: fullName.trim(),
         email: email.trim(),
         whatsapp: fullPhone,

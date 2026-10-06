@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const LB_BASE = 'https://www.leadboard.ng/api/v1/f';
+const LB_HOST = 'https://makarfi.leadboard.ng/api/v1/f';
 
-function lbUrl(formKey: string) {
-  return `${LB_BASE}/${formKey}`;
+function lbSubmitUrl(formKey: string) {
+  return `${LB_HOST}/${formKey}/submit/`;
 }
 
-// GET — returns lb_ts for the client to store on page load
+function lbSchemaUrl(formKey: string) {
+  return `${LB_HOST}/${formKey}/`;
+}
+
+// GET — returns lb_ts for the client to store on page load (for timing check)
 export async function GET(req: NextRequest) {
   const formKey = req.nextUrl.searchParams.get('formKey') ?? '';
   if (!formKey) return NextResponse.json({ lb_ts: '' });
   try {
-    const res = await fetch(lbUrl(formKey), { method: 'GET', cache: 'no-store' });
+    const res = await fetch(lbSchemaUrl(formKey), { method: 'GET', cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ lb_ts: '' });
     const data = await res.json();
     const tsField = data?.schema?.find((f: { name: string }) => f.name === 'lb_ts');
@@ -25,34 +29,39 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const formKey: string = body.formKey ?? '';
+    const honeypot: string = body.honeypot ?? '';
     if (!formKey) {
       return NextResponse.json({ ok: false, error: 'Missing formKey' }, { status: 400 });
     }
 
-    // Build multipart/form-data payload for Leadboard
-    const fd = new FormData();
-    fd.append('full_name',  body.full_name  ?? '');
-    fd.append('email',      body.email      ?? '');
-    fd.append('whatsapp',   body.whatsapp   ?? '');
-    fd.append('country',    body.country    ?? '');
-    fd.append('timeline',   body.timeline   ?? '');
-    fd.append('property',   body.property   ?? '');
-    fd.append('lb_351fd309', ''); // honeypot — must be empty
-    if (body.buying_goal)        fd.append('buying_goal',        body.buying_goal);
-    if (body.payment_preference) fd.append('payment_preference', body.payment_preference);
-    if (body.call_type)          fd.append('call_type',          body.call_type);
-    if (body.lb_ts)              fd.append('lb_ts',              body.lb_ts);
+    // Build JSON payload — field names from Leadboard embed code
+    const payload: Record<string, string> = {
+      full_name: body.full_name ?? '',
+      email:     body.email     ?? '',
+      phone:     body.whatsapp  ?? '', // Leadboard default field is 'phone'
+      country:   body.country   ?? '',
+      timeline:  body.timeline  ?? '',
+      property:  body.property  ?? '',
+      [honeypot]: '',                  // per-form honeypot — must be empty
+    };
+    if (body.buying_goal)        payload.buying_goal        = body.buying_goal;
+    if (body.payment_preference) payload.payment_preference = body.payment_preference;
+    if (body.call_type)          payload.call_type          = body.call_type;
+    if (body.lb_ts)              payload.lb_ts              = body.lb_ts;
 
-    // UTM passthrough
     for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
-      if (body[k]) fd.append(k, body[k]);
+      if (body[k]) payload[k] = body[k];
     }
 
-    const lbRes = await fetch(lbUrl(formKey), { method: 'POST', body: fd });
+    const lbRes = await fetch(lbSubmitUrl(formKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
     const lbText = await lbRes.text();
 
     let lbData: unknown = {};
-    try { lbData = JSON.parse(lbText); } catch { /* non-JSON response */ }
+    try { lbData = JSON.parse(lbText); } catch { /* non-JSON */ }
 
     if (!lbRes.ok) {
       console.error('[penthouse-enquiry] Leadboard error', lbRes.status, lbText);
