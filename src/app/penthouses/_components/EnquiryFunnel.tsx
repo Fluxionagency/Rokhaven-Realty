@@ -170,37 +170,46 @@ function EnquiryFunnelInner({ cfg }: Props) {
     if (step !== 'cal' || calLoaded.current) return;
     calLoaded.current = true;
 
-    const script = document.createElement('script');
-    script.src = 'https://app.cal.com/embed/embed.js';
-    script.async = true;
-    script.onload = () => {
-      if (!window.Cal) return;
-      const Cal = window.Cal;
-      Cal('init', 'rokhaven', { origin: 'https://cal.com' });
-      Cal.ns = Cal.ns || {};
-      if (Cal.ns.rokhaven) {
-        Cal.ns.rokhaven('inline', {
-          elementOrSelector: '#cal-embed',
-          calLink: CAL_EVENT,
-        });
-        Cal.ns.rokhaven('on', {
-          action: 'bookingSuccessfulV2',
-          callback: async () => {
-            if (followUpToken) {
-              try {
-                await fetch(`${ENQUIRY_PROXY}/follow-up`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ token: followUpToken, cal_booking: 'completed' }),
-                });
-              } catch { /* non-fatal */ }
-            }
-            window.location.href = cfg.thankYou;
-          },
-        });
-      }
-    };
-    document.head.appendChild(script);
+    // Cal.com queue-based embed — init before script loads, calls execute on ready
+    type AnyFn = (...a: unknown[]) => void;
+    type CalQ = AnyFn & { q: unknown[][]; ns: Record<string, AnyFn & { q: unknown[][] }> };
+    if (!window.Cal) {
+      const cal = ((...args: unknown[]) => { cal.q.push(args); }) as CalQ;
+      cal.q = [];
+      cal.ns = {};
+      window.Cal = cal as CalFn;
+      const s = document.createElement('script');
+      s.src = 'https://app.cal.com/embed/embed.js';
+      s.async = true;
+      document.head.appendChild(s);
+    }
+
+    const Cal = window.Cal!;
+    Cal('init', 'rokhaven', { origin: 'https://cal.com' });
+
+    // After init the namespace fn exists on Cal.ns — call it via queue
+    const ns = (Cal as unknown as CalQ).ns;
+    if (!ns.rokhaven) {
+      const api = ((...a: unknown[]) => { api.q.push(a); }) as AnyFn & { q: unknown[][] };
+      api.q = [];
+      ns.rokhaven = api;
+    }
+    ns.rokhaven('inline', { elementOrSelector: '#cal-embed', calLink: CAL_EVENT });
+    ns.rokhaven('on', {
+      action: 'bookingSuccessfulV2',
+      callback: async () => {
+        if (followUpToken) {
+          try {
+            await fetch(`${ENQUIRY_PROXY}/follow-up`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: followUpToken, cal_booking: 'completed' }),
+            });
+          } catch { /* non-fatal */ }
+        }
+        window.location.href = cfg.thankYou;
+      },
+    });
   }, [step, followUpToken, cfg.thankYou]);
 
   return (
