@@ -2,7 +2,7 @@
 
 import Script from 'next/script';
 
-const META = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const META = process.env.NEXT_PUBLIC_META_PIXEL_ID || '27169428639340836'; // public Falcon funnel pixel; env var overrides
 const TIKTOK = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
 
