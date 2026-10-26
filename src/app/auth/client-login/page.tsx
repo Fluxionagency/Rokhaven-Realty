@@ -14,6 +14,8 @@ export default function ClientLoginPage() {
   const [error, setError] = useState('');
   const [showOtp, setShowOtp] = useState(false);
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSignIn = async () => {
@@ -137,12 +139,23 @@ export default function ClientLoginPage() {
               <button
                 className={styles.btnOtp}
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  if (!email) { setError('Enter your email address first.'); return; }
+                  setError('');
+                  setOtpLoading(true);
+                  await fetch('/api/auth/otp/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, role: 'CLIENT' }),
+                  });
+                  setOtpLoading(false);
+                  setOtpSent(true);
                   setShowOtp(true);
                   setTimeout(() => otpRefs.current[0]?.focus(), 50);
                 }}
+                disabled={otpLoading}
               >
-                Login with OTP →
+                {otpLoading ? 'Sending…' : 'Login with OTP →'}
               </button>
             </div>
           )}
@@ -150,8 +163,9 @@ export default function ClientLoginPage() {
           {/* OTP Panel */}
           {showOtp && (
             <div className={`${styles.otpPanel} ${styles.show}`}>
+              {error && <div className={styles.errorMsg}>{error}</div>}
               <p className={styles.otpPanelSub}>
-                We sent a 6-digit code to your registered phone number.
+                We sent a 6-digit code to your registered email address.
               </p>
               <div className={styles.otpGrid}>
                 {otpValues.map((val, i) => (
@@ -168,12 +182,40 @@ export default function ClientLoginPage() {
                   />
                 ))}
               </div>
-              <button className={styles.btnGold} type="button">
-                Verify &amp; Sign In →
+              <button
+                className={styles.btnGold}
+                type="button"
+                disabled={loading || otpValues.join('').length < 6}
+                onClick={async () => {
+                  setLoading(true);
+                  setError('');
+                  const result = await signIn('client-credentials', {
+                    email,
+                    otp: otpValues.join(''),
+                    role: 'CLIENT',
+                    callbackUrl: '/client-portal',
+                    redirect: false,
+                  });
+                  setLoading(false);
+                  if (result?.error) {
+                    setError('Invalid or expired code. Please try again.');
+                  } else if (result?.url) {
+                    window.location.href = result.url;
+                  }
+                }}
+              >
+                {loading ? 'Verifying…' : 'Verify & Sign In →'}
               </button>
               <div className={styles.otpResend}>
                 Didn&apos;t receive it?{' '}
-                <span onClick={() => alert('OTP resent to your registered phone number.')}>
+                <span onClick={async () => {
+                  await fetch('/api/auth/otp/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, role: 'CLIENT' }),
+                  });
+                  alert('A new code has been sent to your email.');
+                }}>
                   Resend code
                 </span>
               </div>

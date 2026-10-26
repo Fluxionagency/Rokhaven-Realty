@@ -271,3 +271,26 @@ model DownloadLead {
   phone     String
   createdAt DateTime @default(now())
 }
+
+model OtpToken {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model WhatsAppMessage {
+  id          String   @id @default(cuid())
+  from        String
+  text        String
+  waMessageId String?
+  createdAt   DateTime @default(now())
+}

@@ -14,6 +14,7 @@ export default function PrincipalLoginPage() {
   const [error, setError] = useState('');
   const [showOtp, setShowOtp] = useState(false);
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const [otpLoading, setOtpLoading] = useState(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSignIn = async () => {
@@ -137,12 +138,22 @@ export default function PrincipalLoginPage() {
               <button
                 className={styles.btnOtp}
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  if (!email) { setError('Enter your email address first.'); return; }
+                  setError('');
+                  setOtpLoading(true);
+                  await fetch('/api/auth/otp/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, role: 'PRINCIPAL' }),
+                  });
+                  setOtpLoading(false);
                   setShowOtp(true);
                   setTimeout(() => otpRefs.current[0]?.focus(), 50);
                 }}
+                disabled={otpLoading}
               >
-                Login with OTP →
+                {otpLoading ? 'Sending…' : 'Login with OTP →'}
               </button>
 
               {/* Info Box */}
@@ -156,8 +167,9 @@ export default function PrincipalLoginPage() {
           {/* OTP Panel */}
           {showOtp && (
             <div className={`${styles.otpPanel} ${styles.show}`}>
+              {error && <div className={styles.errorMsg}>{error}</div>}
               <p className={styles.otpPanelSub}>
-                We sent a 6-digit code to your registered phone number.
+                We sent a 6-digit code to your registered email address.
               </p>
               <div className={styles.otpGrid}>
                 {otpValues.map((val, i) => (
@@ -174,14 +186,48 @@ export default function PrincipalLoginPage() {
                   />
                 ))}
               </div>
-              <button className={styles.btnGold} type="button">
-                Verify &amp; Sign In →
+              <button
+                className={styles.btnGold}
+                type="button"
+                disabled={loading || otpValues.join('').length < 6}
+                onClick={async () => {
+                  setLoading(true);
+                  setError('');
+                  const result = await signIn('client-credentials', {
+                    email,
+                    otp: otpValues.join(''),
+                    role: 'PRINCIPAL',
+                    callbackUrl: '/principal-portal',
+                    redirect: false,
+                  });
+                  setLoading(false);
+                  if (result?.error) {
+                    setError('Invalid or expired code. Please try again.');
+                  } else if (result?.url) {
+                    window.location.href = result.url;
+                  }
+                }}
+              >
+                {loading ? 'Verifying…' : 'Verify & Sign In →'}
               </button>
+              <div className={styles.otpResend}>
+                Didn&apos;t receive it?{' '}
+                <span onClick={async () => {
+                  await fetch('/api/auth/otp/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, role: 'PRINCIPAL' }),
+                  });
+                  alert('A new code has been sent to your email.');
+                }}>
+                  Resend code
+                </span>
+              </div>
               <div>
                 <button
                   className={styles.backToEmail}
                   type="button"
-                  onClick={() => setShowOtp(false)}
+                  onClick={() => { setShowOtp(false); setError(''); }}
                 >
                   ← Use email &amp; password instead
                 </button>

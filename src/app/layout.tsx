@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
 import Providers from "@/components/Providers";
+import CookieBanner from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
@@ -35,12 +37,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZWX72RMLW4"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-ZWX72RMLW4');
+        `}</Script>
+      </head>
       <body>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
         <Providers>{children}</Providers>
+        <CookieBanner />
         <Analytics />
       </body>
     </html>
