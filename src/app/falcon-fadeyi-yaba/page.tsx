@@ -90,7 +90,7 @@ const audiences = [
 
 const faqs = [
   ['Is the rental income guaranteed?', 'No. Rent depends on the market. Current benchmarks put a one-bedroom at ₦9M–₦11M a year, and projections assume 85% stabilised occupancy.'],
-  ['Why is it sold as two units?', 'Falcon is part of a 100-unit rental portfolio. Selling units in portfolios keeps management efficient and protects every owner’s returns. If you only want one unit, ask us. We can sometimes pair you with another buyer.'],
+  ['Why is it sold as two units?', 'Falcon is part of a 100-unit rental portfolio. Selling units in portfolios keeps management efficient and protects every owner’s returns. It is also possible to buy just one unit.'],
   ['Who manages it, and what does it cost?', 'A professional management team runs the units unless you choose otherwise, and its fee is 12% of gross rent. A service charge covers security, CCTV, water treatment, cleaning, waste, common areas and backup power.'],
   ['Are there costs on top of the price?', 'Yes, a 5% legal and documentation fee. Every charge is disclosed before you sign the Sale Agreement.'],
   ['Can I resell before completion?', 'Yes, subject to the project’s documentation and transfer procedures.'],
