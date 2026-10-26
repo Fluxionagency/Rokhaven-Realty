@@ -37,7 +37,7 @@ const jsonLd = {
 };
 
 const facts = [
-  ['2 Units', 'Per portfolio'],
+  ['1 or 2 Units', 'Per purchase'],
   ['60 m²', 'One-bedroom'],
   ['Registered', 'Conveyance & survey'],
   ['Managed', 'Tenants, rent & upkeep'],
@@ -69,7 +69,7 @@ const payPlans = [
 ];
 
 const earns = [
-  ['You buy a portfolio', 'Two units on one floor, part-furnished or unfurnished.'],
+  ['You buy a unit or a portfolio', 'One unit, or two units on one floor, part-furnished or unfurnished.'],
   ['Falcon is completed', 'Completion is December 2027, with handover in March 2028.'],
   ['It gets let', 'Each unit is let monthly to working professionals.'],
   ['You get paid', 'The management team collects the rent and maintains the units, then pays you, keeping a 12% fee.'],
@@ -83,7 +83,7 @@ const drives = [
 ];
 
 const audiences = [
-  ['Building rental income', 'Two units earning monthly rent, with tenants, collection and maintenance handled for you.'],
+  ['Building rental income', 'One or two units earning monthly rent, with tenants, collection and maintenance handled for you.'],
   ['Investing from abroad', 'Lagos property you never have to manage, with digital documents and site updates until handover.'],
   ['Moving on from shortlets', 'Steady professional tenants instead of nightly guests, so there are no bookings to chase and no empty weekdays.'],
 ];
@@ -112,9 +112,9 @@ export default function FalconPage() {
           <div className={s['hero-copy']}>
             <div className={s.label}>Fadeyi · Yaba · Lagos</div>
             <h1 className={s.h1}>Lagos pays <em className={s.gold}>monthly.</em> So should your property.</h1>
-            <p className={s.lede}>Falcon is a building of furnished one-bedroom apartments in Fadeyi, Yaba, let by the month to working professionals. You own a two-unit portfolio. A professional management team finds the tenants, collects the rent and pays you.</p>
+            <p className={s.lede}>Falcon is a building of furnished one-bedroom apartments in Fadeyi, Yaba, let by the month to working professionals. You can own a single unit or a two-unit portfolio. A professional management team finds the tenants, collects the rent and pays you.</p>
             <div className={s['price-line']}>
-              <span>PORTFOLIOS FROM</span>
+              <span>TWO-UNIT PORTFOLIOS FROM</span>
               <span className={s.price}>₦232M</span>
               <span>30% DOWN · REGISTERED TITLE</span>
             </div>
@@ -174,7 +174,7 @@ export default function FalconPage() {
             <div className={s.plan}>
               <div className={s['label-sm']}>The plan · One floor, one portfolio</div>
               <Image src={falcon.images.floorplan} alt="Floor plan of two mirrored 60 square metre one-bedroom units either side of the stair core" width={1561} height={656} sizes="(min-width: 1200px) 1152px, 100vw" loading="lazy" />
-              <p>Two mirrored 60 m² one-bedroom units sit either side of the stair core, and that pair is one portfolio. Each has a 32 m² living and kitchen space, a 15 m² bedroom, a 5 m² en-suite and a 3 m² guest WC.</p>
+              <p>Two mirrored 60 m² one-bedroom units sit either side of the stair core, and that pair is one portfolio, and you can also buy just one of the two. Each has a 32 m² living and kitchen space, a 15 m² bedroom, a 5 m² en-suite and a 3 m² guest WC.</p>
               <p className={s.small}>Images are artist’s impressions. Areas are taken from the architect’s drawings.</p>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function FalconPage() {
           <div className={s.head}>
             <div className={s.label}>The investment</div>
             <h2 className={s.h2}>Executive One-Bedroom Portfolio.</h2>
-            <p className={s.dim}>Two 60 m² one-bedroom units at early-phase prices. The studio portfolios are sold out.</p>
+            <p className={s.dim}>Two 60 m² one-bedroom units at early-phase prices. A single unit can also be bought, so ask us for its price. The studio portfolios are sold out.</p>
           </div>
           <div className={s['grid-320']} style={{ gap: 24 }}>
             {panels.map((p) => (
