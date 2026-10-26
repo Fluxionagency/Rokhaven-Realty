@@ -4,7 +4,7 @@
 // These values are read by the CookieBanner component at runtime.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? 'REPLACE_WITH_META_PIXEL_ID';
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? '27169428639340836';
 export const TIKTOK_PIXEL_ID = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID ?? 'REPLACE_WITH_TIKTOK_PIXEL_ID';
 
 export function isMetaPixelConfigured(): boolean {

@@ -1,0 +1,53 @@
+.banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a2e;
+  border-top: 1px solid rgba(192, 168, 112, 0.3);
+  z-index: 9999;
+  padding: 16px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: rgba(244, 237, 224, 0.85);
+  font-family: system-ui, sans-serif;
+}
+
+.text {
+  flex: 1 1 300px;
+}
+
+.text a {
+  color: #c0a870;
+  text-decoration: underline;
+}
+
+.btns {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.accept {
+  min-height: 40px;
+  padding: 0 20px;
+  background: #c0a870;
+  color: #0a1628;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.reject {
+  min-height: 40px;
+  padding: 0 20px;
+  background: none;
+  color: rgba(244, 237, 224, 0.7);
+  border: 1px solid rgba(192, 168, 112, 0.4);
+  font-size: 14px;
+  cursor: pointer;
+}
