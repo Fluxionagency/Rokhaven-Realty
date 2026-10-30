@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Banana Island Penthouse</title>
+<link rel="canonical" href="https://rokhaven.com/banana-island">
+<meta name="description" content="Penthouse duplex, maisonettes and apartments in a Banana Island building, with an animated 3D floor plan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Banana Island", "whatsapp": "2349167619009", "video": null, "live": {"title": "Filmed raw on site, before any staging", "text": "We film every home unedited so you can see exactly where construction stands. The newest walkthrough of this building is being edited now.", "meta": [["Status", "Under construction"], ["Completion", "March 2027"], ["Footage", "Raw, unstaged"]]}, "units": [{"key": "penthouse", "label": "5-bed penthouse duplex", "product": "Banana Island Penthouse (5 Bed)", "title": "Five-bedroom penthouse duplex", "price": "$4.5m", "avail": "2 units · available", "size": "≈ 1,300 m² over 2 levels", "lede": "The top two floors of a building of eight family homes. Grand living and dining rooms, a private gym and cinema below, five suites above, and panoramic views over Lagos and its waterways.", "facts": [["Size", "≈ 1,300 m², 2 levels"], ["Bedrooms", "5 suites + guest room"], ["Leisure", "Gym, cinema, spa room"], ["Master suite", "100 m² + terrace"], ["Staff", "3 staff bedrooms"], ["Completion", "March 2027"]], "levels": [{"key": "bi-penthouse-lower", "name": "Lower level", "plan": "/plans/bi-penthouse-lower.jpg", "sub": "Living, dining, kitchens, gym, cinema", "rooms": [["Reception / ante room", 34], ["Visitor's WC", 7], ["Main living room", 80], ["Dining room", 57], ["Living room 2", 33], ["Show kitchen", 26], ["Wet kitchen", 23], ["Store", 7], ["Courtyard", 16], ["Cinema", 38], ["Gymnasium", 70], ["Guest bedroom", 23], ["Guest bathroom", 7], ["BQ bathroom", 3], ["Terrace", 52]]}, {"key": "bi-penthouse-upper", "name": "Upper level", "plan": "/plans/bi-penthouse-upper.jpg", "sub": "Five suites, family lounge, study, spa", "rooms": [["Master bedroom", 100], ["Master bathroom", 19], ["Walk-in closet", 33], ["Bedroom 3", 31], ["Bathroom 3", 8], ["Bedroom 4", 32], ["Bathroom 4", 7], ["Bedroom 5", 36], ["Bathroom 5", 9], ["Family lounge", 84], ["Lounge", 26], ["Study", 26], ["Office", 15], ["Massage room / spa", 20], ["Void over living room", 33], ["Lobby", 16], ["W.C", 8], ["Box room", 4], ["Terraces", 79]]}], "highlights": [["Private elevator vestibules", "Lift access straight into the home"], ["Double-height living", "The upper lounge looks down into the main living room"], ["Show kitchen and wet kitchen", "Cook in one, host in the other"], ["Terraces on both levels", "Including a private master terrace"]]}, {"key": "maisonette", "label": "5-bed maisonette", "product": "Banana Island Maisonette (5 Bed)", "title": "Five-bedroom maisonette", "price": "$1.5m", "avail": "Available", "size": "465–535 m² over 2 levels", "lede": "A two-level family home in the same Banana Island building, with a large living and dining room below and the bedrooms and master suite above.", "planNote": "Layout C shown (≈ 465 m²). Four layouts, 465–535 m²", "facts": [["Size", "465–535 m², 2 levels"], ["Bedrooms", "5, incl. guest room"], ["Master suite", "Walk-in closet + terrace"], ["Staff", "2 BQs with bathrooms"], ["Building", "2 pools, gym, smart homes"], ["Completion", "March 2027"]], "levels": [{"key": "bi-maisonette-lower", "name": "Lower level", "plan": "/plans/bi-maisonette-lower.jpg", "sub": "Living, kitchen, guest room, BQs", "rooms": [["Living / dining room", 85], ["Kitchen", 32], ["Ante room", 10], ["Visitor's WC", 4], ["Store", 4], ["Laundry", 3], ["Guest bedroom", 24], ["Guest bathroom", 5], ["BQ 1", 9], ["BQ 1 bathroom", 4], ["BQ 2", 11], ["BQ 2 bathroom", 3], ["Terraces", 21]]}, {"key": "bi-maisonette-upper", "name": "Upper level", "plan": "/plans/bi-maisonette-upper.jpg", "sub": "Bedrooms and master suite", "rooms": [["Master bedroom", 56], ["Master bathroom", 16], ["Walk-in closet", 19], ["Bedroom 3", 18], ["Bathroom 3", 5], ["Bedroom 4", 23], ["Bathroom 4", 6], ["Bedroom 5", 19], ["Bathroom 5", 7], ["Family lounge", 20], ["Lobby", 4], ["Box room", 4], ["Terrace", 7]]}], "highlights": [["Two-level living", "Entertaining below, family upstairs"], ["Spiral staircase", "Up from the living room to the family lounge"], ["Two staff quarters", "Each with its own bathroom"], ["Same building", "Shares the pools, gym and security"]]}, {"key": "apartment", "label": "4-bed apartment", "product": "Banana Island Apartment (4 Bed)", "title": "Four-bedroom apartment", "price": "$1.5m", "avail": "Available", "size": "525–535 m² on one floor", "lede": "A full-floor family apartment with a 123 m² living and dining room, a private courtyard and four bedrooms, in the same Banana Island building.", "planNote": "Layout A shown (≈ 525 m²). Two layouts, 525–535 m²", "facts": [["Size", "525–535 m², one floor"], ["Bedrooms", "4"], ["Living / dining", "123 m²"], ["Outdoor", "Courtyard + terraces"], ["Building", "2 pools, gym, smart homes"], ["Completion", "March 2027"]], "levels": [{"key": "bi-apartment", "name": "Floor plan", "plan": "/plans/bi-apartment.jpg", "sub": "Single level", "rooms": [["Living / dining room", 123], ["Family lounge", 29], ["Kitchen", 35], ["Ante room", 12], ["Visitor's WC", 3], ["Lobby", 19], ["Courtyard", 17], ["Master bedroom", 38], ["Master bathroom", 13], ["Walk-in closet", 16], ["Master terrace", 6], ["Bedroom 2", 22], ["Bathroom 2", 8], ["Bedroom 3", 23], ["Bathroom 3", 6], ["Bedroom 4", 41], ["Bathroom 4", 7], ["Store", 3], ["Laundry", 2], ["BQ", 9], ["BQ bathroom", 3], ["Terraces", 19]]}], "highlights": [["Everything on one floor", "No stairs between living and bedrooms"], ["Private courtyard", "Light into the heart of the home"], ["Large family lounge", "Separate from the formal living room"], ["Same building", "Shares the pools, gym and security"]]}], "building": {"title": "Eight family homes in a gated Banana Island community", "intro": "A secured community close to golf courses, elite fitness centres, fine restaurants and galleries, with every home fitted for smart living and round-the-clock security.", "stats": [["8", "Family homes"], ["2", "Swimming pools"], ["24 h", "CCTV monitoring"], ["≈ 2,100 m²", "Development"]], "amenities": [["Two swimming pools", "A landscaped pool deck with sun loungers, set in the gardens beside the building."], ["State-of-the-art gym", "Cardio and strength equipment for residents."], ["Smart homes", "Control lighting, temperature and security cameras from your phone or by voice."], ["Security", "24-hour CCTV monitoring, security surveillance and video door-phones, inside a gated community."], ["Ample parking", "Covered parking under the building for residents and guests."], ["Penthouse extras", "Private elevator vestibules, a home cinema, a gym, a spa room and 3 staff bedrooms in each penthouse."]], "gallery": [{"src": "/gallery/bi-exterior.jpg", "caption": "The building", "cls": "wide tall"}, {"src": "/gallery/bi-pool.jpg", "caption": "Pool deck", "cls": "tall"}, {"src": "/gallery/bi-living.jpg", "caption": "Family lounge", "cls": "wide"}, {"src": "/gallery/bi-gym.jpg", "caption": "Residents’ gym"}], "mix": [["5-bed penthouse duplex", "2", "≈ 1,300 m²", "$4.5m", "2 available"], ["5-bed maisonette", "4", "465–535 m²", "$1.5m", "Available"], ["4-bed apartment", "2", "525–535 m²", "$1.5m", "Available"]], "nearby": {"title": "Close by", "items": ["Ikoyi Golf Club", "Lagos Polo Club", "Lagos Preparatory School", "The Wheatbaker", "The George", "Lagoon Hospitals", "The Garden, Ikoyi"]}}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ikoyi Maisonette Penthouse</title>
+<link rel="canonical" href="https://rokhaven.com/ikoyi-maisonette">
+<meta name="description" content="Four-bedroom maisonette penthouse in Ikoyi, with an animated 3D floor plan and live site video.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Ikoyi", "whatsapp": "2349167619009", "video": {"src": "/media/ikoyi-maisonette-walkthrough.mp4", "poster": "/media/ikoyi-maisonette-poster.jpg"}, "live": {"title": "The real penthouse, unfurnished and unstaged", "text": "No cinematic lighting and no fancy edits. This is the penthouse exactly as it stands today, filmed walking through on site.", "meta": [["Shown", "As built, unfurnished"], ["Length", "1 min 15 s"], ["Footage", "Raw, unstaged"]]}, "units": [{"key": "penthouse", "label": "4-bed maisonette penthouse", "product": "Old Ikoyi Maisonette Penthouse (4 Bed)", "title": "Four-bedroom maisonette penthouse", "price": "$2.6m", "avail": "1 unit · available", "size": "≈ 555 m² over 2 floors", "lede": "The two-floor penthouse at the top of a boutique Ikoyi building of nine residences: double-height living, a private cinema, a chef’s kitchen and a master suite with its own terrace.", "planNote": "The developer’s 3D floor plans, raised into a model", "schedNote": "Room lists from the developer’s brochure. Sizes per floor are approximate.", "facts": [["Size", "270 m² + 285 m²"], ["Bedrooms", "4"], ["Kitchens", "Chef’s + main"], ["Leisure", "Private cinema"], ["Building", "Pool, gym, concierge"], ["Parking", "2 parking floors"]], "levels": [{"key": "ik-penthouse-lower", "name": "First floor", "plan": "/plans/ik-penthouse-lower.jpg", "sub": "≈ 270 m²", "rooms": ["Bedrooms", "Bathrooms", "Family lounge", "Family living room", "Home office", "Closet", "Gym", "Terrace", "2 BQs with bathrooms", "Store room"]}, {"key": "ik-penthouse-upper", "name": "Second floor", "plan": "/plans/ik-penthouse-upper.jpg", "sub": "≈ 285 m²", "rooms": ["Living room", "Dining", "Chef’s kitchen", "Main kitchen", "Cinema", "Bedrooms", "Bathrooms", "Terrace", "Laundry", "Store room", "Visitor’s toilet"]}], "highlights": [["Private cinema", "Just off the entrance"], ["Double-height living", "Designed for hosting"], ["Floating staircase", "Up to a second family lounge"], ["Master suite", "Private terrace, walk-in closet, soaking tub"]]}], "building": {"title": "A boutique building of nine residences, run like a hotel", "intro": "A 24-hour concierge, a pool and gym on the ground floor, and smart-home systems tailored to each owner, in one of the most sought-after parts of Ikoyi.", "stats": [["9", "Residences"], ["24 h", "Concierge"], ["2", "Parking floors"], ["24/7", "Power supply"]], "amenities": [["Swimming pool", "A ground-floor pool with a sit-out deck and lounge area."], ["Gym", "A fitted gym with separate male and female changing rooms and a shower room."], ["24-hour concierge", "Reception and lobby staffed round the clock, plus a drivers’ lounge."], ["Smart home", "Bespoke systems set up for each owner: energy, security, convenience and entertainment."], ["Security", "Surveillance, discreet access control and 24/7 monitoring at every entry point."], ["Kitchens", "Miele and Bosch appliances, integrated fridge and dishwasher, electric hob with extraction, built-in oven and microwave, pantry and wine cellar."], ["Building services", "Elevators, central AC, central gas, garbage chute, fire alarm and smoke detectors, laundry room."]], "gallery": [{"src": "/gallery/ik-exterior.jpg", "caption": "The building", "cls": "wide"}, {"src": "/gallery/ik-pool.jpg", "caption": "Pool and deck", "cls": "tall"}, {"src": "/gallery/ik-living.jpg", "caption": "Living room", "cls": "wide"}, {"src": "/gallery/ik-kitchen.jpg", "caption": "Kitchen"}], "mix": [["4-bed maisonette penthouse", "1", "≈ 555 m²", "$2.6m", "1 available"], ["4-bed apartment", "—", "≈ 265 m²", "—", "Not available"]], "nearby": null}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

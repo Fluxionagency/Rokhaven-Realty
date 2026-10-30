@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Old Ikoyi Triplex Penthouse</title>
+<link rel="canonical" href="https://rokhaven.com/old-ikoyi-triplex">
+<meta name="description" content="Four-bedroom triplex penthouse and five-bedroom terrace homes in Old Ikoyi, with animated 3D floor plans and live site video.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Old Ikoyi", "whatsapp": "2349167619009", "video": {"src": "/media/old-ikoyi-triplex-walkthrough.mp4", "poster": "/media/old-ikoyi-triplex-poster.jpg"}, "live": {"title": "The current construction stage, filmed on site", "text": "Kept completely raw so you can see the structural layout, scale and true progress of the build exactly as it is today.", "meta": [["Status", "Under construction"], ["Completion", "August 2027"], ["Footage", "Raw, unstaged"]]}, "units": [{"key": "penthouse", "label": "4-bed triplex penthouse", "product": "Old Ikoyi Triplex Penthouse (4 Bed)", "title": "Four-bedroom triplex penthouse", "price": "$5m", "avail": "2 units · available", "size": "3 levels at the top of the building", "lede": "Three levels at the top of an eight-floor Ikoyi building: living, dining and two kitchens below, the bedroom suites in the middle, and a private rooftop with its own pool, gym, cinema and sauna.", "planNote": "The developer’s 3D floor plans, raised into a model", "schedNote": "Room lists from the developer’s floor plans.", "facts": [["Bedrooms", "4, en-suite"], ["Levels", "3, private lift"], ["Rooftop", "Pool, gym, cinema, sauna"], ["Kitchens", "Chef’s + main + pantry"], ["Status", "Under construction"], ["Completion", "August 2027"]], "levels": [{"key": "fx-penthouse-1", "name": "First floor", "plan": "/plans/fx-penthouse-1.jpg", "sub": "Living, dining, kitchens, office", "rooms": ["Ante room", "Visitor’s toilet", "Living room", "Lounge", "Dining room", "Home office", "Chef’s kitchen", "Main kitchen", "Pantry", "Laundry", "Box room", "BQ with bathroom", "Balcony", "Private lift"]}, {"key": "fx-penthouse-2", "name": "Second floor", "plan": "/plans/fx-penthouse-2.jpg", "sub": "Bedroom suites", "rooms": ["Master suite with freestanding bath", "Bedroom suites, each en-suite", "Family lounge", "Balconies", "Private lift"]}, {"key": "fx-penthouse-3", "name": "Rooftop", "plan": "/plans/fx-penthouse-3.jpg", "sub": "Private wellness and entertainment", "rooms": ["Rooftop pool", "Rooftop lounge and dining", "Private gym", "Private cinema", "Sauna", "Changing room", "Toilet"]}], "highlights": [["Private rooftop", "Pool, sun deck, lounge and outdoor dining"], ["Private lift", "Connecting all three levels"], ["Chef’s kitchen and main kitchen", "With a separate pantry and laundry"], ["Buy before completion", "Secure a unit at the current stage"]]}, {"key": "terrace", "label": "5-bed terrace + BQ", "product": "Old Ikoyi Terrace (5 Bed + BQ)", "title": "Five-bedroom terrace with BQ", "price": "$3m", "avail": "Available", "size": "3 levels with balconies", "lede": "A three-level home in the same building: living, dining and two kitchens on the first floor, family lounge and office on the second, and the master suite on the third.", "planNote": "The developer’s 3D floor plans, raised into a model", "schedNote": "Room lists from the developer’s floor plans.", "facts": [["Bedrooms", "5 + BQ"], ["Levels", "3"], ["Kitchens", "Chef’s + main"], ["Work", "Home office"], ["Building", "Rooftop pool, gym"], ["Status", "Under construction"]], "levels": [{"key": "fx-terrace-1", "name": "First floor", "plan": "/plans/fx-terrace-1.jpg", "sub": "Living and kitchens", "rooms": ["Ante room", "Visitor’s toilet", "Living room", "Dining room", "Chef’s kitchen", "Main kitchen", "Store room", "Laundry", "BQ", "BQ bathroom"]}, {"key": "fx-terrace-2", "name": "Second floor", "plan": "/plans/fx-terrace-2.jpg", "sub": "Family floor", "rooms": ["Family lounge", "Office", "Box room", "Bedroom 1", "Bathroom 1", "Bedroom 2", "Bathroom 2", "Balcony"]}, {"key": "fx-terrace-3", "name": "Third floor", "plan": "/plans/fx-terrace-3.jpg", "sub": "Master suite floor", "rooms": ["Master bedroom", "Master bathroom", "Bedroom 3", "Bathroom 3", "Balcony"]}], "highlights": [["Three private levels", "Living, family and sleeping floors kept apart"], ["Home office", "On the family floor"], ["Staff quarters", "BQ with its own bathroom"], ["Same building", "Shares the rooftop pool, gym and entertainment floor"]]}], "building": {"title": "Eight floors, an entertainment floor and a rooftop pool", "intro": "Ultra-modern architecture in a heavily guarded part of Ikoyi, with views of the city skyline, a 24/7 concierge and a whole floor set aside for leisure.", "stats": [["8", "Floors"], ["24/7", "Concierge"], ["1", "Entertainment floor"], ["Infinity", "Rooftop pool"]], "amenities": [["Infinity-edge rooftop pool", "A suspended pool with a covered lounge, outdoor dining and city views."], ["Entertainment floor", "A shared floor with an executive lounge, kitchenette, gym, cinema and kids’ play area."], ["Gymnasium", "Cardio and strength equipment with skyline views."], ["Rooftop bar and lounges", "An open rooftop bar plus balcony lounges."], ["Home automation", "Lighting, sound and climate controlled at a touch."], ["Security", "State-of-the-art security systems and CCTV in a heavily guarded neighbourhood."], ["Building services", "24/7 power, elevators, spacious parking and waste management."], ["Inside every home", "Large windows and balconies, walk-in closets, study rooms and modern kitchens."]], "gallery": [{"src": "/gallery/fx-exterior.jpg", "caption": "The building at night", "cls": "tall"}, {"src": "/gallery/fx-pool.jpg", "caption": "Suspended rooftop pool", "cls": "wide tall"}, {"src": "/gallery/fx-cinema.jpg", "caption": "Cinema", "cls": "wide"}, {"src": "/gallery/fx-gym.jpg", "caption": "Gymnasium"}, {"src": "/gallery/fx-lounge.jpg", "caption": "Executive lounge", "cls": "wide"}, {"src": "/gallery/fx-bar.jpg", "caption": "Lounge bar"}, {"src": "/gallery/fx-living.jpg", "caption": "Double-height living", "cls": "tall"}, {"src": "/gallery/fx-dining.jpg", "caption": "Dining and private lift", "cls": "wide"}, {"src": "/plans/fx-entertainment.jpg", "caption": "Entertainment floor plan", "cls": "wide plan"}], "mix": [["4-bed triplex penthouse", "2", "3 levels", "$5m", "2 available"], ["5-bed terrace + BQ", "—", "3 levels", "$3m", "Available"], ["4-bed apartment", "3", "1 floor", "—", "Sold out"]], "nearby": {"title": "The area", "items": ["Heavily guarded neighbourhood with security patrols", "Views of the city skyline", "Minutes from the Lekki–Ikoyi Link Bridge"], "note": "Exact address shared on enquiry."}}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

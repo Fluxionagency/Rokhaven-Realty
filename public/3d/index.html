@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Luxury Real Estate in Lagos, Nigeria | RokHaven Realty</title>
+<meta name="description" content="Fly over a 3D map of Lagos and explore RokHaven Realty listings in Banana Island, Ikoyi, Victoria Island and Yaba. Search by area, open any home for its 3D floor plan, prices and live site video.">
+<link rel="canonical" href="https://rokhaven.com/">
+<meta property="og:title" content="RokHaven Realty, Lagos in 3D">
+<meta property="og:description" content="Explore our Lagos listings on a live 3D map of the city.">
+<meta property="og:url" content="https://rokhaven.com/">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.ico">
+<script src="/rh-track.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fixed WebGL map of Lagos behind the page; scroll moves the camera between listings, panels ride over it. Single dark theme by choice (brand primary context: navy + bronze gold). */
+:root {
+  --navy-deep: #060F1C;
+  --navy: #0B1B35;
+  --slate: #2A3F5C;
+  --gold: #C0A870;
+  --gold-soft: rgba(192,168,112,.28);
+  --ivory: #F4EDE0;
+  --ivory-dim: rgba(244,237,224,.68);
+  --ivory-faint: rgba(244,237,224,.42);
+  --panel: rgba(8,20,40,.72);
+  --f-display: "DM Serif Display", "Didot", "Bodoni 72", Georgia, serif;
+  --f-body: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--navy-deep); color: var(--ivory); font-family: var(--f-body); font-size: 16px; line-height: 1.55; font-weight: 300; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--navy-deep); }
+
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+.no-webgl #scene { display: none; }
+.no-webgl body, body.no-webgl { background: radial-gradient(120% 80% at 20% 0%, #2A3F5C 0%, var(--navy) 45%, var(--navy-deep) 100%) fixed; }
+.vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(6,15,28,.78) 0%, rgba(6,15,28,.25) 42%, rgba(6,15,28,0) 65%), linear-gradient(0deg, rgba(6,15,28,.55) 0%, rgba(6,15,28,0) 30%); }
+#labels { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.place { position: absolute; left: 0; top: 0; font: 500 10px/1 var(--f-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--ivory-faint); white-space: nowrap; will-change: transform; transition: opacity .3s; }
+.osm-credit { position: fixed; z-index: 5; left: max(12px, env(safe-area-inset-left, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); font: 400 9px/1 var(--f-mono); letter-spacing: .06em; color: var(--ivory-faint); pointer-events: none; }
+.place.state { font-family: var(--f-display); font-size: 30px; letter-spacing: .3em; color: rgba(192,168,112,.85); }
+.place.water { font-family: var(--f-display); font-style: italic; letter-spacing: .08em; text-transform: none; font-size: 15px; color: rgba(192,168,112,.45); }
+.pin { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 8px; padding: 6px 11px 6px 8px; border: 1px solid var(--gold-soft); border-radius: 999px; background: rgba(6,15,28,.78); color: var(--ivory); font: 500 11px/1 var(--f-mono); letter-spacing: .08em; cursor: pointer; white-space: nowrap; will-change: transform; transition: border-color .25s, background .25s, opacity .3s; }
+.pin::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(192,168,112,.18); }
+.pin b { color: var(--gold); font-weight: 500; }
+.pin:hover, .pin.active { border-color: var(--gold); background: rgba(11,27,53,.95); }
+.pin:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+header.top { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 20; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: linear-gradient(180deg, rgba(6,15,28,.85), rgba(6,15,28,0)); }
+.top-inner { max-width: 1320px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--gold); text-decoration: none; }
+.brand svg { width: 26px; height: 26px; fill: var(--gold); flex: none; }
+.brand .wm { font-family: var(--f-display); font-size: 17px; letter-spacing: .22em; line-height: 1; }
+.brand .wm small { display: block; font-family: var(--f-body); font-weight: 300; font-size: 8.5px; letter-spacing: .46em; margin-top: 4px; opacity: .65; }
+.top nav { display: flex; align-items: center; gap: 26px; font-size: 13px; letter-spacing: .04em; }
+.top nav a { color: var(--ivory-dim); text-decoration: none; }
+.top nav a:hover { color: var(--ivory); }
+.top nav a.cta { color: var(--navy-deep); background: var(--gold); padding: 9px 16px; border-radius: 2px; font-weight: 500; }
+.top nav a.cta:hover { background: #d2bc86; color: var(--navy-deep); }
+@media (max-width: 720px) { .top nav a:not(.cta) { display: none; } .top nav a.cta { padding: 8px 12px; font-size: 12px; } }
+
+.rail { position: fixed; right: max(22px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); z-index: 20; display: flex; flex-direction: column; gap: 14px; }
+.rail button { display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: none; border: 0; padding: 2px 0; color: var(--ivory-faint); font: 400 10px/1 var(--f-mono); letter-spacing: .18em; text-transform: uppercase; cursor: pointer; }
+.rail button span { opacity: 0; transform: translateX(6px); transition: opacity .25s, transform .25s; }
+.rail button i { width: 18px; height: 1px; background: currentColor; transition: width .25s, background .25s; }
+.rail button:hover span, .rail button.active span { opacity: 1; transform: none; }
+.rail button.active { color: var(--gold); }
+.rail button.active i { width: 34px; background: var(--gold); }
+@media (max-width: 960px) { .rail { display: none; } }
+
+main { position: relative; z-index: 10; }
+.stop { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 110px 64px; }
+.stop-inner { width: 100%; max-width: 1320px; margin: 0 auto; }
+
+.hero h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(44px, 7.4vw, 104px); line-height: .98; letter-spacing: -.01em; margin: 0 0 26px; max-width: 11ch; text-wrap: balance; }
+.hero h1 em { color: var(--gold); font-style: italic; }
+.eyebrow { font: 500 11px/1 var(--f-mono); letter-spacing: .26em; text-transform: uppercase; color: var(--gold); margin: 0 0 22px; display: flex; align-items: center; gap: 12px; }
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--gold); }
+.hero .lede { font-size: clamp(16px, 1.5vw, 19px); color: var(--ivory-dim); max-width: 44ch; margin: 0 0 34px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 2px; font: 500 14px/1 var(--f-body); letter-spacing: .04em; text-decoration: none; cursor: pointer; border: 1px solid var(--gold); transition: background .2s, color .2s; }
+.btn.solid { background: var(--gold); color: var(--navy-deep); }
+.btn.solid:hover { background: #d2bc86; }
+.btn.ghost { background: rgba(6,15,28,.4); color: var(--ivory); border-color: var(--gold-soft); }
+.btn.ghost:hover { border-color: var(--gold); }
+.scroll-hint { margin-top: 56px; font: 400 10px/1 var(--f-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--ivory-faint); display: flex; align-items: center; gap: 12px; }
+.scroll-hint::after { content: ""; width: 1px; height: 34px; background: linear-gradient(var(--gold), transparent); animation: drip 2.2s ease-in-out infinite; }
+@keyframes drip { 0%,100% { transform: scaleY(.4); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
+@media (prefers-reduced-motion: reduce) { .scroll-hint::after { animation: none; } }
+
+.card { width: min(440px, 100%); background: var(--panel); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--gold-soft); padding: 30px 30px 26px; }
+.card .where { font: 500 11px/1 var(--f-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin: 0 0 16px; }
+.card h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(28px, 2.8vw, 38px); line-height: 1.05; margin: 0 0 14px; text-wrap: balance; }
+.price { display: flex; align-items: baseline; gap: 14px; margin: 0 0 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(192,168,112,.2); }
+.price strong { font-family: var(--f-display); font-weight: 400; font-size: 44px; line-height: 1; color: var(--gold); font-variant-numeric: lining-nums; }
+.price span { font: 400 11px/1.4 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ivory-dim); }
+.card p { color: var(--ivory-dim); margin: 0 0 18px; font-size: 15px; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin: 0 0 22px; padding: 0; list-style: none; }
+.facts li { min-width: 0; }
+.facts dt, .facts .k { font: 400 10px/1.3 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-faint); }
+.facts .v { font-size: 14px; color: var(--ivory); font-weight: 400; }
+.card .btn { padding: 12px 18px; font-size: 13px; }
+
+.contact .card { width: min(520px, 100%); }
+.lines { display: grid; gap: 10px; margin: 6px 0 22px; }
+.line { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid rgba(192,168,112,.2); background: rgba(6,15,28,.5); }
+.line .k { font: 400 10px/1.3 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-faint); }
+.line .v { font-size: 17px; color: var(--ivory); user-select: all; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.line > div { min-width: 0; }
+.copy { flex: none; background: none; border: 1px solid var(--gold-soft); color: var(--gold); font: 500 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; padding: 9px 12px; cursor: pointer; }
+.copy:hover { border-color: var(--gold); }
+.proto { margin-top: 26px; padding-top: 18px; border-top: 1px dashed rgba(192,168,112,.25); font: 400 11px/1.7 var(--f-mono); letter-spacing: .04em; color: var(--ivory-faint); }
+.proto b { color: var(--gold); font-weight: 500; }
+
+/* Home page shows the basics; full details live on each sales page */
+.card .facts li:nth-child(n+5) { display: none; }
+.card > p:not(.where) { display: none; }
+
+/* Other homes in the same building */
+.also { margin: -4px 0 22px; padding-top: 16px; border-top: 1px solid rgba(192,168,112,.2); display: grid; gap: 8px; }
+.also-k { font: 400 10px/1.3 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-faint); margin: 0 0 2px; }
+.unit { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid rgba(192,168,112,.18); background: rgba(6,15,28,.45); }
+.unit > div { min-width: 0; display: grid; gap: 2px; }
+.unit b { font-weight: 400; font-size: 14px; color: var(--ivory); }
+.unit span { font-size: 12px; color: var(--ivory-dim); }
+.unit strong { flex: none; font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--gold); line-height: 1; }
+@media (max-width: 720px) { .facts li:nth-child(n+5) { display: none; } .also { margin-bottom: 16px; } }
+
+/* Walkthrough video player */
+.btn.play::before { content: ""; width: 0; height: 0; border-left: 8px solid currentColor; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.player { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.player[hidden] { display: none; }
+.player-backdrop { position: absolute; inset: 0; background: rgba(4,10,20,.86); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.player-box { position: relative; display: flex; flex-direction: column; gap: 14px; max-width: 100%; max-height: 100%; animation: rise .35s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .player-box { animation: none; } }
+.player-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.player-head .where { font: 500 11px/1 var(--f-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
+.player-head h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 24px; line-height: 1.1; }
+.player-x { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: none; border: 1px solid var(--gold-soft); color: var(--ivory); cursor: pointer; }
+.player-x:hover { border-color: var(--gold); }
+.player-x svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+.player video { display: block; height: min(70vh, 860px); aspect-ratio: 9 / 16; max-width: 100%; background: #000; border: 1px solid var(--gold-soft); object-fit: contain; }
+.player-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 400 11px/1.4 var(--f-mono); letter-spacing: .08em; color: var(--ivory-dim); }
+.player-foot .btn { padding: 11px 16px; font-size: 13px; }
+body.modal-open { overflow: hidden; }
+@media (max-width: 720px) {
+  .player video { height: auto; width: 100%; max-height: calc(100svh - 190px); }
+  .player-head h3 { font-size: 20px; }
+}
+
+
+/* Area search */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.search { position: fixed; z-index: 25; top: calc(80px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 32px)); }
+.search form { display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 16px; background: rgba(6,15,28,.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--gold-soft); border-radius: 999px; }
+.search form:focus-within { border-color: var(--gold); }
+.search svg { width: 18px; height: 18px; flex: none; stroke: var(--gold); fill: none; stroke-width: 1.6; }
+.search input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--ivory); font: 400 15px/1.2 var(--f-body); padding: 8px 0; }
+.search input::placeholder { color: var(--ivory-faint); }
+.search input::-webkit-search-cancel-button { filter: invert(1); }
+.search button[type=submit] { flex: none; background: var(--gold); color: var(--navy-deep); border: 0; border-radius: 999px; padding: 10px 18px; font: 500 13px/1 var(--f-body); cursor: pointer; }
+.sug { list-style: none; margin: 8px 0 0; padding: 6px; background: rgba(6,15,28,.96); border: 1px solid var(--gold-soft); border-radius: 14px; max-height: 50vh; overflow: auto; }
+.sug button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 12px; background: none; border: 0; border-radius: 8px; color: var(--ivory); font: 400 15px/1.2 var(--f-body); cursor: pointer; text-align: left; }
+.sug button:hover, .sug button:focus-visible { background: rgba(192,168,112,.12); }
+.sug small { font: 400 10px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+.sug .none { padding: 12px; color: var(--ivory-faint); font-size: 14px; }
+body.searching main, body.searching .rail, body.searching .hint { display: none; }
+.results[hidden], .sug[hidden] { display: none; }
+.results { position: fixed; z-index: 20; left: max(24px, env(safe-area-inset-left, 0px)); top: calc(150px + env(safe-area-inset-top, 0px)); width: min(400px, calc(100% - 32px)); max-height: calc(100vh - 190px); overflow: auto; background: var(--panel); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--gold-soft); padding: 24px; display: grid; gap: 16px; }
+.results .where { font: 500 11px/1 var(--f-mono); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin: 0 0 10px; }
+.results h2 { font-family: var(--f-display); font-weight: 400; font-size: 36px; line-height: 1.05; margin: 0; }
+.r-count { margin: 6px 0 0; color: var(--ivory-dim); font-size: 14px; }
+.r-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.r-list li { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 6px 12px; padding: 12px 14px; border: 1px solid var(--gold-line); background: rgba(6,15,28,.5); }
+.r-fly { grid-row: span 2; background: none; border: 0; padding: 0; text-align: left; color: var(--ivory); cursor: pointer; display: grid; gap: 3px; min-width: 0; }
+.r-name { font: 500 10px/1.3 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.r-title { font-size: 15px; }
+.r-fly:hover .r-title { text-decoration: underline; text-underline-offset: 3px; }
+.r-list strong { font-family: var(--f-display); font-weight: 400; font-size: 18px; color: var(--gold); text-align: right; white-space: nowrap; }
+.r-list .btn { padding: 8px 14px; font-size: 12px; justify-self: end; }
+.r-empty { margin: 0; color: var(--ivory-dim); font-size: 15px; }
+.r-clear { justify-self: start; background: none; border: 1px solid var(--gold-soft); color: var(--ivory); font: 500 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; padding: 10px 14px; cursor: pointer; }
+.r-clear:hover { border-color: var(--gold); }
+@media (max-width: 720px) {
+  .search { top: calc(68px + env(safe-area-inset-top, 0px)); }
+  .search input { font-size: 16px; }
+  .search button[type=submit] { padding: 9px 14px; }
+  .results { left: 16px; right: 16px; width: auto; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-height: 46vh; padding: 18px; }
+  .results h2 { font-size: 28px; }
+  .ctrls { top: calc(124px + env(safe-area-inset-top, 0px)); }
+  .hero .stop-inner { padding-top: 40px; }
+}
+
+/* Free-look controls */
+.stop { touch-action: pan-y; cursor: grab; }
+.card, .stop .actions, .stop h1, .stop .lede { cursor: auto; }
+body.over-bldg .stop { cursor: pointer; }
+.pin.has-page.active b::after { content: " · Open ›"; color: var(--ivory); }
+body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.ctrls { position: fixed; z-index: 20; right: max(22px, env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 2px; padding: 4px; background: rgba(6,15,28,.8); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--gold-soft); }
+.ctrls button { width: 36px; height: 36px; display: grid; place-items: center; background: none; border: 0; color: var(--ivory-dim); cursor: pointer; }
+.ctrls button.txt { width: auto; padding: 0 12px; font: 500 10px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+.ctrls button:hover { color: var(--gold); background: rgba(192,168,112,.08); }
+.ctrls svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ctrls .sep { width: 1px; height: 20px; background: rgba(192,168,112,.2); margin: 0 3px; }
+.hint { position: fixed; z-index: 19; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 9px 16px; border: 1px solid var(--gold-soft); background: rgba(6,15,28,.82); font: 400 11px/1.3 var(--f-mono); letter-spacing: .08em; color: var(--ivory); white-space: nowrap; pointer-events: none; transition: opacity .5s; }
+.hint .mob { display: none; }
+.hint.gone { opacity: 0; }
+.no-webgl .ctrls, .no-webgl .hint { display: none; }
+
+@media (max-width: 720px) {
+  .ctrls { top: calc(72px + env(safe-area-inset-top, 0px)); bottom: auto; right: max(12px, env(safe-area-inset-right, 0px)); padding: 2px; }
+  .ctrls button { width: 34px; height: 34px; }
+  .ctrls button.txt { padding: 0 9px; font-size: 9px; }
+  .hint { bottom: auto; top: calc(120px + env(safe-area-inset-top, 0px)); }
+  .hint .desk { display: none; } .hint .mob { display: inline; }
+}
+@media (max-width: 720px) {
+  .vignette { background: linear-gradient(0deg, rgba(6,15,28,.92) 0%, rgba(6,15,28,.5) 45%, rgba(6,15,28,0) 70%); }
+  .stop { align-items: flex-end; padding-block: 96px 28px; }
+  .hero { align-items: flex-end; }
+  .card { padding: 22px 20px 20px; }
+  .price strong { font-size: 36px; }
+  .facts { gap: 10px 14px; }
+  .scroll-hint { margin-top: 32px; }
+  .card > p:not(.where) { display: none; }
+  .contact .card > p:not(.where) { display: block; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div id="labels" aria-hidden="false"></div>
+<div class="osm-credit">Map data © OpenStreetMap contributors</div>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#top" aria-label="RokHaven Realty, back to top">
+      <svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg>
+      <span class="wm">ROKHAVEN<small>REALTY</small></span>
+    </a>
+    <nav aria-label="Main">
+      <a href="#banana">Listings</a>
+      <a href="/listings">More homes</a>
+      <a href="/journal">Journal</a>
+      <a class="cta" href="#viewing">Book a viewing</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="rail" aria-label="Tour stops">
+  <button data-go="0"><span>Lagos</span><i></i></button>
+  <button data-go="1"><span>Banana Island</span><i></i></button>
+  <button data-go="2"><span>Old Ikoyi triplex</span><i></i></button>
+  <button data-go="3"><span>Ikoyi maisonette</span><i></i></button>
+  <button data-go="4"><span>Victoria Island</span><i></i></button>
+  <button data-go="5"><span>Banana Island tower</span><i></i></button>
+  <button data-go="6"><span>2 units of 1 bed</span><i></i></button>
+  <button data-go="7"><span>Viewing</span><i></i></button>
+</nav>
+
+<div class="ctrls" role="group" aria-label="3D view controls">
+  <button type="button" data-act="left" aria-label="Rotate left"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5 3 9l4 4M3.5 9H12a5 5 0 0 1 0 10"/></svg></button>
+  <button type="button" data-act="right" aria-label="Rotate right"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m13 5 4 4-4 4M16.5 9H8a5 5 0 0 0 0 10"/></svg></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" data-act="in" aria-label="Zoom in"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></button>
+  <button type="button" data-act="out" aria-label="Zoom out"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12"/></svg></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" data-act="reset" class="txt">Reset view</button>
+</div>
+<div class="hint" id="hint" aria-hidden="true"><span class="desk">Drag the city to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></div>
+
+<div class="search" role="search">
+  <form id="area-form" autocomplete="off">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4.5 4.5"/></svg>
+    <label class="sr" for="area-q">Search an area</label>
+    <input id="area-q" type="search" placeholder="Search an area: Ikoyi, Lekki Phase 1, VI…" enterkeyhint="search">
+    <button type="submit">Search</button>
+  </form>
+  <ul id="area-sug" class="sug" role="listbox" hidden></ul>
+</div>
+<aside class="results" id="results" hidden aria-live="polite"></aside>
+
+<main id="top">
+  <section class="stop hero" id="hero" data-stop="0">
+    <div class="stop-inner">
+      <p class="eyebrow">Banana Island · Ikoyi · Victoria Island</p>
+      <h1>Lagos, from the <em>top floor.</em></h1>
+      <p class="lede">Penthouses on the islands of Lagos, shown exactly as they are. Scroll to fly over the city to each home we’re selling now.</p>
+      <div class="actions">
+        <a class="btn solid" href="#banana">Explore the listings</a>
+        <a class="btn ghost" href="#viewing">Book a private viewing</a>
+      </div>
+      <div class="scroll-hint">Scroll to fly in</div>
+    </div>
+  </section>
+
+  <section class="stop" id="banana" data-stop="1">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Banana Island</p>
+        <h2>Five-bedroom penthouse duplex</h2>
+        <div class="price"><strong>$4.5m</strong><span>2 units<br>available</span></div>
+        <p>About 1,300 m² across the top two floors of a building of eight family homes, with a private elevator and panoramic views over Lagos and its waterways.</p>
+        <ul class="facts">
+          <li><div class="k">Size</div><div class="v">≈ 1,300 m², 2 levels</div></li>
+          <li><div class="k">Bedrooms</div><div class="v">5 suites + guest room</div></li>
+          <li><div class="k">Leisure</div><div class="v">Gym, cinema, spa room</div></li>
+          <li><div class="k">Master suite</div><div class="v">100 m² + terrace</div></li>
+          <li><div class="k">Building</div><div class="v">2 pools, smart homes</div></li>
+          <li><div class="k">Completion</div><div class="v">March 2027</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>5-bedroom maisonette</b><span>465–535 m² over 2 levels</span></div><strong>$1.5m</strong></div>
+          <div class="unit"><div><b>4-bedroom apartment</b><span>525–535 m² on one floor</span></div><strong>$1.5m</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/banana-island">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="triplex" data-stop="2">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Old Ikoyi</p>
+        <h2>Four-bedroom triplex penthouse</h2>
+        <div class="price"><strong>$5m</strong><span>2 units<br>available</span></div>
+        <p>Three levels: double-height living below, four bedrooms in the middle, and a whole top floor for wellness with views over the canopy and water.</p>
+        <ul class="facts">
+          <li><div class="k">Bedrooms</div><div class="v">4</div></li>
+          <li><div class="k">Levels</div><div class="v">3, private lift</div></li>
+          <li><div class="k">Top floor</div><div class="v">Pool, gym, sauna, cinema</div></li>
+          <li><div class="k">Kitchens</div><div class="v">Wet and dry</div></li>
+          <li><div class="k">Status</div><div class="v">Under construction</div></li>
+          <li><div class="k">Completion</div><div class="v">August 2027</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>5-bedroom terrace + BQ</b><span>3 levels</span></div><strong>$3m</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/old-ikoyi-triplex">Explore these homes</a><a class="btn ghost" href="#viewing">Book a site inspection</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="maisonette" data-stop="3">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Ikoyi</p>
+        <h2>Four-bedroom maisonette penthouse</h2>
+        <div class="price"><strong>$2.6m</strong><span>1 unit<br>available</span></div>
+        <p>The two-floor penthouse at the top of a boutique building of nine residences. Private cinema, double-height living and a master suite with its own terrace.</p>
+        <ul class="facts">
+          <li><div class="k">Bedrooms</div><div class="v">4</div></li>
+          <li><div class="k">Size</div><div class="v">270 m² + 285 m²</div></li>
+          <li><div class="k">Kitchens</div><div class="v">Chef’s + main</div></li>
+          <li><div class="k">Building</div><div class="v">Pool, gym, concierge</div></li>
+          <li><div class="k">Home</div><div class="v">Smart home, central AC</div></li>
+          <li><div class="k">Parking</div><div class="v">2 parking floors</div></li>
+        </ul>
+        <div class="actions"><a class="btn solid" href="/ikoyi-maisonette">Explore this home</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="vi-apartments" data-stop="4">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Victoria Island</p>
+        <h2>One-, two- and three-bedroom apartments</h2>
+        <div class="price"><strong>₦550m</strong><span>2 bedrooms<br>available</span></div>
+        <p>Homes in a new smart tower in Victoria Island, with a rooftop gym, pool deck, fine dining, co-working and solar backup.</p>
+        <ul class="facts">
+          <li><div class="k">2-bedroom</div><div class="v">142–163 m²</div></li>
+          <li><div class="k">Leisure</div><div class="v">Rooftop gym, pool</div></li>
+          <li><div class="k">Power</div><div class="v">Solar + generator</div></li>
+          <li><div class="k">Building</div><div class="v">Concierge, 3 lifts</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>3-bedroom apartment</b><span>Victoria Island</span></div><strong>₦700m</strong></div>
+          <div class="unit"><div><b>1-bedroom apartment</b><span>71 m²</span></div><strong style="font-size:15px">Price on request</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/victoria-island">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="bi-tower" data-stop="5">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Banana Island</p>
+        <h2>Three-bedroom apartments in the island’s tallest tower</h2>
+        <div class="price"><strong>$676k</strong><span>From · pay over<br>36 months</span></div>
+        <p>Twenty storeys in two towers joined by a sky bridge, with a pool deck, gym, spa and 24-hour concierge.</p>
+        <ul class="facts">
+          <li><div class="k">3-bedroom</div><div class="v">232–298 m²</div></li>
+          <li><div class="k">Payment</div><div class="v">35% + 36 months</div></li>
+          <li><div class="k">Leisure</div><div class="v">Pool, gym, spa</div></li>
+          <li><div class="k">Building</div><div class="v">20 storeys</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>4-bedroom maisonette</b><span>354–536 m² over 2 levels</span></div><strong>$1.23m+</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/banana-island-tower">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="falcon" data-stop="6">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Fadeyi, Yaba</p>
+        <h2>2 units of 1 bed</h2>
+        <div class="price"><strong>₦232M</strong><span>From · 2-unit<br>portfolio</span></div>
+        <p>Furnished one-bedroom apartments let by the month to working professionals. A professional team manages the tenants and pays you.</p>
+        <ul class="facts">
+          <li><div class="k">Portfolio</div><div class="v">2 × 60 m² one-beds</div></li>
+          <li><div class="k">Est. rent</div><div class="v">₦18M–22M / yr</div></li>
+          <li><div class="k">Payment</div><div class="v">30% down, 6–8 months</div></li>
+          <li><div class="k">Title</div><div class="v">Registered Conveyance</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>Part-furnished portfolio</b><span>TV, 2 ACs, bed, couches, fridge, cooker</span></div><strong>₦278M</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/falcon-fadeyi-yaba">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop contact" id="viewing" data-stop="7">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Private viewings</p>
+        <h2>See it in person, or on a live video walkthrough</h2>
+        <p>Tell us which home you’d like to see. We’ll send full pricing, payment plans and title details privately.</p>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="https://wa.me/2349167619009" target="_blank" rel="noopener">Message on WhatsApp</a></div>
+        <div class="proto">The map is the real Lagos State: coastline, lagoons, roads, bridges and over 35,000 building footprints. Listing buildings are placed by neighbourhood, not exact plot. Map data © OpenStreetMap contributors (ODbL).</div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/map/lagos-geo.js"></script>
+<script src="/map/lagos-buildings.js"></script>
+<script src="/map/lagos-areas.js"></script>
+<script>
+(function () {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isSmall = () => window.innerWidth < 720;
+  const lowPower = isSmall() || (navigator.hardwareConcurrency || 8) <= 4;
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.copy;
+    const done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1600); };
+    const select = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById(b.dataset.target)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected'; setTimeout(() => b.textContent = 'Copy', 1600); };
+    try { navigator.clipboard.writeText(t).then(done, select); } catch (e) { select(); }
+  }));
+
+  // Each listing has its own sales page
+  const PAGES = { 1: '/banana-island', 2: '/old-ikoyi-triplex', 3: '/ikoyi-maisonette', 4: '/victoria-island', 5: '/banana-island-tower', 6: '/falcon-fadeyi-yaba' };
+  const openPage = id => { if (PAGES[id]) window.location.href = PAGES[id]; };
+
+  const sections = [...document.querySelectorAll('.stop')];
+  const railBtns = [...document.querySelectorAll('.rail button')];
+  railBtns.forEach(b => b.addEventListener('click', () => sections[+b.dataset.go].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })));
+
+  if (typeof THREE === 'undefined') { document.body.classList.add('no-webgl'); return; }
+
+  const canvas = document.getElementById('scene');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: !lowPower, powerPreference: 'high-performance' });
+  } catch (e) { document.body.classList.add('no-webgl'); return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1.25 : 1.75));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+
+  const scene = new THREE.Scene();
+  const NAVY = new THREE.Color('#0B1B35');
+  scene.background = new THREE.Color('#081428');
+  scene.fog = new THREE.FogExp2(0x0B1B35, 0.004);
+
+  const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.3, 30000);
+
+  // Seeded random so the skyline looks the same for every visitor
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const rand = rng(20261030);
+
+  // Lights: dusk over the lagoon
+  scene.add(new THREE.HemisphereLight(0x3a5272, 0x060F1C, 0.9));
+  const sun = new THREE.DirectionalLight(0xE8C98A, 1.6);
+  sun.position.set(-1200, 380, 300);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x6c86b0, 0.35);
+  fill.position.set(80, 60, 80);
+  scene.add(fill);
+
+  // Horizon glow (setting sun, west)
+  (function () {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'); const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(232,201,138,0.85)'); gr.addColorStop(0.25, 'rgba(192,168,112,0.35)'); gr.addColorStop(1, 'rgba(192,168,112,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+    sp.position.set(-6000, 300, 600); sp.scale.set(5200, 3000, 1); scene.add(sp);
+  })();
+
+  // Water
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(60000, 60000), new THREE.MeshStandardMaterial({ color: 0x050d1b, roughness: 0.25, metalness: 0.8 }));
+  water.rotation.x = -Math.PI / 2; scene.add(water);
+
+  // Real Lagos geography from OpenStreetMap (x = east, z = south, 1 unit = 20 m).
+  const G = window.LAGOS_GEO || { land: [], outline: [], roads: [], places: [], water: [] };
+  const LAND_H = 0.3;
+  const landMat = new THREE.MeshStandardMaterial({ color: 0x24395a, emissive: 0x15243c, roughness: 0.95, metalness: 0.0 });
+  const shoreSeg = [];
+  G.land.forEach(poly => {
+    const s = new THREE.Shape(poly[0].map(([x, z]) => new THREE.Vector2(x, -z)));
+    poly.slice(1).forEach(h => s.holes.push(new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x, -z)))));
+    const g = new THREE.ExtrudeGeometry(s, { depth: LAND_H, bevelEnabled: false, curveSegments: 1 }); g.rotateX(-Math.PI / 2);
+    scene.add(new THREE.Mesh(g, landMat));
+    poly.forEach(r => { for (let i = 0; i < r.length; i++) { const a = r[i], b = r[(i + 1) % r.length]; shoreSeg.push(a[0], LAND_H + 0.02, a[1], b[0], LAND_H + 0.02, b[1]); } });
+  });
+  const segs = (arr, mat) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); const l = new THREE.LineSegments(g, mat); scene.add(l); return l; };
+  segs(shoreSeg, new THREE.LineBasicMaterial({ color: 0xC0A870, transparent: true, opacity: 0.5 }));
+  // Lagos State boundary
+  const stateSeg = [];
+  G.outline.forEach(r => { for (let i = 0; i < r.length - 1; i++) stateSeg.push(r[i][0], LAND_H + 0.15, r[i][1], r[i + 1][0], LAND_H + 0.15, r[i + 1][1]); });
+  segs(stateSeg, new THREE.LineBasicMaterial({ color: 0xC0A870, transparent: true, opacity: 0.6 }));
+
+  // Featured listings
+  const featured = [
+    { id: 1, tags: ['Banana Island', 'Ikoyi'], title: '5-bed penthouse, maisonettes and apartments', name: 'Banana Island', price: '$1.5m–4.5m', pos: new THREE.Vector3(69.1, LAND_H, -74.6), h: 2.9, w: 2.4, model: 'banana', rotY: -Math.PI / 2, s: 0.55, clear: 3.6, ringScale: 1.15 },
+    { id: 2, tags: ['Old Ikoyi', 'Ikoyi'], title: '4-bed triplex penthouse and 5-bed terraces', name: 'Old Ikoyi', price: '$3m–5m', pos: new THREE.Vector3(-28, LAND_H, -27), h: 3.0, w: 2.6, model: 'fenry', rotY: Math.PI, s: 0.55, clear: 2.6, ringScale: 0.85 },
+    { id: 3, tags: ['Ikoyi', 'South-West Ikoyi'], title: '4-bed maisonette penthouse', name: 'Ikoyi', price: '$2.6m', pos: new THREE.Vector3(11, LAND_H, -33), h: 3.2, w: 2.4, model: 'courtyard', rotY: -Math.PI / 4, s: 0.55, clear: 2.9, ringScale: 0.9 },
+    { id: 4, tags: ['Victoria Island'], title: '1-, 2- and 3-bed apartments', name: 'Victoria Island', price: '₦550m–700m', pos: new THREE.Vector3(-25, LAND_H, 100), h: 5.6, w: 2.4, model: 'vi', rotY: -0.73, s: 0.55, clear: 3.2, ringScale: 1.0 },
+    { id: 5, tags: ['Banana Island', 'Ikoyi'], title: '3-bed apartments and 4-bed maisonettes', name: 'Banana Island tower', price: '$676k–2.19m', pos: new THREE.Vector3(95, LAND_H, -66), h: 8.0, w: 3.0, model: 'bijou', rotY: 0.35, s: 0.55, clear: 4.4, ringScale: 1.6 },
+    { id: 6, tags: ['Fadeyi', 'Yaba'], title: 'One-bedroom rental portfolios from ₦232M', name: '2 units of 1 bed', price: '₦232M–278M', pos: new THREE.Vector3(-398, LAND_H, -381.7), h: 2.4, w: 2.4, model: 'falcon', rotY: 0.4, s: 0.55, clear: 3.6, ringScale: 1.2 }
+  ];
+
+  // Banana Island penthouse building, modelled from the developer's corner, front and side elevations:
+  // dark columns and parking at ground level, three floors in white, grey, charcoal and timber,
+  // then the two-floor penthouse behind deep cantilevered white slabs with glass rails and planters,
+  // a white frame pier, a charcoal louvred strip, a louvred rooftop screen, and the pool beside the building.
+  function buildBananaPenthouse() {
+    const g = new THREE.Group();
+    const FW = 4.4, SD = 7.4, GH = 0.8, FH = 0.72, LB = 3 * FH, PB = 2 * FH, TOP = GH + LB + PB, zf = SD / 2, xs = FW / 2, py = GH + LB;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const white = M(0xeceff2, .6), grey = M(0x8d9296, .7), charcoal = M(0x23272e, .8), timber = M(0x8f5d3d, .7), slat = M(0x3a3f47, .6);
+    const glass = new THREE.MeshStandardMaterial({ color: 0xa9cbe0, transparent: true, opacity: .38, roughness: .1, metalness: .3, depthWrite: false });
+    const green = M(0x2f5a3a, .9);
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.position.set(x, y, z); p.rotation.y = ry || 0; g.add(p); };
+
+    // Plot, boundary wall, pool and deck behind the building, trees
+    box(5.9, 0.04, 10.2, M(0x1e3326, 1), 0, 0.02, -0.9);
+    box(5.9, 0.4, 0.06, charcoal, 0, 0.2, 4.2); box(5.9, 0.4, 0.06, charcoal, 0, 0.2, -6.0);
+    [-2.95, 2.95].forEach(x => box(0.06, 0.4, 10.2, charcoal, x, 0.2, -0.9));
+    box(3.6, 0.06, 1.7, M(0xa07a55, .8), 0, 0.05, -zf - 1.2);
+    const pool = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 1.05), new THREE.MeshBasicMaterial({ color: 0x3cb6d8 }));
+    pool.rotation.x = -Math.PI / 2; pool.position.set(-0.1, 0.09, -zf - 1.2); g.add(pool);
+    [[-2.5, -5.4], [2.5, -5.4], [2.5, 3.8], [-2.5, 3.8]].forEach(([x, z]) => { const t = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), green); t.position.set(x, 0.6, z); g.add(t); });
+
+    // Ground: dark columns, lobby cores with timber doors, parked cars, dark podium band
+    [-1.9, -0.65, 0.65, 1.9].forEach(x => { for (let z = -3.3; z <= 3.31; z += 1.1) box(0.12, GH, 0.12, charcoal, x, GH / 2, z); });
+    [[1.2, 1.4], [1.2, -2.0]].forEach(([x, z]) => { box(1.0, GH - 0.04, 1.0, grey, x, GH / 2, z); box(0.03, 0.55, 0.34, timber, x + 0.52, 0.29, z); });
+    const cars = [0x8b1e1e, 0x9aa1a8, 0x1a1f29, 0x3d4656, 0xb32626];
+    [-3.0, -1.6, -0.2, 2.6].forEach((z, i) => box(0.6, 0.18, 0.34, M(cars[i % 5], .35, .5), -1.2, 0.13, z));
+    box(FW + 0.12, 0.12, SD + 0.12, charcoal, 0, GH, 0);
+
+    // Lower three floors
+    box(FW, LB, SD, white, 0, GH + LB / 2, 0);
+    // Penthouse duplex: glazed box set back behind cantilevered slabs
+    box(FW - 0.2, PB, SD - 0.7, white, 0, py + PB / 2, -0.35);
+    [py, py + FH, TOP].forEach(y => box(FW + 0.16, 0.13, SD + 0.12, white, 0, y, 0.06));
+    for (let k = 0; k < 2; k++) {
+      const y0 = py + k * FH, yc = y0 + FH * 0.52;
+      box(FW, 0.22, 0.02, glass, 0, y0 + 0.18, zf + 0.1);
+      box(0.02, 0.22, SD, glass, xs + 0.07, y0 + 0.18, 0);
+      pane(FW - 0.5, FH * 0.78, warm, 0, yc, zf - 0.7 + 0.012);
+      [-2.6, -0.9, 0.8, 2.5].forEach(z => pane(1.3, FH * 0.72, rand() < .8 ? warm : soft, xs - 0.1 + 0.012, yc, z, Math.PI / 2));
+      [[-1.6, zf - 0.05], [0.9, zf - 0.05], [xs - 0.15, 1.6], [xs - 0.15, -1.8]].forEach(([x, z]) => { box(0.3, 0.14, 0.18, charcoal, x, y0 + 0.14, z); const p = new THREE.Mesh(new THREE.SphereGeometry(0.17, 8, 6), green); p.position.set(x, y0 + 0.32, z); g.add(p); });
+    }
+    // Front: white frame pier, charcoal louvred strip, timber strips, grey and timber panels
+    box(0.38, TOP - GH + 0.13, 0.22, white, -0.55, GH + (TOP - GH + 0.13) / 2, zf + 0.06);
+    const stripH = LB + FH * 0.6;
+    box(0.42, stripH, 0.1, charcoal, -0.1, GH + stripH / 2, zf + 0.05);
+    for (let i = 0; i < 6; i++) box(0.025, stripH, 0.05, slat, -0.27 + i * 0.07, GH + stripH / 2, zf + 0.12);
+    [-1.62, -1.42].forEach(x => box(0.08, LB * 0.92, 0.04, timber, x, GH + LB / 2, zf + 0.02));
+    box(2.1, LB, 0.06, grey, 1.15, GH + LB / 2, zf + 0.03);
+    box(1.05, 2 * FH, 0.1, timber, 1.68, GH + FH, zf + 0.06);
+    box(2.2, 0.08, 0.14, charcoal, 1.15, GH + 2 * FH, zf + 0.08);
+    for (let fl = 0; fl < 3; fl++) {
+      const yc = GH + fl * FH + FH * 0.5;
+      pane(0.32, FH * 0.55, lit(), -1.95, yc, zf + 0.012); pane(0.32, FH * 0.55, lit(), -1.05, yc, zf + 0.012);
+      pane(0.34, FH * 0.55, lit(), 0.6, yc, zf + 0.065);
+      if (fl < 2) { pane(0.08, FH * 0.5, lit(), 1.45, yc, zf + 0.115); pane(0.08, FH * 0.5, lit(), 1.9, yc, zf + 0.115); }
+      else pane(0.34, FH * 0.55, lit(), 1.7, yc, zf + 0.065);
+      // Long side: grey cladding, recessed balcony bays with glass rails
+      [-2.4, 0.2, 2.6].forEach(zc => {
+        pane(1.4, FH * 0.62, lit(), xs + 0.065, yc, zc, Math.PI / 2);
+        box(0.4, 0.05, 1.5, white, xs + 0.2, GH + fl * FH + 0.025, zc);
+        box(0.02, 0.2, 1.5, glass, xs + 0.39, GH + fl * FH + 0.14, zc);
+      });
+      // Back and far side windows
+      [-1.4, 0, 1.4].forEach(x => pane(0.6, FH * 0.5, lit(), x, yc, -zf - 0.012, Math.PI));
+      [-2.4, -0.8, 0.8, 2.4].forEach(z => pane(0.7, FH * 0.5, lit(), -xs - 0.012, yc, z, -Math.PI / 2));
+    }
+    box(0.06, LB, SD, grey, xs + 0.03, GH + LB / 2, 0);
+    // Long side: charcoal vertical band with timber inserts
+    box(0.1, LB + PB, 0.45, charcoal, xs + 0.08, GH + (LB + PB) / 2, -1.1);
+    for (let fl = 0; fl < 5; fl++) box(0.04, FH * 0.4, 0.12, timber, xs + 0.14, GH + fl * FH + FH * 0.5, -1.22);
+    // Louvred rooftop screen (front right)
+    const sy = TOP + 0.07;
+    box(FW / 2, 0.05, 1.6, charcoal, FW / 4, sy + 0.5, zf - 0.8);
+    for (let i = 0; i < 15; i++) box(0.03, 0.5, 0.03, charcoal, 0.05 + i * 0.145, sy + 0.25, zf - 0.02);
+    for (let i = 0; i < 11; i++) box(0.03, 0.5, 0.03, charcoal, xs - 0.02, sy + 0.25, zf - 0.15 - i * 0.145);
+
+    const lamp = new THREE.PointLight(0xffdcaa, 12, 8, 2); lamp.position.set(2.6, 3.0, 2.6); g.add(lamp);
+    return g;
+  }
+
+  // Old Ikoyi triplex building, modelled from the developer's front and corner renders:
+  // beige stone podium with slatted gate, a slim eight-floor tower, a charcoal central spine with
+  // gold light lines, stacked cantilevered balcony boxes with timber backs and glass rails on the right,
+  // a solid stone column with balconies on the left, warm light strips on slab edges, and a roof frame.
+  function buildFenry() {
+    const g = new THREE.Group();
+    const FW = 3.2, SD = 5.0, GH = 0.75, FH = 0.62, N = 7, TOP = GH + N * FH, zf = SD / 2, xs = FW / 2;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const stone = M(0xdccfb4, .7), stoneDk = M(0xc9b994, .75), charcoal = M(0x2a2e35, .8), grey = M(0x5b6068, .7), timber = M(0x9a6440, .7);
+    const glass = new THREE.MeshStandardMaterial({ color: 0xa9cbe0, transparent: true, opacity: .38, roughness: .1, metalness: .3, depthWrite: false });
+    const led = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const green = M(0x2f5a3a, .9);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+
+    // Plot, wall and trees
+    box(5.0, 0.04, 7.2, M(0x1e3326, 1), 0, 0.02, 0.4);
+    box(5.0, 0.32, 0.06, stoneDk, 0, 0.16, 4.0); [-2.5, 2.5].forEach(x => box(0.06, 0.32, 7.2, stoneDk, x, 0.16, 0.4));
+    [[-2.0, 3.4], [2.0, 3.4], [-2.0, -2.6], [2.0, -2.4]].forEach(([x, z]) => { const t = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), green); t.position.set(x, 0.75, z); g.add(t); box(0.06, 0.5, 0.06, charcoal, x, 0.25, z); });
+
+    // Podium: stone base, slatted gate, grey panel with windows, warm light strip
+    box(FW + 0.5, GH, SD + 0.3, stone, 0, GH / 2, 0);
+    box(0.9, GH * 0.82, 0.05, charcoal, -0.8, GH * 0.41, zf + 0.17);
+    for (let i = 0; i < 9; i++) box(0.035, GH * 0.8, 0.03, grey, -1.2 + i * 0.1, GH * 0.41, zf + 0.21);
+    box(1.4, GH * 0.7, 0.05, grey, 0.75, GH * 0.4, zf + 0.17);
+    pane(0.5, 0.26, lit(), 0.45, GH * 0.45, zf + 0.2); pane(0.5, 0.26, lit(), 1.05, GH * 0.45, zf + 0.2);
+    box(FW + 0.5, 0.03, 0.03, led, 0, GH - 0.02, zf + 0.17);
+
+    // Tower body
+    box(FW, N * FH, SD, stone, 0, GH + N * FH / 2, 0);
+    // Roof frame and parapet
+    box(FW + 0.3, 0.14, SD + 0.2, stone, 0, TOP + 0.07, 0.05);
+    box(FW + 0.3, 0.025, 0.025, led, 0, TOP, zf + 0.16);
+
+    // Central charcoal spine with gold light lines and a chevron near the top
+    const spineH = (N - 1) * FH;
+    box(0.42, spineH, 0.14, charcoal, -0.2, GH + spineH / 2, zf + 0.07);
+    [-0.32, -0.08].forEach(x => box(0.025, spineH * 0.86, 0.02, led, x, GH + spineH * 0.43, zf + 0.15));
+    const cy = GH + spineH * 0.9;
+    [[-0.32, 1], [-0.08, -1]].forEach(([x, s]) => { const b = box(0.025, 0.36, 0.02, led, x + s * 0.06, cy, zf + 0.15); b.rotation.z = s * 0.6; });
+
+    for (let fl = 0; fl < N; fl++) {
+      const y0 = GH + fl * FH, yc = y0 + FH * 0.5;
+      // Right stack: projecting stone frame boxes with timber backs and glass rails
+      if (fl < N - 1) {
+        const bx = 0.82, bw = 1.42, dep = 0.38;
+        box(bw, 0.07, dep, stone, bx, y0 + 0.035, zf + dep / 2);
+        box(bw, 0.07, dep, stone, bx, y0 + FH - 0.035, zf + dep / 2);
+        box(0.07, FH, dep, stone, bx + bw / 2 - 0.035, yc, zf + dep / 2);
+        box(bw - 0.1, FH - 0.14, 0.02, fl % 2 ? timber : charcoal, bx, yc, zf + 0.012);
+        pane(0.42, FH * 0.6, lit(), bx - 0.2, yc, zf + 0.03);
+        box(bw - 0.08, 0.2, 0.02, glass, bx, y0 + 0.17, zf + dep - 0.01);
+        box(bw, 0.02, 0.02, led, bx, y0 + 0.005, zf + dep);
+        if (rand() < .6) { const pl = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), green); pl.position.set(bx + 0.5, y0 + 0.16, zf + dep - 0.1); g.add(pl); }
+      }
+      // Left stone column: balconies on the lower floors and floor 4, solid with a window elsewhere
+      const lx = -1.0;
+      if (fl <= 2 || fl === 4) {
+        box(1.0, 0.07, 0.3, stone, lx, y0 + 0.035, zf + 0.15);
+        box(0.9, FH - 0.14, 0.02, timber, lx, yc, zf + 0.012);
+        pane(0.36, FH * 0.6, lit(), lx + 0.18, yc, zf + 0.03);
+        box(0.94, 0.2, 0.02, glass, lx, y0 + 0.17, zf + 0.29);
+        box(1.0, 0.02, 0.02, led, lx, y0 + 0.005, zf + 0.3);
+      } else if (fl < N - 1) {
+        pane(0.34, FH * 0.5, lit(), lx + 0.1, yc, zf + 0.012);
+      }
+      // Long side: small windows and a balcony at the front corner
+      [-1.8, -1.0, -0.2, 0.6, 1.4].forEach(z => pane(0.32, FH * 0.42, lit(), xs + 0.012, yc, z, Math.PI / 2));
+      [-1.8, -0.6, 0.6, 1.8].forEach(z => pane(0.3, FH * 0.42, lit(), -xs - 0.012, yc, z, -Math.PI / 2));
+      [-0.9, 0.9].forEach(x => pane(0.5, FH * 0.45, lit(), x, yc, -zf - 0.012, Math.PI));
+    }
+    // Top floor: recessed penthouse glazing with a glass pergola and roof frame posts
+    const yp = GH + (N - 1) * FH;
+    box(FW - 0.1, 0.06, 0.5, stone, 0, yp + 0.03, zf + 0.25);
+    pane(FW - 0.6, FH * 0.7, warm, 0, yp + FH * 0.5, zf + 0.012);
+    box(FW - 0.2, 0.2, 0.02, glass, 0, yp + 0.17, zf + 0.49);
+    [-1.45, -0.2, 1.0, 1.45].forEach(x => box(0.07, FH, 0.07, stone, x, yp + FH / 2, zf + 0.45));
+    box(1.4, 0.03, 0.9, glass, 0.75, TOP + 0.2, zf - 0.2);
+
+    const lamp = new THREE.PointLight(0xffdcaa, 10, 7, 2); lamp.position.set(1.8, 2.8, 3.2); g.add(lamp);
+    return g;
+  }
+
+  // Ikoyi maisonette building, modelled from the developer's front elevation:
+  // open parking on columns, six white storeys, cantilevered glass balconies, dark stone panels,
+  // slot windows, a central stair core, roof pergolas and the ground-floor pool.
+  // Victoria Island tower, modelled from the developer's night renders: a dark podium with a
+  // patterned screen and glass lobby, office floors in glass ribbons, a gold light band, then two
+  // residential volumes with balconies under deep roof slabs edged in light.
+  function buildVITower() {
+    const g = new THREE.Group();
+    const W = 4.2, D = 3.6, PH = 1.3, OFF = 5, FH = 0.55, RES = 10, zf = D / 2;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const grey = M(0xb9bec6, .6), greyDk = M(0x6d737d, .7), char = M(0x24282f, .8), screen = M(0x5a4a38, .6, .3);
+    const glass = new THREE.MeshStandardMaterial({ color: 0xa9cbe0, transparent: true, opacity: .4, roughness: .1, metalness: .3, depthWrite: false });
+    const led = new THREE.MeshBasicMaterial({ color: 0xffd9a0 }), office = new THREE.MeshBasicMaterial({ color: 0xdfe6ee });
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const green = M(0x2f5a3a, .9);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    // Plot, palms and the multi-level car park wing
+    box(6.4, 0.04, 6.0, M(0x1e3326, 1), 0, 0.02, 0.3);
+    [[-2.8, 2.9], [-1.2, 2.9], [0.8, 2.9], [2.6, 2.9]].forEach(([x, z]) => { box(0.06, 0.9, 0.06, M(0x6b5a44, .9), x, 0.45, z); const t = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 6), green); t.position.set(x, 0.95, z); g.add(t); });
+    box(2.0, PH * 0.9, 3.0, greyDk, W / 2 + 1.0, PH * 0.45, -0.3);
+    for (let i = 0; i < 3; i++) box(2.0, 0.04, 0.02, led, W / 2 + 1.0, 0.3 + i * 0.4, 1.21);
+    // Podium: dark base, patterned screen panels, glass lobby
+    box(W, PH, D, char, 0, PH / 2, 0);
+    pane(1.6, PH * 0.75, warm, 0, PH * 0.4, zf + 0.012);
+    [-1.45, 1.45].forEach(x => { box(1.0, PH * 0.85, 0.05, screen, x, PH * 0.52, zf + 0.04); for (let i = 0; i < 5; i++) for (let j = 0; j < 4; j++) pane(0.08, 0.08, led, x - 0.36 + i * 0.18, PH * 0.25 + j * 0.2, zf + 0.07); });
+    // Office floors with glass ribbons
+    const oy = PH;
+    box(W, OFF * FH, D, grey, 0, oy + OFF * FH / 2, 0);
+    for (let k = 0; k < OFF; k++) {
+      const y = oy + k * FH + FH * 0.5;
+      pane(W * 0.62, FH * 0.55, office, 0.55, y, zf + 0.012);
+      box(W * 0.66, 0.05, 0.25, grey, 0.55, oy + k * FH + 0.03, zf + 0.12);
+      pane(D * 0.7, FH * 0.55, office, W / 2 + 0.012, y, 0, Math.PI / 2);
+    }
+    box(0.6, OFF * FH + 0.4, 0.12, screen, -0.85, oy + (OFF * FH + 0.4) / 2, zf + 0.07);
+    // Gold light band at the residential transfer floor, with planters
+    const ty = oy + OFF * FH;
+    box(W + 0.4, 0.14, D + 0.3, grey, 0.1, ty + 0.07, 0.1);
+    box(W + 0.4, 0.035, 0.03, led, 0.1, ty + 0.02, zf + 0.26);
+    box(0.03, 0.035, D + 0.3, led, W / 2 + 0.3, ty + 0.02, 0.1);
+    for (let i = 0; i < 6; i++) { const pl = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 5), green); pl.position.set(-1.8 + i * 0.7, ty + 0.2, zf + 0.15); g.add(pl); }
+    // Residential: two volumes split by a recessed dark slot, each under a deep lit roof slab
+    const ry0 = ty + 0.14;
+    [[-1.2, 1.6, RES - 1], [0.95, 2.3, RES]].forEach(([cx, w, n]) => {
+      const h = n * FH;
+      box(w, h, D - 0.2, grey, cx, ry0 + h / 2, -0.1);
+      for (let k = 0; k < n; k++) {
+        const y0 = ry0 + k * FH, yc = y0 + FH * 0.5;
+        box(w * 0.8, 0.05, 0.4, grey, cx + 0.05, y0 + 0.03, zf + 0.1);
+        box(w * 0.78, 0.17, 0.02, glass, cx + 0.05, y0 + 0.14, zf + 0.29);
+        pane(w * 0.42, FH * 0.6, lit(), cx - w * 0.12, yc, zf - 0.088);
+        box(0.18, FH * 0.8, 0.06, char, cx + w * 0.42, yc, zf - 0.07);
+        pane(0.5, FH * 0.5, lit(), cx, yc, -zf + 0.088 - 0.2, Math.PI);
+        pane(1.0, FH * 0.45, lit(), cx + (cx < 0 ? -1 : 1) * (w / 2 + 0.012), yc, 0, (cx < 0 ? -1 : 1) * Math.PI / 2);
+      }
+      const top = ry0 + h;
+      box(w + 0.35, 0.16, D + 0.25, grey, cx, top + 0.08, 0.02);
+      box(w + 0.35, 0.03, 0.03, led, cx, top + 0.01, zf + 0.15);
+      [-1, 1].forEach(sg => box(0.03, 0.03, D + 0.25, led, cx + sg * (w + 0.35) / 2, top + 0.01, 0.02));
+      [-1, 1].forEach(sg => box(0.03, h, 0.03, led, cx + sg * w / 2, ry0 + h / 2, zf + 0.12));
+    });
+    box(0.35, RES * FH, 0.3, char, -0.25, ry0 + RES * FH / 2, zf - 0.3);
+    const lamp = new THREE.PointLight(0xffdcaa, 12, 8, 2); lamp.position.set(0, 2.2, 4.0); g.add(lamp);
+    return g;
+  }
+
+  // Banana Island twin tower, modelled from the developer's renders: two 20-storey towers on a dark
+  // podium, timber-clad faces with white curved balcony slabs and planted edges, dark vertical
+  // service shafts, and a sky bridge joining the towers at the top.
+  function buildBijou() {
+    const g = new THREE.Group();
+    const FH = 0.36, N = 17, PH = 1.2, TW = 2.3, TD = 2.6, GAP = 1.5;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const white = M(0xeceff2, .55), timber = M(0x7a4a2e, .7), char = M(0x22262c, .8), grey = M(0x8d9298, .7), green = M(0x2f5a3a, .9);
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .55 ? warm : r < .78 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    // plot, palms
+    box(8.4, 0.04, 6.0, M(0x1e3326, 1), 0, 0.02, 0.2);
+    [-3.4, -2.2, -1, 0.2, 1.4, 2.6].forEach(x => { box(0.05, 1.0, 0.05, M(0x6b5a44, .9), x, 0.5, 2.9); const t = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 6), green); t.position.set(x, 1.05, 2.9); g.add(t); });
+    // podium with parking bands and planted roof
+    box(7.6, PH, 4.2, char, 0, PH / 2, 0);
+    [0.35, 0.75].forEach(y => box(7.62, 0.08, 4.22, grey, 0, y, 0));
+    for (let i = 0; i < 14; i++) box(0.38, 0.22, 0.02, warm, -3.3 + i * 0.5, 0.15, 2.11);
+    box(7.6, 0.06, 4.2, green, 0, PH + 0.03, 0);
+    const top = PH + N * FH;
+    [-1, 1].forEach(s => {
+      const cx = s * (GAP / 2 + TW / 2), zf = TD / 2;
+      box(TW, N * FH, TD, white, cx, PH + N * FH / 2, 0);
+      // timber face and dark shaft on the inner edge
+      box(TW * 0.55, N * FH, 0.04, timber, cx - s * TW * 0.12, PH + N * FH / 2, zf + 0.02);
+      box(0.28, N * FH + 0.4, 0.3, char, cx + s * (TW / 2 + 0.1), PH + (N * FH + 0.4) / 2, zf - 0.6);
+      for (let k = 0; k < N; k++) {
+        const y0 = PH + k * FH, yc = y0 + FH * 0.5;
+        // white curved balcony slab (drawn as a slab plus rounded end) with a planted edge
+        const sl = box(TW + 0.35, 0.07, 0.55, white, cx + s * 0.1, y0 + 0.035, zf + 0.25);
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.275, 0.07, 14), white); cap.position.set(cx + s * (TW / 2 + 0.27), y0 + 0.035, zf + 0.25); g.add(cap);
+        if (k % 2 === 0 || rand() < .5) box(TW * 0.7, 0.08, 0.1, green, cx + s * 0.25, y0 + 0.11, zf + 0.48);
+        pane(0.45, FH * 0.55, lit(), cx - 0.55, yc, zf + 0.045);
+        pane(0.45, FH * 0.55, lit(), cx + 0.25, yc, zf + 0.045);
+        pane(1.2, FH * 0.5, lit(), cx + s * (TW / 2 + 0.012), yc, 0, s * Math.PI / 2);
+        pane(0.9, FH * 0.5, lit(), cx, yc, -zf - 0.012, Math.PI);
+      }
+      box(TW + 0.2, 0.12, TD + 0.1, white, cx, top + 0.06, 0);
+      for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.22, 7, 6), green); t.position.set(cx - 0.8 + i * 0.55, top + 0.3, (i % 2 ? 0.5 : -0.4)); g.add(t); }
+    });
+    // sky bridge joining the towers near the top
+    const by = PH + (N - 3) * FH;
+    box(GAP + 0.2, 3 * FH, TD * 0.7, char, 0, by + 1.5 * FH, 0);
+    pane(GAP, FH * 0.8, warm, 0, by + 1.5 * FH, TD * 0.35 + 0.012);
+    box(GAP + 0.3, 0.08, TD * 0.7, green, 0, by + 3 * FH + 0.04, 0);
+    const lamp = new THREE.PointLight(0xffdcaa, 12, 9, 2); lamp.position.set(0, 2.5, 4.2); g.add(lamp);
+    return g;
+  }
+
+  // Falcon, Fadeyi, modelled from the developer's renders: two dark-brick blocks either side of a
+  // stair core with sloping roof planes, a tall glazed slot on the left block, slim windows, a dark
+  // slatted gate and planters over the entrance.
+  function buildFalcon() {
+    const g = new THREE.Group();
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const brick = M(0x4a4440, .9), brickDk = M(0x37322f, .9), char = M(0x1f2226, .8), slat = M(0x2b2e33, .6), green = M(0x2f5a3a, .9), concrete = M(0x6f6a64, .9);
+    const glass = new THREE.MeshStandardMaterial({ color: 0x9fb8c8, transparent: true, opacity: .45, roughness: .1, metalness: .3, depthWrite: false });
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .55 ? warm : r < .78 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    const FH = 0.62, D = 3.6, zf = D / 2;
+    box(7.2, 0.04, 6.4, concrete, 0, 0.02, 0.6);
+    // street wall and slatted gates
+    box(7.2, 0.7, 0.08, brickDk, 0, 0.35, 3.75);
+    [-1.6, 1.6].forEach(x => { box(1.9, 0.62, 0.06, char, x, 0.33, 3.8); for (let i = 0; i < 12; i++) box(0.04, 0.6, 0.03, slat, x - 0.85 + i * 0.155, 0.33, 3.84); });
+    // blocks: [centre x, width, floors, roof slope direction]
+    [[-1.75, 2.9, 5, 1], [1.75, 2.9, 4, -1]].forEach(([cx, w, n, sl]) => {
+      const H = n * FH;
+      box(w, H, D, brick, cx, H / 2, 0);
+      // sloping roof plane
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.1, D + 0.2), brickDk);
+      roof.position.set(cx, H + 0.35, 0); roof.rotation.z = sl * 0.22; g.add(roof);
+      const tri = new THREE.Shape([new THREE.Vector2(-w / 2, 0), new THREE.Vector2(w / 2, 0), new THREE.Vector2(sl > 0 ? -w / 2 : w / 2, 0.7)]);
+      const tg = new THREE.ExtrudeGeometry(tri, { depth: D, bevelEnabled: false }); tg.translate(0, 0, -D / 2);
+      const tm = new THREE.Mesh(tg, brick); tm.position.set(cx, H, 0); g.add(tm);
+      for (let k = 0; k < n; k++) {
+        const yc = k * FH + FH * 0.55;
+        if (k > 0) {
+          if (sl > 0) { pane(0.55, FH * 0.8, lit(), cx - 0.85, yc, zf + 0.012); box(0.6, 0.04, 0.1, char, cx - 0.85, k * FH + 0.02, zf + 0.05); }
+          pane(0.22, FH * 0.55, lit(), cx + 0.15 * sl, yc, zf + 0.012);
+          pane(0.22, FH * 0.55, lit(), cx + 0.85 * sl, yc, zf + 0.012);
+          pane(0.4, FH * 0.5, lit(), cx + sl * (w / 2 + 0.012), yc, 0.6, sl * Math.PI / 2);
+          pane(0.4, FH * 0.5, lit(), cx + sl * (w / 2 + 0.012), yc, -0.8, sl * Math.PI / 2);
+          pane(0.5, FH * 0.5, lit(), cx, yc, -zf - 0.012, Math.PI);
+        }
+      }
+      // tall glazed slot on the taller block
+      if (sl > 0) { box(0.6, H - FH, 0.05, glass, cx - 0.85, FH + (H - FH) / 2, zf + 0.06); for (let k = 1; k < n; k++) box(0.62, 0.03, 0.06, char, cx - 0.85, k * FH, zf + 0.08); }
+      // ground floor: dark recess with parking and planters above
+      box(w - 0.2, FH * 0.9, 0.04, char, cx, FH * 0.45, zf + 0.02);
+      box(w * 0.6, 0.12, 0.25, green, cx, FH + 0.06, zf + 0.15);
+    });
+    // stair core between the blocks
+    box(0.9, 5 * FH - 0.2, D * 0.7, brickDk, 0, (5 * FH - 0.2) / 2, -0.4);
+    const lamp = new THREE.PointLight(0xffdcaa, 10, 8, 2); lamp.position.set(0, 2.2, 4.4); g.add(lamp);
+    return g;
+  }
+
+  function buildCourtyard() {
+    const g = new THREE.Group();
+    const W = 5.6, D = 2.2, GH = 0.85, FH = 0.72, N = 6, TOP = GH + N * FH, zf = D / 2;
+    const white = new THREE.MeshStandardMaterial({ color: 0xe9edf2, roughness: .6 });
+    const stone = new THREE.MeshStandardMaterial({ color: 0x3b4352, roughness: .85 });
+    const glass = new THREE.MeshStandardMaterial({ color: 0xa9cbe0, transparent: true, opacity: .38, roughness: .1, metalness: .3, depthWrite: false });
+    const green = new THREE.MeshStandardMaterial({ color: 0x2f5a3a, roughness: .9 });
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = new THREE.MeshStandardMaterial({ color: 0x1b2638, roughness: .2, metalness: .5 });
+    const lit = () => { const r = rand(); return r < .62 ? warm : r < .82 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.position.set(x, y, z); p.rotation.y = ry || 0; g.add(p); };
+    const balcony = (w, x, y0, depth) => { box(w, 0.06, depth, white, x, y0 + 0.03, zf + depth / 2); box(w, 0.2, 0.02, glass, x, y0 + 0.16, zf + depth - 0.01); };
+
+    // Plot: lawn, boundary wall, pool deck and lit pool (front right, as on the ground-floor plan)
+    box(7.6, 0.04, 5.6, new THREE.MeshStandardMaterial({ color: 0x1e3326, roughness: 1 }), 0, 0.02, 0.6);
+    [[0, 0.2, -2.2, 7.6, 0.06], [0, 0.2, 3.4, 7.6, 0.06]].forEach(([x, y, z, w, d]) => box(w, 0.4, d, stone, x, y, z));
+    [-3.8, 3.8].forEach(x => box(0.06, 0.4, 5.6, stone, x, 0.2, 0.6));
+    box(2.6, 0.06, 1.3, new THREE.MeshStandardMaterial({ color: 0x8c8f93, roughness: .8 }), 2.0, 0.05, 2.35);
+    const pool = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.75), new THREE.MeshBasicMaterial({ color: 0x3cb6d8 }));
+    pool.rotation.x = -Math.PI / 2; pool.position.set(2.15, 0.09, 2.35); g.add(pool);
+    [[-3.3, -1.7], [-3.3, 2.9], [3.3, -1.7], [-1.2, 3.0], [0.6, 3.0]].forEach(([x, z]) => { const t = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), green); t.position.set(x, 0.62, z); g.add(t); box(0.06, 0.4, 0.06, stone, x, 0.2, z); });
+
+    // Ground: columns, parked cars, lit lobby, podium slab
+    for (let x = -2.6; x <= 2.61; x += 0.65) [-zf + 0.15, zf - 0.15].forEach(z => box(0.1, GH, 0.1, white, x, GH / 2, z));
+    const cars = [0x1a1f29, 0x3d4656, 0x6b7280, 0x151a22, 0x2b3340];
+    [-2.35, -1.75, -1.15, 1.15, 1.75, 2.35].forEach((x, i) => { box(0.34, 0.17, 0.62, new THREE.MeshStandardMaterial({ color: cars[i % 5], roughness: .4, metalness: .5 }), x, 0.13, 0.4); });
+    box(1.0, GH - 0.06, 0.9, soft, 0, GH / 2, 0.1);
+    box(W + 0.1, 0.12, D + 0.1, white, 0, GH, 0);
+
+    // Main body
+    box(W, N * FH, D, white, 0, GH + N * FH / 2, 0);
+    box(W + 0.06, 0.1, D + 0.06, white, 0, TOP + 0.05, 0);
+    // Central stair core rising above the roof
+    box(0.38, N * FH + 0.5, 0.18, stone, 0, GH + (N * FH + 0.5) / 2, zf + 0.07);
+
+    for (let fl = 0; fl < N; fl++) {
+      const y0 = GH + fl * FH, yc = y0 + FH * 0.5;
+      [-1, 1].forEach(s => {
+        // outer wing: wide balconies with glass rails and planters
+        balcony(1.0, s * 2.33, y0, 0.52); pane(0.86, FH * 0.72, lit(), s * 2.33, yc, zf + 0.012);
+        if (rand() < .6) box(0.14, 0.12, 0.14, green, s * 2.33 + s * 0.36, y0 + 0.12, zf + 0.42);
+        // dark stone panel with framed window (right panel stops below the penthouse, as in the render)
+        if (s < 0 || fl < 4) { box(0.56, FH, 0.1, stone, s * 1.6, yc, zf + 0.05); pane(0.24, FH * 0.46, lit(), s * 1.6, yc + 0.03, zf + 0.112); }
+        else { balcony(0.56, s * 1.6, y0, 0.4); pane(0.42, FH * 0.66, lit(), s * 1.6, yc, zf + 0.012); }
+        // inner balconies
+        balcony(0.6, s * 1.02, y0, 0.42); pane(0.46, FH * 0.66, lit(), s * 1.02, yc, zf + 0.012);
+        // slot windows either side of the core
+        pane(0.07, FH * 0.44, lit(), s * 0.62, yc, zf + 0.012); pane(0.07, FH * 0.44, lit(), s * 0.4, yc + 0.06, zf + 0.012);
+        // end walls
+        pane(0.5, FH * 0.5, lit(), s * (W / 2 + 0.012), yc, -0.4, s * Math.PI / 2); pane(0.5, FH * 0.5, lit(), s * (W / 2 + 0.012), yc, 0.45, s * Math.PI / 2);
+      });
+      pane(0.12, FH * 0.34, lit(), 0, yc, zf + 0.17);
+      for (let x = -2.45; x <= 2.46; x += 0.7) pane(0.34, FH * 0.5, lit(), x, yc, -zf - 0.012, Math.PI);
+    }
+
+    // Penthouse roof pergolas (both ends, overhanging the facade)
+    [-1, 1].forEach(s => {
+      const x0 = s * 2.1, top = TOP + 0.55;
+      [[s * 2.95, zf + 0.45], [s * 1.35, zf + 0.45]].forEach(([x, z]) => box(0.06, 0.55, 0.06, white, x, TOP + 0.27, z));
+      box(1.75, 0.06, 0.06, white, x0 + s * 0.05, top, zf + 0.45);
+      box(1.75, 0.06, 0.06, white, x0 + s * 0.05, top, -0.3);
+      for (let i = 0; i < 9; i++) box(0.04, 0.05, 0.85, white, s * (1.3 + i * 0.2), top + 0.02, zf - 0.02);
+      box(1.2, 0.5, 0.9, white, s * 2.1, TOP + 0.25, -0.5); // rooftop lounge
+      pane(0.9, 0.3, warm, s * 2.1, TOP + 0.25, -0.05);
+    });
+
+    const lamp = new THREE.PointLight(0xffdcaa, 12, 7, 2); lamp.position.set(0, 3.0, 2.6); g.add(lamp);
+    return g;
+  }
+
+  // Window textures
+  function windows(cols, rows, litChance) {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d');
+    g.fillStyle = '#132339'; g.fillRect(0, 0, 64, 128);
+    const cw = 64 / cols, rh = 128 / rows;
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const r = rand();
+      g.fillStyle = r < litChance * .55 ? '#F2D49B' : r < litChance * .85 ? '#C9A86A' : r < litChance ? '#FFE9C2' : '#0b1524';
+      g.fillRect(x * cw + cw * .22, y * rh + rh * .2, cw * .56, rh * .56);
+    }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+  }
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x1b2d48, roughness: 0.9 });
+  function towerMats(tex, glow) {
+    const side = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: glow, roughness: 0.75, metalness: 0.15 });
+    return [side, side, roofMat, roofMat, side, side];
+  }
+  const lowMats = towerMats(windows(4, 6, 0.42), 0.75);
+  const tallMats = towerMats(windows(4, 22, 0.36), 0.85);
+
+  // Real building footprints from OpenStreetMap (heights from floor counts where mapped, estimated otherwise)
+  const lows = [], talls = [];
+  const BL = window.LAGOS_BLD || [];
+  for (let i = 0; i < BL.length; i += 6) {
+    const x = BL[i] / 10, z = BL[i + 1] / 10;
+    if (featured.some(f => Math.hypot(f.pos.x - x, f.pos.z - z) < f.clear)) continue;
+    const b = { x, z, w: Math.max(BL[i + 2] / 10, 0.12), d: Math.max(BL[i + 3] / 10, 0.12), ry: -BL[i + 4] * Math.PI / 180, h: BL[i + 5] / 100 };
+    (b.h > 2.4 ? talls : lows).push(b);
+  }
+  const boxGeo = new THREE.BoxGeometry(1, 1, 1); boxGeo.translate(0, 0.5, 0);
+  function instanced(list, mats) {
+    const m = new THREE.InstancedMesh(boxGeo, mats, list.length);
+    const o = new THREE.Object3D(), col = new THREE.Color();
+    list.forEach((b, i) => {
+      o.position.set(b.x, LAND_H, b.z); o.rotation.set(0, b.ry, 0); o.scale.set(b.w, b.h, b.d); o.updateMatrix();
+      m.setMatrixAt(i, o.matrix);
+      col.setHSL(0.6 + rand() * 0.04, 0.12 + rand() * .1, 0.5 + rand() * 0.3); m.setColorAt(i, col);
+    });
+    m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true;
+    scene.add(m); return m;
+  }
+  instanced(lows, lowMats); instanced(talls, tallMats);
+
+  // Featured towers: gold-edged, with a light beam and a ground ring
+  const beamMat = () => new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { uOn: { value: 0.25 }, uTime: { value: 0 } },
+    vertexShader: 'varying float vY; void main(){ vY = uv.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'uniform float uOn; uniform float uTime; varying float vY; void main(){ float a = pow(1.0 - vY, 2.2) * uOn * (0.85 + 0.15*sin(uTime*2.0)); gl_FragColor = vec4(0.91, 0.79, 0.54, a); }'
+  });
+  const featTex = windows(5, 18, 0.7);
+  featured.forEach(f => {
+    if (f.model) {
+      const g = f.model === 'banana' ? buildBananaPenthouse() : f.model === 'fenry' ? buildFenry() : f.model === 'vi' ? buildVITower() : f.model === 'bijou' ? buildBijou() : f.model === 'falcon' ? buildFalcon() : buildCourtyard(); g.position.copy(f.pos); g.rotation.y = f.rotY; g.scale.setScalar(f.s || 1); scene.add(g);
+      const bm = beamMat();
+      const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.5, 46, 24, 1, true), bm);
+      beam.position.set(f.pos.x, f.pos.y + f.h + 23, f.pos.z); scene.add(beam);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(2.6, 2.85, 64), new THREE.MeshBasicMaterial({ color: 0xC0A870, transparent: true, opacity: .5, side: THREE.DoubleSide, depthWrite: false }));
+      ring.rotation.x = -Math.PI / 2; ring.position.set(f.pos.x, LAND_H + 0.05, f.pos.z); scene.add(ring);
+      f.beamMesh = beam; f.obj = g; f.side = { emissiveIntensity: 0 }; f.beam = bm; f.ring = ring; f.top = new THREE.Vector3(f.pos.x, f.pos.y + f.h + 0.9, f.pos.z);
+      return;
+    }
+    const side = new THREE.MeshStandardMaterial({ map: featTex, emissiveMap: featTex, emissive: 0xffffff, emissiveIntensity: 1.1, roughness: 0.6, metalness: 0.25 });
+    const g = new THREE.BoxGeometry(f.w, f.h, f.w); g.translate(0, f.h / 2, 0);
+    const mesh = new THREE.Mesh(g, [side, side, roofMat, roofMat, side, side]); mesh.position.copy(f.pos); scene.add(mesh);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: 0xC0A870, transparent: true, opacity: 0.9 }));
+    edges.position.copy(f.pos); scene.add(edges);
+    // penthouse crown: lit top slab
+    const crown = new THREE.Mesh(new THREE.BoxGeometry(f.w * 1.08, 0.5, f.w * 1.08), new THREE.MeshStandardMaterial({ color: 0xC0A870, emissive: 0xC0A870, emissiveIntensity: 0.9, roughness: .4, metalness: .6 }));
+    crown.position.set(f.pos.x, f.pos.y + f.h + 0.25, f.pos.z); scene.add(crown);
+    const bm = beamMat();
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.5, 46, 24, 1, true), bm);
+    beam.position.set(f.pos.x, f.pos.y + f.h + 23, f.pos.z); scene.add(beam);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(2.6, 2.85, 64), new THREE.MeshBasicMaterial({ color: 0xC0A870, transparent: true, opacity: .5, side: THREE.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(f.pos.x, LAND_H + 0.05, f.pos.z); scene.add(ring);
+    f.beamMesh = beam; f.obj = mesh; f.side = side; f.beam = bm; f.ring = ring; f.top = new THREE.Vector3(f.pos.x, f.pos.y + f.h + 2.2, f.pos.z);
+  });
+
+  // Real roads and bridges from OpenStreetMap
+  const lampMat = new THREE.PointsMaterial({ color: 0xF2D49B, size: lowPower ? 0.9 : 0.7, transparent: true, opacity: .95 });
+  const majorSeg = [], minorSeg = [], bridgeSeg = [], lamps = [];
+  G.roads.forEach(([cls, br, c, name]) => {
+    const y = br ? 0.9 : LAND_H + 0.04, out = br ? bridgeSeg : cls <= 1 ? majorSeg : minorSeg;
+    for (let i = 0; i + 3 < c.length; i += 2) {
+      out.push(c[i], y, c[i + 1], c[i + 2], y, c[i + 3]);
+      if (br) { const L = Math.hypot(c[i + 2] - c[i], c[i + 3] - c[i + 1]), n = Math.floor(L / 2.5); for (let k = 0; k <= n; k++) { const t = n ? k / n : 0; lamps.push(new THREE.Vector3(c[i] + (c[i + 2] - c[i]) * t, y + 0.25, c[i + 1] + (c[i + 3] - c[i + 1]) * t)); } }
+    }
+  });
+  segs(majorSeg, new THREE.LineBasicMaterial({ color: 0xC0A870, transparent: true, opacity: 0.55 }));
+  segs(minorSeg, new THREE.LineBasicMaterial({ color: 0xF4EDE0, transparent: true, opacity: 0.16 }));
+  segs(bridgeSeg, new THREE.LineBasicMaterial({ color: 0xF2D49B, transparent: true, opacity: 0.9 }));
+  scene.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(lamps), lampMat));
+  // Lekki–Ikoyi Link Bridge pylon and cables (cable-stayed, ~90 m pylon)
+  let pylonTop = new THREE.Vector3(112, 9.5, 20);
+  (function () {
+    const r = G.roads.find(r => r[1] && /Lekki\s*-\s*Ikoyi/i.test(r[3]));
+    if (!r) return;
+    const c = r[2], A = new THREE.Vector3(c[0], 0.9, c[1]), B = new THREE.Vector3(c[c.length - 2], 0.9, c[c.length - 1]);
+    const mid = A.clone().lerp(B, 0.5); const H = 9;
+    const py = new THREE.Mesh(new THREE.BoxGeometry(0.5, H, 0.5), new THREE.MeshStandardMaterial({ color: 0xd9cfb8, emissive: 0xC0A870, emissiveIntensity: .35 }));
+    py.position.set(mid.x, H / 2, mid.z); scene.add(py);
+    pylonTop = new THREE.Vector3(mid.x, H + 0.5, mid.z);
+    const top = new THREE.Vector3(mid.x, H, mid.z), cab = [];
+    for (let i = 1; i <= 9; i++) [A, B].forEach(E => { const q = mid.clone().lerp(E, i / 10); q.y = 0.95; cab.push(top.x, top.y, top.z, q.x, q.y, q.z); });
+    segs(cab, new THREE.LineBasicMaterial({ color: 0xC0A870, transparent: true, opacity: .6 }));
+  })();
+
+  // Labels: real place names
+  const labelsEl = document.getElementById('labels');
+  const labelDefs = G.places.map(([t, x, z]) => [t, [x, 2, z]])
+    .concat(G.water.map(([t, x, z]) => [t, [x, 0.5, z], true]))
+    .concat([['Lekki–Ikoyi Link Bridge', [pylonTop.x, pylonTop.y + 1, pylonTop.z]], ['Lagos State', [600, 6, -1300], 'state']]);
+  const places = labelDefs.map(([t, p, w]) => { const el = document.createElement('div'); el.className = 'place' + (w === true ? ' water' : w === 'state' ? ' state' : ''); el.textContent = t; labelsEl.appendChild(el); return { el, v: new THREE.Vector3(...p), state: w === 'state' }; });
+  const pins = featured.map(f => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pin';
+    b.innerHTML = '<span>' + f.name + '</span><b>' + f.price + '</b>';
+    b.setAttribute('aria-label', f.name + ' listing, ' + f.price);
+    b.classList.add('has-page');
+    b.addEventListener('click', () => { if (search || f.id === active) openPage(f.id); else sections[f.id].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); });
+    labelsEl.appendChild(b); return { el: b, v: f.top, f };
+  });
+
+  // Camera path, one keyframe per section
+  const keys = [
+    { p: [-420, 330, 470], t: [-80, 0, -40] },
+    { p: [62.3, 3.9, -67.7], t: [69.1, 1.45, -74.6] },
+    { p: [-23.7, 4.0, -34.9], t: [-28, 1.6, -27] },
+    { p: [4.8, 3.4, -26.8], t: [11, 1.5, -33] },
+    { p: [-37.5, 6.4, 114], t: [-25, 2.9, 100] },
+    { p: [99.2, 7.4, -44.5], t: [95, 4.6, -66] },
+    { p: [-393.1, 4.9, -370.4], t: [-398, 1.5, -381.7] },
+    { p: [-900, 6200, 3400], t: [-900, 0, -500] }
+  ].map(k => ({ p: new THREE.Vector3(...k.p), t: new THREE.Vector3(...k.t) }));
+  const desP = new THREE.Vector3(), desT = new THREE.Vector3();
+  const curP = keys[0].p.clone(), curT = keys[0].t.clone();
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  let active = 0;
+
+  function sectionCentres() { return sections.map(s => s.offsetTop + s.offsetHeight / 2 - window.innerHeight / 2); }
+  let centres = sectionCentres();
+
+  function target() {
+    if (search) { desP.copy(search.camP); desT.copy(search.camT); return; }
+    const y = window.scrollY; let i = 0;
+    while (i < centres.length - 2 && y >= centres[i + 1]) i++;
+    let t = (y - centres[i]) / Math.max(1, centres[i + 1] - centres[i]);
+    t = Math.min(1, Math.max(0, t));
+    const e = ease(t);
+    desP.lerpVectors(keys[i].p, keys[i + 1].p, e);
+    desT.lerpVectors(keys[i].t, keys[i + 1].t, e);
+    // Lift the arc between stops so the camera flies over the city instead of through it
+    desP.y += Math.sin(Math.PI * t) * Math.min(600, 6 + 0.35 * keys[i].t.distanceTo(keys[i + 1].t));
+    if (isSmall()) { const off = desP.clone().sub(desT).multiplyScalar(1.35); desP.copy(desT).add(off); }
+    const a = t < .5 ? i : i + 1;
+    if (a !== active) { active = a; }
+  }
+
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // ---------- Area search: show one area and only our listings there ----------
+  let search = null, searchSeq = 0, lastSearchSeq = 0;
+  const AREAS = window.LAGOS_AREAS || { areas: [], alias: {} };
+  const norm = t => t.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const areaList = AREAS.areas.map(([n, x, z]) => ({ n, x, z, k: norm(n) }));
+  const listingCount = a => featured.filter(f => matches(f, a)).length;
+  function matches(f, a) { return f.tags.some(t => norm(t) === a.k) || Math.hypot(f.pos.x - a.x, f.pos.z - a.z) < 45; }
+  function findArea(q) {
+    const k = norm(q); if (!k) return null;
+    const al = AREAS.alias[k]; const key = al ? norm(al) : k;
+    const exact = areaList.find(a => a.k === key); if (exact) return exact;
+    const rank = arr => arr.sort((x, y) => (listingCount(y) - listingCount(x)) || (x.k.length - y.k.length))[0];
+    return rank(areaList.filter(a => a.k.startsWith(key))) || rank(areaList.filter(a => a.k.includes(key))) || null;
+  }
+  const areaRing = new THREE.Mesh(new THREE.RingGeometry(1, 1.04, 128), new THREE.MeshBasicMaterial({ color: 0xC0A870, transparent: true, opacity: .7, side: THREE.DoubleSide, depthWrite: false }));
+  areaRing.rotation.x = -Math.PI / 2; areaRing.position.y = LAND_H + 0.1; areaRing.visible = false; scene.add(areaRing);
+  const resultsEl = document.getElementById('results'), qEl = document.getElementById('area-q'), sugEl = document.getElementById('area-sug');
+  function runSearch(a) {
+    const ids = featured.filter(f => matches(f, a)).map(f => f.id);
+    const pts = [[a.x, a.z]].concat(featured.filter(f => ids.includes(f.id)).map(f => [f.pos.x, f.pos.z]));
+    const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cz = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+    const spread = Math.max(...pts.map(p => Math.hypot(p[0] - cx, p[1] - cz)));
+    const d = Math.max(55, spread * 2.6) * (isSmall() ? 1.5 : 1);
+    search = { a, ids, camT: new THREE.Vector3(cx, 0, cz), camP: new THREE.Vector3(cx - 0.42 * d, 0.7 * d, cz + 0.62 * d) };
+    searchSeq++;
+    const r = Math.max(28, spread + 14); areaRing.scale.setScalar(r); areaRing.position.x = cx; areaRing.position.z = cz; areaRing.visible = true;
+    document.body.classList.add('searching'); window.scrollTo(0, 0);
+    qEl.value = a.n; sugEl.hidden = true;
+    const homes = featured.filter(f => ids.includes(f.id));
+    resultsEl.innerHTML = `<div class="r-head"><p class="where">Area search</p><h2>${esc(a.n)}</h2><p class="r-count">${homes.length ? homes.length + (homes.length === 1 ? ' listing' : ' listings') + ' from RokHaven' : 'No listings here yet'}</p></div>` +
+      (homes.length ? `<ul class="r-list">${homes.map(f => `<li><button type="button" class="r-fly" data-id="${f.id}"><span class="r-name">${esc(f.name)}</span><span class="r-title">${esc(f.title)}</span></button><strong>${esc(f.price)}</strong><a class="btn solid" href="${PAGES[f.id]}">View</a></li>`).join('')}</ul>`
+        : `<p class="r-empty">We don’t have homes listed in ${esc(a.n)} right now, but new listings come in every week. Tell us what you’re looking for and we’ll send matching homes first.</p><a class="btn solid" target="_blank" rel="noopener" href="https://wa.me/2349167619009?text=${encodeURIComponent('Hello RokHaven, I’m looking for a property in ' + a.n + '. Please send me what you have.')}">Ask us on WhatsApp</a>`) +
+      `<button type="button" class="r-clear" id="r-clear">× Show all of Lagos</button>`;
+    resultsEl.hidden = false;
+    resultsEl.querySelectorAll('.r-fly').forEach(b => b.addEventListener('click', () => { const f = featured.find(x => x.id === +b.dataset.id); search.camT.set(f.pos.x, 2.5, f.pos.z); search.camP.set(f.pos.x - 8, 7, f.pos.z + 11); searchSeq++; }));
+    document.getElementById('r-clear').addEventListener('click', clearSearch);
+  }
+  function clearSearch() {
+    search = null; searchSeq++; areaRing.visible = false; resultsEl.hidden = true; qEl.value = '';
+    document.body.classList.remove('searching'); window.scrollTo(0, 0); centres = sectionCentres();
+  }
+  function showSug() {
+    const k = norm(qEl.value);
+    let list;
+    if (!k) list = ['Banana Island', 'Ikoyi', 'Old Ikoyi', 'Victoria Island', 'Lekki Phase 1', 'Eko Atlantic'].map(n => areaList.find(a => a.n === n)).filter(Boolean);
+    else { const al = AREAS.alias[k]; list = areaList.filter(a => a.k.includes(k) || (al && a.n === al)).sort((x, y) => (y.k.startsWith(k) - x.k.startsWith(k)) || (listingCount(y) - listingCount(x)) || (x.k.length - y.k.length)).slice(0, 7); }
+    sugEl.innerHTML = list.map(a => { const c = listingCount(a); return `<li><button type="button" data-n="${esc(a.n)}"><span>${esc(a.n)}</span><small>${c ? c + (c === 1 ? ' listing' : ' listings') : 'No listings yet'}</small></button></li>`; }).join('') || `<li class="none">No area called “${esc(qEl.value)}” in Lagos</li>`;
+    sugEl.hidden = false;
+    sugEl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => runSearch(areaList.find(a => a.n === b.dataset.n))));
+  }
+  qEl.addEventListener('focus', showSug); qEl.addEventListener('input', showSug);
+  document.addEventListener('click', e => { if (!e.target.closest('.search')) sugEl.hidden = true; });
+  document.getElementById('area-form').addEventListener('submit', e => { e.preventDefault(); const a = findArea(qEl.value); if (a) runSearch(a); else showSug(); });
+  qEl.addEventListener('keydown', e => { if (e.key === 'Escape') { sugEl.hidden = true; qEl.blur(); } });
+
+  // Pointer parallax
+  const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
+  if (!reduceMotion) window.addEventListener('pointermove', e => { if (drag.on) return; pointer.x = e.clientX / window.innerWidth - .5; pointer.y = e.clientY / window.innerHeight - .5; }, { passive: true });
+
+  // Free look: drag to rotate, pinch / ctrl+wheel to zoom, on-screen buttons
+  const orbit = { yaw: 0, pitch: 0, zoom: 1, tYaw: 0, tPitch: 0, tZoom: 1 };
+  const clampZoom = z => Math.min(1.8, Math.max(0.6, z));
+  const clampPitch = p => Math.min(0.9, Math.max(-0.6, p));
+  const drag = { on: false, pts: new Map(), lastX: 0, lastY: 0, pinch0: 0, zoom0: 1, axis: null, sx: 0, sy: 0 };
+  const hint = document.getElementById('hint');
+  let hinted = false;
+  const touched = () => { if (!hinted) { hinted = true; hint.classList.add('gone'); } };
+  const blocked = el => el.closest('a,button,.card,header,.rail,.ctrls,input,.player,.search,.results');
+  window.addEventListener('pointerdown', e => {
+    if (blocked(e.target) || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    drag.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (drag.pts.size === 1) { drag.lastX = drag.sx = e.clientX; drag.lastY = drag.sy = e.clientY; drag.axis = e.pointerType === 'mouse' ? 'free' : null; drag.on = true; }
+    if (drag.pts.size === 2) { const [a, b] = [...drag.pts.values()]; drag.pinch0 = Math.hypot(a.x - b.x, a.y - b.y); drag.zoom0 = orbit.tZoom; drag.axis = 'pinch'; }
+  });
+  window.addEventListener('pointermove', e => {
+    if (!drag.pts.has(e.pointerId)) return;
+    drag.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (drag.axis === 'pinch' && drag.pts.size === 2) {
+      const [a, b] = [...drag.pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (drag.pinch0 > 0) { orbit.tZoom = clampZoom(drag.zoom0 * drag.pinch0 / d); touched(); }
+      return;
+    }
+    if (drag.axis === null) { // touch: lock to horizontal rotate once the finger has moved
+      const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+      if (Math.hypot(dx, dy) < 8) return;
+      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    }
+    if (drag.axis === 'v') return;
+    const dx = e.clientX - drag.lastX, dy = e.clientY - drag.lastY;
+    drag.lastX = e.clientX; drag.lastY = e.clientY;
+    orbit.tYaw -= dx * 0.006;
+    if (drag.axis === 'free') orbit.tPitch = clampPitch(orbit.tPitch + dy * 0.004);
+    document.body.classList.add('dragging'); touched();
+  });
+  const endDrag = e => { drag.pts.delete(e.pointerId); if (drag.pts.size === 0) { drag.on = false; drag.axis = null; document.body.classList.remove('dragging'); } else if (drag.axis === 'pinch') { drag.axis = 'v'; } };
+  window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
+  window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); orbit.tZoom = clampZoom(orbit.tZoom * Math.exp(e.deltaY * 0.01)); touched(); }, { passive: false });
+  document.querySelectorAll('.ctrls button').forEach(b => b.addEventListener('click', () => {
+    const a = b.dataset.act;
+    if (a === 'left') orbit.tYaw += 0.45; if (a === 'right') orbit.tYaw -= 0.45;
+    if (a === 'in') orbit.tZoom = clampZoom(orbit.tZoom * 0.8); if (a === 'out') orbit.tZoom = clampZoom(orbit.tZoom * 1.25);
+    if (a === 'reset') { orbit.tYaw = 0; orbit.tPitch = 0; orbit.tZoom = 1; }
+    touched();
+  }));
+  window.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('input,textarea')) return;
+    if (e.key === 'ArrowLeft') { orbit.tYaw += 0.3; touched(); } else if (e.key === 'ArrowRight') { orbit.tYaw -= 0.3; touched(); }
+  });
+  // Click a featured building: fly to it, or play its walkthrough if you're already there
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  function pick(x, y) {
+    ndc.set(x / window.innerWidth * 2 - 1, -(y / window.innerHeight) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hits = ray.intersectObjects(featured.map(f => f.obj), true);
+    if (!hits.length) return null;
+    return featured.find(f => { let p = hits[0].object; while (p) { if (p === f.obj) return true; p = p.parent; } return false; }) || null;
+  }
+  window.addEventListener('pointerup', e => {
+    if (blocked(e.target)) return;
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 6) return;
+    const f = pick(e.clientX, e.clientY); if (!f) return;
+    if (search || f.id === active) openPage(f.id); else sections[f.id].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+  window.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || drag.on || blocked(e.target)) return;
+    document.body.classList.toggle('over-bldg', !!pick(e.clientX, e.clientY));
+  }, { passive: true });
+
+  const sph = new THREE.Spherical(), off = new THREE.Vector3();
+  let lastActive = 0;
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth / window.innerHeight; small0 = null; camera.clearViewOffset(); camera.updateProjectionMatrix();
+    centres = sectionCentres();
+  });
+  window.addEventListener('load', () => { centres = sectionCentres(); });
+
+  const v = new THREE.Vector3(); const clock = new THREE.Clock(); let first = true; let small0 = null;
+  function frame() {
+    if (document.hidden) { requestAnimationFrame(frame); return; }
+    const dt = Math.min(clock.getDelta(), 0.05); const time = clock.elapsedTime;
+    target();
+    const k = (first || reduceMotion) ? 1 : 1 - Math.exp(-dt * 3.2); first = false;
+    curP.lerp(desP, k); curT.lerp(desT, k);
+    pointer.sx += (pointer.x - pointer.sx) * 0.05; pointer.sy += (pointer.y - pointer.sy) * 0.05;
+    camera.position.copy(curP);
+    // slow drift on the wide views
+    const camDist = curP.distanceTo(curT), sc = camDist * 0.02;
+    scene.fog.density = 0.12 / Math.max(camDist, 10);
+    if (!reduceMotion && (active === 0 || active === 7)) { camera.position.x += Math.sin(time * 0.08) * 6 * sc; camera.position.z += Math.cos(time * 0.08) * 3 * sc; }
+    camera.position.x += pointer.sx * 6 * sc; camera.position.y -= pointer.sy * 3 * sc;
+    // Moving to a new stop re-centres the view on that listing
+    if (searchSeq !== lastSearchSeq) { lastSearchSeq = searchSeq; orbit.tYaw = 0; orbit.tPitch = 0; orbit.tZoom = 1; }
+    if (active !== lastActive) { lastActive = active; orbit.tYaw = 0; orbit.tPitch = 0; orbit.tZoom = 1; }
+    const ok = reduceMotion ? 1 : 1 - Math.exp(-dt * 7);
+    orbit.yaw += (orbit.tYaw - orbit.yaw) * ok; orbit.pitch += (orbit.tPitch - orbit.pitch) * ok; orbit.zoom += (orbit.tZoom - orbit.zoom) * ok;
+    off.subVectors(camera.position, curT); sph.setFromVector3(off);
+    sph.theta += orbit.yaw;
+    sph.phi = Math.min(1.42, Math.max(0.12, sph.phi + orbit.pitch));
+    sph.radius *= orbit.zoom;
+    off.setFromSpherical(sph); camera.position.copy(curT).add(off);
+    if (camera.position.y < 1.2) camera.position.y = 1.2;
+    camera.lookAt(curT);
+    if (small0 !== isSmall()) { small0 = isSmall(); if (small0) camera.setViewOffset(window.innerWidth, window.innerHeight, 0, window.innerHeight * 0.24, window.innerWidth, window.innerHeight); else camera.clearViewOffset(); }
+
+    featured.forEach(f => {
+      const shown = !search || search.ids.includes(f.id);
+      f.obj.visible = shown; f.beamMesh.visible = shown; f.ring.visible = shown;
+      const on = search ? shown : f.id === active;
+      const tgt = on ? 1 : (active === 0 || active === 7 ? 0.45 : 0.15);
+      f.beam.uniforms.uOn.value += (tgt - f.beam.uniforms.uOn.value) * (reduceMotion ? 1 : 0.06);
+      f.beam.uniforms.uTime.value = reduceMotion ? 0 : time;
+      f.side.emissiveIntensity = 0.9 + f.beam.uniforms.uOn.value * 0.6;
+      const s = on && !reduceMotion ? 1 + (time * 0.6 % 1) * 0.5 : 1; f.ring.scale.setScalar(s * (f.ringScale || 1)); f.ring.material.opacity = on ? 0.6 * (reduceMotion ? 1 : 1 - (time * 0.6 % 1)) : 0.25;
+    });
+
+    renderer.render(scene, camera);
+
+    const W = window.innerWidth, H = window.innerHeight, small = isSmall();
+    places.forEach(p => {
+      v.copy(p.v).project(camera);
+      const vis = v.z < 1 && v.x > -1.1 && v.x < 1.1 && v.y > -1.1 && v.y < 1.1;
+      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && active > 0 && active < 7 ? 0 : 1)) : 0;
+      if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-50%)';
+    });
+    pins.forEach(p => {
+      v.copy(p.v).project(camera);
+      const vis = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
+      const ok = vis && (!search || search.ids.includes(p.f.id));
+      p.el.style.opacity = ok ? 1 : 0; p.el.style.pointerEvents = ok ? 'auto' : 'none';
+      p.el.classList.toggle('active', search ? ok : p.f.id === active);
+      if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-100%)';
+    });
+    railBtns.forEach((b, i) => b.classList.toggle('active', i === active));
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
