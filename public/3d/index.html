@@ -233,6 +233,25 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   .scroll-hint { margin-top: 32px; }
   .card > p:not(.where) { display: none; }
   .contact .card > p:not(.where) { display: block; }
+  /* Solid band behind the logo and search bar so scrolled cards never show through it */
+  header.top { background: none; }
+  header.top::before { content: ""; position: fixed; left: 0; right: 0; top: 0; z-index: -1; pointer-events: none; height: calc(128px + env(safe-area-inset-top, 0px)); background: linear-gradient(180deg, #060F1C 0%, #060F1C 80%, rgba(6,15,28,0) 100%); }
+  /* Compact listing cards so the building stays visible above them */
+  .stop .card .facts { display: none; }
+  .card { padding: 18px 18px 16px; }
+  .card .where { margin-bottom: 10px; font-size: 10px; }
+  .card h2 { font-size: 24px; margin-bottom: 10px; }
+  .price { margin-bottom: 12px; padding-bottom: 12px; }
+  .price strong { font-size: 32px; }
+  .also { margin: 0 0 14px; padding-top: 12px; gap: 6px; }
+  .also-k { font-size: 9px; }
+  .unit { padding: 8px 12px; }
+  .unit span { display: none; }
+  .unit b { font-size: 13px; }
+  .unit strong { font-size: 19px; }
+  .card .actions { gap: 8px; }
+  .card .actions .btn { flex: 1 1 auto; justify-content: center; padding: 11px 12px; font-size: 12.5px; white-space: nowrap; }
+  .contact .card .lines { margin-bottom: 16px; }
 }
 </style>
 </head>
@@ -1119,7 +1138,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     desT.lerpVectors(keys[i].t, keys[i + 1].t, e);
     // Lift the arc between stops so the camera flies over the city instead of through it
     desP.y += Math.sin(Math.PI * t) * Math.min(600, 6 + 0.35 * keys[i].t.distanceTo(keys[i + 1].t));
-    if (isSmall()) { const off = desP.clone().sub(desT).multiplyScalar(1.35); desP.copy(desT).add(off); }
+    if (isSmall()) { const off = desP.clone().sub(desT).multiplyScalar(1.9); desP.copy(desT).add(off); }
     const a = t < .5 ? i : i + 1;
     if (a !== active) { active = a; }
   }
@@ -1289,7 +1308,8 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     off.setFromSpherical(sph); camera.position.copy(curT).add(off);
     if (camera.position.y < 1.2) camera.position.y = 1.2;
     camera.lookAt(curT);
-    if (small0 !== isSmall()) { small0 = isSmall(); if (small0) camera.setViewOffset(window.innerWidth, window.innerHeight, 0, window.innerHeight * 0.24, window.innerWidth, window.innerHeight); else camera.clearViewOffset(); }
+    if (isSmall()) camera.setViewOffset(window.innerWidth, window.innerHeight, 0, window.innerHeight * 0.13, window.innerWidth, window.innerHeight); else if (small0) camera.clearViewOffset();
+    small0 = isSmall();
 
     featured.forEach(f => {
       const shown = !search || search.ids.includes(f.id);
@@ -1308,13 +1328,18 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     places.forEach(p => {
       v.copy(p.v).project(camera);
       const vis = v.z < 1 && v.x > -1.1 && v.x < 1.1 && v.y > -1.1 && v.y < 1.1;
-      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && active > 0 && active < 7 ? 0 : 1)) : 0;
+      const sy = (1 - v.y) / 2 * H;
+      // On phones keep place names off the hero headline and away from the listing cards
+      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && (active > 0 && active < 7 || active === 0 && sy > H * 0.4) ? 0 : 1)) : 0;
       if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-50%)';
     });
     pins.forEach(p => {
       v.copy(p.v).project(camera);
       const vis = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
-      const ok = vis && (!search || search.ids.includes(p.f.id));
+      const px = (v.x + 1) / 2 * W, py = (1 - v.y) / 2 * H;
+      // Phones: only the current listing's pin on a listing stop; on the hero, no pins over the headline or cut off at the edges
+      const fits = !small || search || (active > 0 && active < 7 ? p.f.id === active : px > 100 && px < W - 100 && py < H * 0.42);
+      const ok = vis && fits && (!search || search.ids.includes(p.f.id));
       p.el.style.opacity = ok ? 1 : 0; p.el.style.pointerEvents = ok ? 'auto' : 'none';
       p.el.classList.toggle('active', search ? ok : p.f.id === active);
       if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-100%)';
