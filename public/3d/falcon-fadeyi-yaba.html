@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2 Units of 1 Bed, Fadeyi, Yaba</title>
+<link rel="canonical" href="https://rokhaven.com/falcon-fadeyi-yaba">
+<meta name="description" content="Own two managed one-bedroom apartments in Fadeyi, Yaba, let monthly to working professionals. Off-plan, completion December 2027. Portfolios from ₦232M with 30% down.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Fadeyi, Yaba", "whatsapp": "2349167619009", "video": {"src": "/media/falcon-from-the-ground-up.mp4", "poster": "/media/falcon-ground-up-poster.jpg"}, "live": {"title": "Ground has been broken.", "text": "Construction on the site began in September 2026. A one-minute walk through the site as it stands today: the groundbreaking, the cleared plot and what the finished building will look like. Turn the sound on.", "meta": [["Construction", "Started Sep 2026"], ["Completion", "December 2027"], ["Handover", "March 2028"]]}, "form": {"key": "lbf_3dbf38d966cc58f1578e9eacfaa52b13", "thanksUrl": "/falcon-fadeyi-yaba/thank-you", "honeypot": "lb_09a7136e", "country": true, "consent": true, "noRequest": true, "unitField": "portfolio", "heading": "Get the brochure & title documents", "button": "Get the Brochure & Title Documents", "intro": "Leave your details and an advisor will send you the full brochure, the title documents and the payment schedule on WhatsApp, and answer any questions.", "selects": [{"key": "payment_preference", "label": "How would you pay?", "options": [["outright", "Outright (4% off)"], ["plan-6m", "30% + 6-month plan"], ["plan-8m", "30% + 8-month plan"], ["unsure", "Not sure yet"]]}, {"key": "timeline", "label": "Timeline", "options": [["now", "Ready now"], ["3m", "Within 3 months"], ["exploring", "Just exploring"]]}]}, "thanks": {"title": "Your brochure and title documents are one message away.", "lede": "Your details are with our team. Tap below to send us a WhatsApp message, and an advisor will reply with the brochure, the title documents, the payment schedule and answers to your questions.", "cta": "Get the Brochure & Title Documents", "wa": "Hi RokHaven, I just filled the form for the 2 units of 1 bed in Fadeyi, Yaba. Can I get the brochure and the title documents?"}, "faq": [["Is the rental income guaranteed?", "No. Rent depends on the market. Current benchmarks put a one-bedroom at ₦9M–₦11M a year, and projections assume 85% stabilised occupancy."], ["Why is it sold as two units?", "The building is part of a 100-unit rental portfolio. Selling units in portfolios keeps management efficient and protects every owner’s returns. If you only want one unit, ask us. We can sometimes pair you with another buyer."], ["Who manages it, and what does it cost?", "A professional management team runs the units unless you choose otherwise, and its fee is 12% of gross rent. A service charge covers security, CCTV, water treatment, cleaning, waste, common areas and backup power."], ["Are there costs on top of the price?", "Yes, a 5% legal and documentation fee. Every charge is disclosed before you sign the Sale Agreement."], ["What is the title?", "A Registered Conveyance and survey plan. A 2026 search at the Lagos State Lands Registry found no encumbrances on record. Your lawyer is welcome to review the documents."], ["Can I resell before completion?", "Yes, subject to the project’s documentation and transfer procedures."], ["Will the price go up?", "Today’s prices are an early-phase offer and will be reviewed as construction progresses."]], "building": {"title": "2 units of 1 bed, let monthly and managed for you", "intro": "Lagos professionals are paid every month. Their landlords still want two years upfront. This building was built to close that gap: well-finished, furnished homes close to work, with rent paid monthly, the way tenants earn. And you own the apartments in it.", "stats": [["88%", "Of Lagos renters prefer monthly"], ["₦9–11M", "Est. rent per unit, per year"], ["Dec 2027", "Completion"], ["12%", "Management fee on gross rent"]], "amenities": [["Gated, watched, always powered", "A controlled entrance, resident parking, CCTV, 24/7 backup power and treated water, with every common area managed for you."], ["Thirty-two square metres to unwind", "Open living and dining with sculpted feature lighting, full-height curtains and air conditioning."], ["Made for a working life", "A desk, a wall-mounted TV and warm cove lighting, with an en-suite shower room and a separate guest WC."], ["Ready for a tenant on day one", "A fitted kitchen beside the living room. Part-furnished units add a TV, two ACs, a bed, couches, a fridge and a gas cooker."], ["Managed for you", "The management team finds the tenants, collects the rent and maintains the units, then pays you, keeping a 12% fee."], ["Clean title", "Registered Conveyance and survey plan. A 2026 Lands Registry search found no encumbrances on record."], ["Building rental income", "Two units earning monthly rent, with tenants, collection and maintenance handled for you."], ["Investing from abroad", "Lagos property you never have to manage, with digital documents and site updates until handover."]], "gallery": [{"src": "/gallery/fal-street.jpg", "caption": "Artist’s impression", "cls": "tall"}, {"src": "/gallery/fal-living.jpg", "caption": "Living room", "cls": "tall"}, {"src": "/gallery/fal-front.jpg", "caption": "The front", "cls": "tall"}, {"src": "/gallery/fal-gb-team.jpg", "caption": "On site · the first ground"}, {"src": "/gallery/fal-gb-shovels.jpg", "caption": "On site · shovels in the ground"}, {"src": "/gallery/fal-gb-onsite.jpg", "caption": "On site · rain or shine"}, {"src": "/gallery/fal-bedroom.jpg", "caption": "Bedroom", "cls": "wide"}, {"src": "/gallery/fal-kitchen.jpg", "caption": "Kitchen"}], "mix": [["Part-furnished portfolio (2 × 1-bed)", "—", "2 × 60 m²", "₦278M", "Available"], ["Unfurnished portfolio (2 × 1-bed)", "—", "2 × 60 m²", "₦232M", "Available"], ["Studio portfolios", "—", "—", "—", "Sold out"]], "nearby": {"title": "Why Fadeyi, Yaba", "items": ["8 min to LUTH, one of Lagos’s largest employers of health workers", "10 min to the Yaba tech district", "12 min to Third Mainland Bridge", "15 min to Victoria Island", "15 min to the Secretariat at Alausa"], "note": "Just off Ikorodu Road, on the mainland’s main employment corridor. Drive times as stated by the developer; they vary with traffic."}}, "units": [{"key": "unfurnished", "product": "Falcon Fadeyi – Unfurnished 1-Bed Portfolio (2 Units)", "label": "Unfurnished portfolio", "title": "Unfurnished one-bedroom portfolio", "price": "₦232M", "avail": "2 units · one floor", "size": "2 × 60 m² one-bedroom units", "lede": "Two mirrored 60 m² one-bedroom apartments on one floor, either side of the stair core, let by the month to working professionals and managed for you.", "planNote": "The architect’s floor plan: one floor, one portfolio, raised into a model", "schedNote": "Areas per unit, from the architect’s drawings.", "facts": [["Portfolio", "2 × 60 m² one-beds"], ["Est. rent", "₦18M–22M / yr"], ["Gross yield", "7.8%–9.5%"], ["Deposit", "₦69.6M (30%)"], ["Title", "Registered Conveyance"], ["Completion", "December 2027"]], "levels": [{"key": "fal-1bed", "name": "Floor plan", "plan": "/plans/fal-1bed.jpg", "sub": "Per unit · 60 m²", "rooms": [["Living, dining & kitchen", 32], ["Bedroom", 15], ["En-suite shower room", 5], ["Guest WC", 3], "Two mirrored units either side of the stair core"]}], "pricing": {"title": "Payment options", "sub": "Unfurnished portfolio · ₦232M", "cols": ["Payment option", "Deposit", "Then", "Total"], "hi": 3, "rows": [["Outright, 4% off", "—", "—", "₦222.72M"], ["30% + 6 months, no premium", "₦69.6M", "6 × ₦27.07M", "₦232M"], ["30% + 8 months, 3% premium", "₦69.6M", "8 × ≈₦20.91M", "≈₦236.9M"]], "note": "A 5% legal and documentation fee applies (₦11.6M). Rent estimates assume 85% stabilised occupancy and are not guaranteed. Gross yield is annual gross rent divided by the list price."}, "highlights": [["Monthly rent", "Let the way Lagos professionals are paid"], ["Managed for you", "Tenants, collection and upkeep handled"], ["30% down", "Balance over 6 or 8 months"], ["Higher yield", "7.8%–9.5% estimated gross"]]}, {"key": "part-furnished", "product": "Falcon Fadeyi – Part-Furnished 1-Bed Portfolio (2 Units)", "label": "Part-furnished portfolio", "title": "Part-furnished one-bedroom portfolio", "price": "₦278M", "avail": "2 units · one floor", "size": "TV, 2 ACs, bed, couches, fridge, cooker", "lede": "The same two-unit portfolio, ready to let from day one: each unit comes with a TV, two ACs, a bed, couches, a fridge, a gas cooker and standard lighting.", "planNote": "The architect’s floor plan: one floor, one portfolio, raised into a model", "schedNote": "Areas per unit, from the architect’s drawings.", "facts": [["Portfolio", "2 × 60 m² one-beds"], ["Est. rent", "₦18M–22M / yr"], ["Gross yield", "6.5%–7.9%"], ["Deposit", "₦83.4M (30%)"], ["Furnishing", "TV, 2 ACs, bed, couches, fridge, cooker"], ["Completion", "December 2027"]], "levels": [{"key": "fal-1bed", "name": "Floor plan", "plan": "/plans/fal-1bed.jpg", "sub": "Per unit · 60 m²", "rooms": [["Living, dining & kitchen", 32], ["Bedroom", 15], ["En-suite shower room", 5], ["Guest WC", 3], "Two mirrored units either side of the stair core"]}], "pricing": {"title": "Payment options", "sub": "Part-furnished portfolio · ₦278M", "cols": ["Payment option", "Deposit", "Then", "Total"], "hi": 3, "rows": [["Outright, 4% off", "—", "—", "₦266.88M"], ["30% + 6 months, no premium", "₦83.4M", "6 × ₦32.43M", "₦278M"], ["30% + 8 months, 3% premium", "₦83.4M", "8 × ≈₦25.05M", "≈₦283.8M"]], "note": "A 5% legal and documentation fee applies (₦13.9M). Rent estimates assume 85% stabilised occupancy and are not guaranteed. Gross yield is annual gross rent divided by the list price."}, "highlights": [["Ready to let", "Furnished for a tenant on day one"], ["Managed for you", "Tenants, collection and upkeep handled"], ["30% down", "Balance over 6 or 8 months"], ["Monthly rent", "Let the way Lagos professionals are paid"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

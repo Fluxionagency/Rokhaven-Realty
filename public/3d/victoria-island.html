@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Victoria Island Apartments</title>
+<link rel="canonical" href="https://rokhaven.com/victoria-island">
+<meta name="description" content="One-, two- and three-bedroom apartments in a new smart tower in Victoria Island, with animated 3D floor plans.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Victoria Island", "whatsapp": "2349167619009", "video": null, "live": {"title": "Filmed raw on site, before any staging", "text": "We film every building unedited so you can see exactly where construction stands. Ask us on WhatsApp for the newest site footage of this tower.", "meta": [["Building", "Mixed-use smart tower"], ["Use", "Live, lease or serviced"], ["Footage", "On request"]]}, "building": {"title": "A smart tower for living, working and investing", "intro": "Homes, offices and lifestyle spaces in one of Victoria Island’s busiest districts, built for energy resilience and long-term value. Each home works for an owner-occupier, an executive lease or a serviced apartment.", "stats": [["3", "High-speed lifts"], ["24/7", "Smart security"], ["Solar", "+ generator backup"], ["Multi-level", "Parking"]], "amenities": [["Rooftop gym and wellness centre", "Work out above the skyline with views over the city."], ["Outdoor pool and sun deck", "A landscaped pool terrace with palms and a lounge."], ["Fine dining and rooftop bar", "A restaurant and a covered rooftop bar inside the building."], ["Co-working spaces", "Shared workspace for residents, a lift ride from home."], ["Smart building systems", "Access control, fire safety and 24/7 surveillance."], ["Sustainable by design", "Solar with generator backup, EV charging and rainwater harvesting."], ["Concierge", "A professional team for packages, guests and day-to-day help."], ["Inside every home", "Expansive windows, open-plan living and balconies on every unit."]], "gallery": [{"src": "/gallery/vi-exterior.jpg", "caption": "The tower at night", "cls": "wide tall"}, {"src": "/gallery/vi-lobby.jpg", "caption": "Lobby and arrival", "cls": "tall"}, {"src": "/gallery/vi-living.jpg", "caption": "Open-plan living", "cls": "wide"}, {"src": "/gallery/vi-bedroom.jpg", "caption": "Bedroom"}, {"src": "/gallery/vi-pool.jpg", "caption": "Pool terrace", "cls": "wide"}, {"src": "/gallery/vi-rooftop.jpg", "caption": "Rooftop bar"}, {"src": "/gallery/vi-poolbar.jpg", "caption": "Pool deck"}, {"src": "/gallery/vi-front.jpg", "caption": "Front elevation", "cls": "wide tall"}], "mix": [["1-bedroom apartment", "—", "71 m²", "On request", "Available"], ["2-bedroom apartment", "—", "142–163 m²", "₦550m", "Available"], ["3-bedroom apartment", "—", "—", "₦700m", "Available"]], "nearby": {"title": "Around Victoria Island", "items": ["6 minutes’ drive to Eko Atlantic City", "15 minutes to Lagos Polo Club and Ikoyi Golf Club", "10 minutes to the Lagos–Calabar Coastal Highway interchange", "29 minutes to the international airport", "Top restaurants, lounges, boutiques and boat clubs a minute or two away"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "1bed", "label": "1-bed apartment", "product": "Victoria Island Apartment (1 Bed)", "title": "One-bedroom apartment", "price": "On request", "avail": "Available", "size": "71 m²", "lede": "A compact one-bedroom home with an open living, dining and kitchen space and a private balcony, in the same Victoria Island tower. Ideal to live in or to let as an executive or serviced apartment.", "planNote": "The developer’s floor plan, raised into a model", "schedNote": "Room sizes from the developer’s floor plan. Every size is approximate.", "facts": [["Size", "≈ 71 m²"], ["Bedrooms", "1"], ["Living", "Open-plan, 40 m²"], ["Price", "On request"], ["Building", "Rooftop gym, pool"], ["Power", "Solar + generator"]], "levels": [{"key": "sol-1bed", "name": "Floor plan", "plan": "/plans/sol-1bed.jpg", "sub": "≈ 71 m²", "rooms": [["Living / dining / kitchen", 40], ["Bedroom", 17], "Shower room", "Balcony"]}], "highlights": [["Open-plan living", "Living, dining and kitchen in one bright room"], ["Built to let", "Suits executive leasing or serviced apartments"], ["Same building", "Shares every amenity in the tower"], ["Price on request", "Ask us on WhatsApp for the current price"]]}, {"key": "2bed", "label": "2-bed apartment", "product": "Victoria Island Apartment (2 Bed)", "title": "Two-bedroom apartment", "price": "₦550m", "avail": "Available", "size": "142–163 m², two layouts", "layouts": true, "lede": "A two-bedroom home with an open living and dining room, a separate kitchen and an en-suite for each bedroom. Choose Type A with a BQ, or Type B with a larger open-plan living space.", "planNote": "The developer’s floor plans, raised into a model. Switch between the two layouts.", "schedNote": "Room sizes from the developer’s floor plans. Every size is approximate.", "facts": [["Size", "142–163 m²"], ["Bedrooms", "2, en-suite"], ["Layouts", "Type A with BQ · Type B"], ["Living", "56–63 m²"], ["Building", "Rooftop gym, pool"], ["Power", "Solar + generator"]], "levels": [{"key": "sol-2bed-a", "name": "Type A · with BQ", "plan": "/plans/sol-2bed-a.jpg", "sub": "≈ 163 m²", "rooms": [["Living / dining room", 56], ["Kitchen", 10], ["Bedroom 1", 22], ["Bedroom 2", 21], "2 en-suite bathrooms", "Guest toilet", "BQ", "Balconies"]}, {"key": "sol-2bed-b", "name": "Type B", "plan": "/plans/sol-2bed-b.jpg", "sub": "≈ 142 m²", "rooms": [["Living / dining / kitchen", 63], ["Kitchen", 14], ["Bedroom 1", 21], ["Bedroom 2", 22], "2 en-suite bathrooms", "Guest toilet", "Balconies"]}], "highlights": [["Two layouts", "Type A adds a BQ; Type B has a bigger open-plan room"], ["Every bedroom en-suite", "With built-in space for wardrobes"], ["Expansive windows", "Natural light and cross-ventilation"], ["Live, lease or earn", "Suited to owner-occupiers and executive leasing"]]}, {"key": "3bed", "label": "3-bed apartment", "title": "Three-bedroom apartment", "price": "₦700m", "product": "", "avail": "Available", "size": "Floor plan on request", "lede": "A three-bedroom home in the same Victoria Island tower, with the same rooftop gym, pool deck, concierge and solar-backed power.", "noPlanImage": "/gallery/vi-living.jpg", "noPlanText": "The 3-bedroom floor plan isn’t in the brochure yet. Ask us on WhatsApp and we’ll send it with the price list.", "facts": [["Bedrooms", "3"], ["Building", "Rooftop gym, pool"], ["Power", "Solar + generator"], ["Security", "24/7 smart security"]], "levels": [], "highlights": [["Same building", "Shares every amenity in the tower"], ["Floor plan on request", "Sent with the full price list"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
