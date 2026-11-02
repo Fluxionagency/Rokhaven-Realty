@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 // The 3D site is static HTML in public/3d (shared assets in public/map, plans, gallery, media).
 // These rewrites serve it on clean URLs ahead of the app routes, so `/` and the Falcon funnel
 // URLs used by the running ads show the new pages. Delete a line to fall back to the old page.
-const LISTINGS = ['banana-island', 'old-ikoyi-triplex', 'ikoyi-maisonette', 'victoria-island', 'banana-island-tower', 'ikoyi-tower', 'falcon-fadeyi-yaba'];
+const LISTINGS = ['banana-island', 'old-ikoyi-triplex', 'ikoyi-maisonette', 'victoria-island', 'banana-island-tower', 'ikoyi-tower', 'vi-waterfront', 'falcon-fadeyi-yaba'];
 
 const nextConfig: NextConfig = {
   async rewrites() {

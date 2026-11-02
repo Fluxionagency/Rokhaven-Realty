@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Victoria Island Waterfront Towers, 4 to 6 Bedrooms</title>
+<link rel="canonical" href="https://rokhaven.com/vi-waterfront">
+<meta name="description" content="Four-bedroom apartments, five-bedroom duplexes and a six-bedroom triplex penthouse in twin towers on the Victoria Island lagoon front. From $1.94m with 40% down. Delivery December 2027.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Victoria Island", "whatsapp": "2349167619009", "video": null, "live": {"title": "Delivery planned for December 2027", "text": "We film and photograph every building as it goes up. Ask us on WhatsApp and we’ll send the latest construction photos and site footage for these towers.", "meta": [["Delivery", "December 2027"], ["Payment", "40% · 50% · 10%"], ["Footage", "On request"]]}, "faq": [["How does the payment plan work?", "You pay a 40% deposit, then 50% spread over the construction period, and the final 10% at completion, before handover."], ["When will it be delivered?", "Delivery is planned for December 2027."], ["How much parking comes with each home?", "Three spaces with each 4-bedroom apartment, four with each 5-bedroom duplex and five with the penthouse, in the basement car park. There’s also visitor parking at the drop-off."], ["Are there staff quarters?", "Yes. Each 4-bedroom apartment has two staff rooms with a staff kitchen and bathroom; the duplex and penthouse have four."], ["Is it really on the water?", "Yes. The towers sit on the lagoon front in Victoria Island, with a podium pool overlooking the water and a private jetty."], ["Can I see the floor plans and title documents?", "Yes. Fill the form and we’ll send the full brochure, floor plans and title documents on WhatsApp."]], "building": {"title": "Twin towers on the Victoria Island lagoon front", "intro": "Two slim towers of up to 26 floors, with views over Ikoyi and its greenery on one side and Victoria Island and the Atlantic on the other. Every floor wraps in deep terraces with planters, and the grounds are laid out like a resort, running down to the water.", "stats": [["26", "Floors"], ["2", "Swimming pools"], ["3", "Lifts per tower core"], ["Dec 2027", "Delivery"]], "amenities": [["Lagoon-front pool deck", "A long main pool and a kids’ pool on the podium, floating above the lagoon, with loungers and gardens."], ["Tennis and squash", "A full tennis court, a squash court and a table-tennis area."], ["Private cinema", "A residents’ screening room with recliners and a concessions wall."], ["Gym and yoga", "A glass-walled gym facing the gardens, plus an outdoor gym and yoga area."], ["Outdoor BBQ and dining", "Barbecue spaces and a multi-purpose room for residents."], ["Kids’ play area", "A children’s playground beside the kids’ pool."], ["Private jetty", "Boat moorings on the lagoon at the edge of the grounds."], ["Security and services", "Gated drive-in drop-off, a manager’s office, basement parking, generator, substation, water tanks and sewage treatment."]], "gallery": [{"src": "/gallery/vt-sunset.jpg", "caption": "The towers at sunset", "cls": "tall"}, {"src": "/gallery/vt-aerial.jpg", "caption": "On the lagoon front", "cls": "tall"}, {"src": "/gallery/vt-night.jpg", "caption": "At night", "cls": "tall"}, {"src": "/gallery/vt-balcony.jpg", "caption": "Terrace views over the lagoon", "cls": "wide"}, {"src": "/gallery/vt-pool-deck.jpg", "caption": "The pool deck"}, {"src": "/gallery/vt-lobby.jpg", "caption": "Lobby"}, {"src": "/gallery/vt-gardens.jpg", "caption": "Podium gardens", "cls": "wide"}, {"src": "/gallery/vt-living.jpg", "caption": "4-bedroom living room", "cls": "wide"}, {"src": "/gallery/vt-kitchen.jpg", "caption": "Kitchen"}, {"src": "/gallery/vt-duplex-bed.jpg", "caption": "Duplex master suite", "cls": "wide"}, {"src": "/gallery/vt-triplex-living.jpg", "caption": "Penthouse double-height living", "cls": "wide"}, {"src": "/gallery/vt-bath.jpg", "caption": "Master bathroom"}, {"src": "/gallery/vt-closet.jpg", "caption": "Walk-in closet"}, {"src": "/gallery/vt-cinema.jpg", "caption": "Cinema"}, {"src": "/gallery/vt-gym.jpg", "caption": "Gym"}, {"src": "/gallery/vt-triplex-bath.jpg", "caption": "Penthouse master bathroom"}, {"src": "/gallery/vt-aerial-2.jpg", "caption": "From above", "cls": "wide"}], "mix": [["4-bed apartment", "Levels 1–14", "660 m²", "$1.94m–2.89m", "Available"], ["5-bed duplex", "Levels 15–24", "1,210 m²", "$3.99m–4.62m", "Available"], ["6-bed triplex penthouse", "Levels 25–27", "1,535 m²", "$6.28m", "Available"]], "nearby": {"title": "In Victoria Island", "items": ["On the lagoon front, with water views from every home", "Close to VI’s restaurants, hotels, malls and bars", "Minutes from Ikoyi across the bridge", "Easy reach of Lekki and the business districts"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "4bed", "label": "4-bed apartment", "title": "Four-bedroom apartment", "price": "From $1.94m", "product": "", "avail": "Levels 1–14 · available", "size": "660 m², from $1.94m", "lede": "A 660 m² home on one floor: a guest living room, bar, dining and family lounge across the lagoon side, a master suite with walk-in closet, three more en-suite bedrooms, a full kitchen and two staff rooms.", "planNote": "The developer’s 4-bedroom layout, raised into a model", "schedNote": "Rooms from the developer’s plan. The 4-bedroom home comes with 3 parking spaces and 2 staff rooms.", "facts": [["Size", "660 m²"], ["Bedrooms", "4, en-suite"], ["Price", "$1.94m–2.89m"], ["Payment", "40% · 50% · 10%"], ["Parking", "3 cars"], ["Levels", "1 to 14"]], "levels": [{"key": "vt-simplex", "name": "Floor plan", "plan": "/plans/vt-simplex.jpg", "sub": "One floor · 660 m²", "rooms": ["Entry foyer and powder room", "Guest living room and bar", "Dining room", "Family lounge", "Master bedroom, walk-in closet and bath", "Three more bedrooms, each en-suite", "Kitchen and laundry", "Two staff rooms, staff kitchen and bath", "Wraparound terraces"]}], "pricing": {"title": "Payment plan", "sub": "4-bedroom apartments · 660 m²", "note": "40% deposit, 50% spread over the construction period, and the final 10% at completion before handover. All prices are subject to review.", "cols": ["Stage", "Share", "From", "To"], "rows": [["Deposit", "40%", "$777,000", "$1,155,000"], ["During construction, in instalments", "50%", "$971,250", "$1,443,750"], ["At completion, before handover", "10%", "$194,250", "$288,750"], ["Total", "100%", "$1,942,500", "$2,887,500"]]}, "highlights": [["On one floor", "Every room on a single level"], ["Lagoon views", "Wraparound terraces with planters"], ["40% deposit", "50% while it’s built, 10% at handover"], ["3 parking spaces", "Plus 2 staff rooms"]]}, {"key": "5bed", "label": "5-bed duplex", "title": "Five-bedroom duplex", "price": "From $3.99m", "product": "", "avail": "Levels 15–24 · available", "size": "1,210 m², from $3.99m", "lede": "A 1,210 m² home over two floors: a double-height guest living room, dining, family lounge, bar, office and a guest suite below; the master suite and three more bedrooms above.", "planNote": "The developer’s duplex plans for both floors, raised into a model", "schedNote": "Rooms from the developer’s plans. The duplex comes with 4 parking spaces and 4 staff rooms.", "facts": [["Size", "1,210 m²"], ["Bedrooms", "5, en-suite"], ["Price", "$3.99m–4.62m"], ["Payment", "40% · 50% · 10%"], ["Parking", "4 cars"], ["Levels", "15 to 24"]], "levels": [{"key": "vt-duplex-1", "name": "Lower floor", "plan": "/plans/vt-duplex-1.jpg", "sub": "Living, office and guest suite", "rooms": ["Entry foyer", "Double-height guest living room", "Mini lounge and dining room", "Family lounge and bar", "Office", "Guest bedroom and bathroom", "Kitchen and laundry", "Two staff rooms and staff kitchen"]}, {"key": "vt-duplex-2", "name": "Upper floor", "plan": "/plans/vt-duplex-2.jpg", "sub": "Master suite and three bedrooms", "rooms": ["Master bedroom, walk-in closet and bath", "Bedrooms 1–3, each en-suite", "Two more staff rooms and staff kitchen", "Storage"]}], "pricing": {"title": "Payment plan", "sub": "5-bedroom duplexes · 1,210 m²", "note": "40% deposit, 50% spread over the construction period, and the final 10% at completion before handover. All prices are subject to review.", "cols": ["Stage", "Share", "From", "To"], "rows": [["Deposit", "40%", "$1,596,000", "$1,848,000"], ["During construction, in instalments", "50%", "$1,995,000", "$2,310,000"], ["At completion, before handover", "10%", "$399,000", "$462,000"], ["Total", "100%", "$3,990,000", "$4,620,000"]]}, "highlights": [["Double-height living", "Glass from floor to ceiling over two levels"], ["Two private floors", "Entertaining below, family above"], ["40% deposit", "50% while it’s built, 10% at handover"], ["4 parking spaces", "Plus 4 staff rooms"]]}, {"key": "6bed", "label": "6-bed triplex penthouse", "title": "Six-bedroom triplex penthouse", "price": "$6.28m", "product": "", "avail": "Levels 25–27 · available", "size": "1,535 m² over three floors", "lede": "The top of the tower over three floors: double-height living and dining, an office and guest suite; four bedrooms on the middle floor; and a private top floor with the master suite, a gym, lounge and an outdoor terrace.", "planNote": "The developer’s penthouse plans for all three floors, raised into a model", "schedNote": "Rooms from the developer’s plans. The penthouse comes with 5 parking spaces and 4 staff rooms.", "facts": [["Size", "1,535 m²"], ["Bedrooms", "6, en-suite"], ["Price", "$6.28m"], ["Payment", "40% · 50% · 10%"], ["Parking", "5 cars"], ["Levels", "25 to 27"]], "levels": [{"key": "vt-triplex-1", "name": "Level 1", "plan": "/plans/vt-triplex-1.jpg", "sub": "Living, dining, office, guest suite", "rooms": ["Entry foyer with private lift", "Double-height guest living room", "Dining room and mini lounge", "Family lounge and bar", "Office", "Guest bedroom and bathroom", "Kitchen"]}, {"key": "vt-triplex-2", "name": "Level 2", "plan": "/plans/vt-triplex-2.jpg", "sub": "Four bedrooms", "rooms": ["Bedrooms 1–4, each en-suite", "Four staff rooms, staff kitchen and bath", "Laundry and storage"]}, {"key": "vt-triplex-3", "name": "Level 3", "plan": "/plans/vt-triplex-3.jpg", "sub": "Master floor with gym and terrace", "rooms": ["Master bedroom, walk-in closet and bath", "Private gym", "Lounge and pantry", "Outdoor terrace"]}], "pricing": {"title": "Payment plan", "sub": "6-bedroom triplex penthouse · 1,535 m²", "note": "40% deposit, 50% spread over the construction period, and the final 10% at completion before handover. All prices are subject to review.", "cols": ["Stage", "Share", "Amount"], "rows": [["Deposit", "40%", "$2,511,600"], ["During construction, in instalments", "50%", "$3,139,500"], ["At completion, before handover", "10%", "$627,900"], ["Total", "100%", "$6,279,000"]]}, "highlights": [["Three private floors", "With its own lift and stair"], ["Master floor", "Suite, private gym, lounge and terrace"], ["40% deposit", "50% while it’s built, 10% at handover"], ["5 parking spaces", "Plus 4 staff rooms"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
