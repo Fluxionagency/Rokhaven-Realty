@@ -235,3 +235,13 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .faq-list summary::after { content: "+"; color: var(--gold); font-family: var(--f-body); }
 .faq-list details[open] summary::after { content: "–"; }
 .faq-list p { margin: 12px 0 0; color: var(--ivory-dim); max-width: 70ch; }
+
+/* Site progress photos when there is no walkthrough video yet */
+.live:has(.live-photos) { grid-template-columns: minmax(0, 1fr) minmax(0, 480px); }
+.live-photos { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.live-photos figure { margin: 0; position: relative; border: 1px solid var(--gold-soft); overflow: hidden; background: #000; }
+.live-photos figure:first-child { grid-column: span 2; }
+.live-photos img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.live-photos figure:first-child img { aspect-ratio: 16 / 10; }
+.live-photos figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 10px 7px; font: 400 10px/1.3 var(--f-mono); letter-spacing: .08em; color: var(--ivory); background: linear-gradient(0deg, rgba(6,15,28,.85), rgba(6,15,28,0)); }
+@media (max-width: 860px) { .live:has(.live-photos) { grid-template-columns: minmax(0, 1fr); } .live-photos { max-width: 520px; } }
