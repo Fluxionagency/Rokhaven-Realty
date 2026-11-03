@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Harbour Point Tower · Ikoyi Waterfront Homes</title>
+<link rel="canonical" href="https://rokhaven.com/ikoyi-waterfront">
+<meta name="description" content="Harbour Point Tower: 2-bed flats, 4-bed maisonettes and 5-bed penthouses on the Ikoyi waterfront off Banana Island Road, with a private jetty and beach house access. From ₦800M.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Ikoyi", "project": "Harbour Point Tower", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this tower.", "meta": [["Building", "6 floors + penthouse level"], ["Homes", "24 residences"], ["Footage", "On request"]]}, "faq": [["How do I pay?", "Ask us for the payment plan. We’ll send it with the title documents on WhatsApp."], ["Is it really on the water?", "Yes. The tower sits on the Ikoyi waterfront off Banana Island Road, with a private jetty for boat cruises and evenings on the water."], ["What is the beach house?", "Owners get free access to a private beach house on Ilashe Island, reached by boat from the tower’s jetty. It has a pool, bar, lounge and cabanas."], ["Is there a lift to each home?", "Yes. Homes are served by a private elevator, and every room is en-suite."], ["Are there staff quarters?", "Yes. The maisonettes and penthouses come with BQs."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "A waterfront tower off Banana Island Road", "intro": "Twenty-four homes on the Ikoyi waterfront, with a private jetty, a pool by the water and free access to a private beach house on Ilashe Island. Inside: private elevators, every room en-suite, fitted kitchens and air conditioning throughout.", "stats": [["24", "Homes"], ["7", "Levels incl. penthouse"], ["Jetty", "Private, on the water"], ["Beach house", "Ilashe Island"]], "amenities": [["Private jetty", "Moor a boat at the tower and cruise straight onto the lagoon."], ["Beach house on Ilashe", "Free access for owners: pool, bar, lounge and cabanas, by boat from the jetty."], ["Swimming pool", "A pool on the waterfront beside the jetty."], ["Gym and spa", "A gym, spa, salon, sauna and massage room for residents."], ["Library and business centre", "A quiet library and business centre on the penthouse level."], ["Private elevator", "A lift that opens to your home."], ["Fitted to a high standard", "Fitted kitchens with built-in oven, microwave, induction hob and dishwasher; A/C, intercom and CCTV."], ["Power, water and security", "24-hour power and water with treatment, a remote motorised gate, electric fence and ample parking."]], "gallery": [{"src": "/gallery/hp-aerial.jpg", "caption": "On the waterfront, with the pool and jetty", "cls": "wide tall"}, {"src": "/gallery/hp-facade.jpg", "caption": "The tower", "cls": "tall"}, {"src": "/gallery/hp-waterfront.jpg", "caption": "From the water", "cls": "wide"}, {"src": "/gallery/hp-jetty.jpg", "caption": "Private jetty"}, {"src": "/gallery/hp-3d-2.jpg", "caption": "Waterfront side"}, {"src": "/gallery/hp-street.jpg", "caption": "From the street", "cls": "wide"}, {"src": "/gallery/hp-gate.jpg", "caption": "Entrance"}, {"src": "/gallery/hp-parking.jpg", "caption": "Pool and parking"}, {"src": "/gallery/hp-kitchen.jpg", "caption": "Fitted kitchen", "cls": "tall"}, {"src": "/gallery/hp-bath.jpg", "caption": "Bathroom", "cls": "tall"}, {"src": "/gallery/hp-beach-1.jpg", "caption": "Beach house on Ilashe Island", "cls": "wide"}, {"src": "/gallery/hp-beach-3.jpg", "caption": "Beach house pool bar"}, {"src": "/gallery/hp-beach-2.jpg", "caption": "Beach house lounge"}, {"src": "/gallery/hp-3d-1.jpg", "caption": "The tower"}, {"src": "/gallery/hp-3d-3.jpg", "caption": "The tower from the road"}], "mix": [["2-bed flat", "2nd and 4th", "—", "₦800M", "Available"], ["4-bed maisonette", "1st–2nd and 3rd–4th", "—", "₦1.2B", "Available"], ["5-bed penthouse", "6th + penthouse level", "—", "₦1.7B", "Available"]], "nearby": {"title": "In Ikoyi", "items": ["On the waterfront off Banana Island Road", "Minutes from Banana Island, Falomo and Victoria Island", "Boat access to the lagoon and Ilashe beach", "Close to Ikoyi’s restaurants, clubs and schools"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "2bed", "label": "2-bed flat", "title": "Two-bedroom flat", "price": "₦800M", "product": "", "avail": "2nd and 4th floors · available", "size": "Two en-suite bedrooms, ₦800M", "lede": "A two-bedroom flat with a 47 m² living and dining room, a 16 m² kitchen and two 21 m² en-suite bedrooms, on the 2nd or 4th floor of a waterfront tower.", "planNote": "The developer’s 2nd and 4th floor plan, raised into a model. The red boxes mark the maisonettes’ upper floors.", "schedNote": "Room sizes from the developer’s plan. Every size is approximate.", "facts": [["Bedrooms", "2, en-suite"], ["Price", "₦800M"], ["Living", "47 m²"], ["Floors", "2nd and 4th"], ["Lift", "Private elevator"], ["Extras", "Jetty, beach house"]], "levels": [{"key": "hp-floor-2", "name": "2nd & 4th floor", "plan": "/plans/hp-floor-2.jpg", "sub": "Four 2-bed flats per floor", "rooms": [["Living & dining", 47], ["Kitchen", 16], ["Bedroom 1", 21], ["Bedroom 2", 21], "Guest WC"]}], "pricing": {"title": "Price list", "sub": "2-bed flat", "cols": ["Home", "Floors", "Units", "Price"], "hi": 3, "rows": [["2-bed flat", "2nd and 4th", "8", "₦800M"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Waterfront tower", "Jetty and pool by the water"], ["Beach house access", "On Ilashe Island, by boat"], ["Every room en-suite", "With A/C and intercom"], ["Lowest entry price", "₦800M"]]}, {"key": "4bed", "label": "4-bed maisonette", "title": "Four-bedroom maisonette", "price": "₦1.2B", "product": "", "avail": "Floors 1–4 · available", "size": "Two levels with a BQ, ₦1.2B", "lede": "A home over two floors: a 72 m² living and dining room, a 22 m² kitchen and three en-suite bedrooms below, with a BQ; the 27 m² master bedroom and a family lounge above.", "planNote": "The developer’s plans for both levels, raised into a model", "schedNote": "Room sizes from the developer’s plans. Every size is approximate.", "facts": [["Bedrooms", "4 + BQ"], ["Price", "₦1.2B"], ["Living", "72 m²"], ["Levels", "2, private stair"], ["Floors", "1st–2nd, 3rd–4th"], ["Extras", "Jetty, beach house"]], "levels": [{"key": "hp-mais-lower", "name": "Lower level", "plan": "/plans/hp-mais-lower.jpg", "sub": "Living, kitchen, three bedrooms", "rooms": [["Living & dining", 72], ["Kitchen", 22], ["Bedroom 2", 22], ["Bedroom 3", 20], ["Bedroom 4", 15], ["Ante room", 10], "BQ"]}, {"key": "hp-floor-2", "name": "Upper level", "plan": "/plans/hp-floor-2.jpg", "sub": "Master suite and family lounge (red boxes)", "rooms": [["Master bedroom", 27], ["Family lounge", 27]]}], "pricing": {"title": "Price list", "sub": "4-bed maisonette", "cols": ["Home", "Floors", "Units", "Price"], "hi": 3, "rows": [["4-bed maisonette", "1st–2nd and 3rd–4th", "8", "₦1.2B"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Two private levels", "Living below, master suite above"], ["72 m² living room", "Plus a 22 m² kitchen"], ["BQ included", "Staff quarters with the home"], ["Beach house access", "On Ilashe Island, by boat"]]}, {"key": "penthouse", "label": "5-bed penthouse", "title": "Five-bedroom penthouse", "price": "₦1.7B", "product": "", "avail": "Top two levels · available", "size": "Two levels with a private cinema, ₦1.7B", "lede": "The top of the tower: a 72 m² living and dining room, kitchen, three bedrooms and a BQ on the 6th floor; above, a 55 m² master suite with closet, a private cinema, a family lounge and a wide terrace, with the residents’ library, business centre and spa on the same level.", "planNote": "The developer’s 6th-floor and penthouse-level plans, raised into a model", "schedNote": "Room sizes from the developer’s plans. Every size is approximate.", "facts": [["Bedrooms", "5 + BQ"], ["Price", "₦1.7B"], ["Master suite", "55 m²"], ["Extras", "Private cinema"], ["Levels", "6th + penthouse"], ["Terrace", "Wraparound"]], "levels": [{"key": "hp-ph-lower", "name": "6th floor", "plan": "/plans/hp-ph-lower.jpg", "sub": "Living, kitchen, three bedrooms", "rooms": [["Living & dining", 72], ["Kitchen", 22], ["Bedroom 2", 22], ["Bedroom 3", 20], ["Bedroom 4", 15], ["Ante room", 10], "BQ"]}, {"key": "hp-ph-upper", "name": "Penthouse level", "plan": "/plans/hp-ph-upper.jpg", "sub": "Master suite, cinema and terrace", "rooms": [["Master bedroom", 55], ["Private cinema", 25], ["Master bath", 12], "Closet", "Family lounge", "Terrace", "Shared: library, business centre, spa, sauna"]}], "pricing": {"title": "Price list", "sub": "5-bed penthouse", "cols": ["Home", "Floors", "Units", "Price"], "hi": 3, "rows": [["5-bed penthouse", "6th + penthouse level", "4", "₦1.7B"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Private cinema", "On the penthouse level"], ["55 m² master suite", "With a walk-in closet"], ["Wraparound terrace", "Views over the water"], ["Beach house access", "On Ilashe Island, by boat"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
