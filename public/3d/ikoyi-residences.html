@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>11 Bourdillon · Ikoyi Residences, 1 to 5 Bedrooms</title>
+<link rel="canonical" href="https://rokhaven.com/ikoyi-residences">
+<meta name="description" content="One- to five-bedroom flats and maisonettes in an 11-storey Ikoyi tower with pool, gym and spa. From ₦880M.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Ikoyi", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this tower.", "meta": [["Building", "11 storeys"], ["Homes", "52 residences"], ["Footage", "On request"]]}, "faq": [["How do I pay?", "Ask us for the payment plan. We’ll send the plan, the price list and the title documents on WhatsApp."], ["What is the difference between front and back homes?", "Front homes face the road and are priced slightly higher; back homes look over the garden side and are quieter."], ["What is a maisonette here?", "A home over two floors with its own stair: living and dining below, bedrooms and a private lounge above."], ["Is there parking?", "Yes. Ample parking at ground level around the building and in the parking courts."], ["What amenities are there?", "A swimming pool, a fully equipped gym, a spa and wellness lounge, a residents’ lounge and concierge."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "An 11-storey tower in the heart of Ikoyi", "intro": "Fifty-two homes on one of Ikoyi’s most sought-after roads: apartments, maisonettes, penthouse maisonettes and detached homes, set around a pool and gardens. Every home has open-plan living, high ceilings, large windows and terraces.", "stats": [["11", "Storeys"], ["52", "Residences"], ["4", "Homes per floor"], ["1–5", "Bedrooms"]], "amenities": [["Swimming pool", "A pool and sun deck by the gardens."], ["Fully equipped gym", "A residents’ gym on the ground floor."], ["Spa and wellness lounge", "A spa beside the gym."], ["Residents’ lounge", "A shared lounge for residents and guests."], ["Concierge", "A front desk for residents."], ["Modern kitchens", "Fitted kitchens in every home."], ["Ample parking", "Parking at ground level and around the building."], ["Terraces", "Every home opens onto terraces."]], "gallery": [{"src": "/gallery/bd-tower.jpg", "caption": "The tower", "cls": "wide tall"}, {"src": "/gallery/bd-front.jpg", "caption": "Front elevation", "cls": "tall"}, {"src": "/gallery/bd-back.jpg", "caption": "Back elevation", "cls": "tall"}, {"src": "/gallery/bd-street.jpg", "caption": "From the street"}, {"src": "/gallery/bd-ph-living.jpg", "caption": "Penthouse living room", "cls": "tall"}, {"src": "/gallery/bd-ph-bed.jpg", "caption": "5-bedroom master suite", "cls": "tall"}, {"src": "/gallery/bd-kitchen.jpg", "caption": "Kitchen", "cls": "wide"}, {"src": "/gallery/bd-lounge.jpg", "caption": "Residents’ lounge"}, {"src": "/gallery/bd-3bed.jpg", "caption": "3-bedroom"}, {"src": "/gallery/bd-2bed.jpg", "caption": "2-bedroom"}, {"src": "/gallery/bd-gym.jpg", "caption": "Gym", "cls": "wide"}], "mix": [["1-bed flat", "8th floor", "—", "₦880M–₦900M", "Available"], ["2-bed flat", "2nd, 4th, 6th, 7th", "—", "₦1.15B–₦1.28B", "Available"], ["3-bed flat", "8th floor", "—", "₦1.85B–₦1.9B", "Available"], ["4-bed maisonette", "1st, 3rd, 5th", "—", "₦1.8B–₦2.05B", "Available"], ["5-bed maisonette", "9th and 10th", "—", "₦3.6B–₦3.9B", "Available"]], "nearby": {"title": "In Ikoyi", "items": ["One of the most secure and sought-after neighbourhoods in Lagos", "Close to embassies, restaurants, boutiques and international schools", "Easy access to Victoria Island, Lekki and the business districts", "Lagoon and waterfront close by"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "2bed", "label": "2-bed flat", "title": "Two-bedroom flat", "price": "From ₦1.15B", "product": "", "avail": "Available", "size": "₦1.15B–₦1.28B", "lede": "Two-bedroom flats on the 2nd, 4th, 6th and 7th floors, with open-plan living, a fitted kitchen and terraces. Front homes face the road; back homes face the garden side.", "planNote": "The developer’s whole-floor plan, raised into a model. Each floor has four homes.", "schedNote": "From the developer’s floor plans. Ask us for the plan of a single unit.", "facts": [["Bedrooms", "2"], ["Floors", "2, 4, 6, 7"], ["Price", "₦1.15B–₦1.28B"], ["Views", "Front or back"], ["Building", "Pool, gym, spa"], ["Parking", "Yes"]], "levels": [{"key": "bd-floor-2", "name": "2nd floor", "plan": "/plans/bd-floor-2.jpg", "sub": "Four homes per floor", "rooms": ["The whole floor: four homes around the lift core", "Your home is one quarter, A, B, C or D", "Front homes face the road; back homes face the garden"]}], "pricing": {"title": "Price list by floor", "sub": "2-bed flat · prices by floor and view", "cols": ["Floor", "Unit", "View", "Price"], "hi": 3, "rows": [["2nd floor", "A", "Front", "₦1.18B"], ["2nd floor", "B", "Front", "₦1.18B"], ["2nd floor", "C", "Back", "₦1.15B"], ["2nd floor", "D", "Back", "₦1.15B"], ["4th floor", "A", "Front", "₦1.2B"], ["4th floor", "B", "Front", "₦1.2B"], ["4th floor", "C", "Front", "₦1.17B"], ["4th floor", "D", "Front", "₦1.17B"], ["6th floor", "A", "Front", "₦1.25B"], ["6th floor", "B", "Front", "₦1.25B"], ["6th floor", "C", "Back", "₦1.22B"], ["6th floor", "D", "Front", "₦1.22B"], ["7th floor", "A", "Front", "₦1.28B"], ["7th floor", "B", "Front", "₦1.28B"], ["7th floor", "C", "Back", "₦1.26B"], ["7th floor", "D", "Back", "₦1.26B"]], "note": "Prices from the current price list and subject to review. Payment plan and title details sent on request."}, "highlights": [["16 homes", "Four on each of four floors"], ["Front or back", "Choose your view"], ["Pool, gym and spa", "Shared by residents"], ["Ikoyi address", "One of Lagos’s best roads"]]}, {"key": "1bed", "label": "1-bed flat", "title": "One-bedroom flat", "price": "From ₦880M", "product": "", "avail": "Available", "size": "₦880M–₦900M", "lede": "Two one-bedroom flats on the 8th floor, one facing the front and one the back, with open-plan living and a terrace. The lowest entry price in the building.", "planNote": "The developer’s whole-floor plan, raised into a model. Each floor has four homes.", "schedNote": "From the developer’s floor plans. Ask us for the plan of a single unit.", "facts": [["Bedrooms", "1"], ["Floor", "8th"], ["Price", "₦880M–₦900M"], ["Views", "Front or back"], ["Building", "Pool, gym, spa"], ["Parking", "Yes"]], "levels": [{"key": "bd-floor-8", "name": "8th floor", "plan": "/plans/bd-floor-8.jpg", "sub": "3-bed and 1-bed homes", "rooms": ["The whole floor: four homes around the lift core", "Your home is one quarter, A, B, C or D", "Front homes face the road; back homes face the garden"]}], "pricing": {"title": "Price list by floor", "sub": "1-bed flat · prices by floor and view", "cols": ["Floor", "Unit", "View", "Price"], "hi": 3, "rows": [["8th floor", "B", "Front", "₦900M"], ["8th floor", "D", "Back", "₦880M"]], "note": "Prices from the current price list and subject to review. Payment plan and title details sent on request."}, "highlights": [["High floor", "8th floor views"], ["Entry price", "The lowest in the building"], ["Pool, gym and spa", "Shared by residents"], ["Easy to let", "A strong Ikoyi rental"]]}, {"key": "3bed", "label": "3-bed flat", "title": "Three-bedroom flat", "price": "From ₦1.85B", "product": "", "avail": "Available", "size": "₦1.85B–₦1.9B", "lede": "Two three-bedroom flats on the 8th floor, front and back, sharing the floor with the one-bedroom homes.", "planNote": "The developer’s whole-floor plan, raised into a model. Each floor has four homes.", "schedNote": "From the developer’s floor plans. Ask us for the plan of a single unit.", "facts": [["Bedrooms", "3"], ["Floor", "8th"], ["Price", "₦1.85B–₦1.9B"], ["Views", "Front or back"], ["Building", "Pool, gym, spa"], ["Parking", "Yes"]], "levels": [{"key": "bd-floor-8", "name": "8th floor", "plan": "/plans/bd-floor-8.jpg", "sub": "3-bed and 1-bed homes", "rooms": ["The whole floor: four homes around the lift core", "Your home is one quarter, A, B, C or D", "Front homes face the road; back homes face the garden"]}], "pricing": {"title": "Price list by floor", "sub": "3-bed flat · prices by floor and view", "cols": ["Floor", "Unit", "View", "Price"], "hi": 3, "rows": [["8th floor", "A", "Front", "₦1.9B"], ["8th floor", "C", "Back", "₦1.85B"]], "note": "Prices from the current price list and subject to review. Payment plan and title details sent on request."}, "highlights": [["High floor", "8th floor views"], ["Only two", "One front, one back"], ["Pool, gym and spa", "Shared by residents"], ["Ikoyi address", "One of Lagos’s best roads"]]}, {"key": "4bed", "label": "4-bed maisonette", "title": "Four-bedroom maisonette", "price": "From ₦1.8B", "product": "", "avail": "Available", "size": "₦1.8B–₦2.05B", "lede": "Four-bedroom homes over two floors, with living, dining and kitchen below and the bedrooms and a private lounge above. On the 1st, 3rd and 5th floors.", "planNote": "The developer’s whole-floor plan, raised into a model. Each floor has four homes.", "schedNote": "From the developer’s floor plans. Ask us for the plan of a single unit.", "facts": [["Bedrooms", "4"], ["Levels", "2, private stair"], ["Price", "₦1.8B–₦2.05B"], ["Floors", "1, 3, 5"], ["Views", "Front or back"], ["Building", "Pool, gym, spa"]], "levels": [{"key": "bd-floor-1", "name": "1st floor", "plan": "/plans/bd-floor-1.jpg", "sub": "Four maisonettes per floor", "rooms": ["The whole floor: four homes around the lift core", "Your home is one quarter, A, B, C or D", "Front homes face the road; back homes face the garden"]}], "pricing": {"title": "Price list by floor", "sub": "4-bed maisonette · prices by floor and view", "cols": ["Floor", "Unit", "View", "Price"], "hi": 3, "rows": [["1st floor", "A", "Front", "₦1.9B"], ["1st floor", "B", "Front", "₦1.9B"], ["1st floor", "C", "Back", "₦1.8B"], ["1st floor", "D", "Back", "₦1.8B"], ["3rd floor", "A", "Front", "₦1.95B"], ["3rd floor", "B", "Front", "₦1.95B"], ["3rd floor", "C", "Back", "₦1.85B"], ["3rd floor", "D", "Back", "₦1.85B"], ["5th floor", "A", "Front", "₦2.05B"], ["5th floor", "B", "Front", "₦2.05B"], ["5th floor", "C", "Back", "₦2.03B"], ["5th floor", "D", "Back", "₦2.03B"]], "note": "Prices from the current price list and subject to review. Payment plan and title details sent on request."}, "highlights": [["Two private levels", "Living below, bedrooms above"], ["Private lounge", "On the bedroom floor"], ["12 homes", "Front or back"], ["Pool, gym and spa", "Shared by residents"]]}, {"key": "5bed", "label": "5-bed maisonette", "title": "Five-bedroom penthouse maisonette", "price": "From ₦3.6B", "product": "", "avail": "Available", "size": "₦3.6B–₦3.9B", "lede": "The top homes in the tower: five bedrooms over the 9th and 10th floors, with living, dining, guest rooms and kitchen below, and the master suite, bedrooms and private lounges above, plus roof terraces.", "planNote": "The developer’s plans for the 9th and 10th floors, raised into a model. Each floor has four homes.", "schedNote": "From the developer’s floor plans. Ask us for the plan of a single unit.", "facts": [["Bedrooms", "5"], ["Levels", "9th and 10th"], ["Price", "₦3.6B–₦3.9B"], ["Views", "Front or back"], ["Terraces", "Roof terraces"], ["Building", "Pool, gym, spa"]], "levels": [{"key": "bd-floor-9", "name": "9th floor", "plan": "/plans/bd-floor-9.jpg", "sub": "Living, dining, guest rooms", "rooms": ["Living and dining room", "Two guest rooms", "Kitchen and store", "Terraces"]}, {"key": "bd-floor-10", "name": "10th floor", "plan": "/plans/bd-floor-10.jpg", "sub": "Master suite and bedrooms", "rooms": ["Master bedroom", "Further bedrooms, en-suite", "Private lounges", "Terraces"]}], "pricing": {"title": "Price list by floor", "sub": "5-bed maisonette · prices by floor and view", "cols": ["Floor", "Unit", "View", "Price"], "hi": 3, "rows": [["9th floor", "A", "Front", "₦3.9B"], ["9th floor", "B", "Front", "₦3.9B"], ["9th floor", "C", "Back", "₦3.6B"], ["9th floor", "D", "Back", "₦3.6B"]], "note": "Prices from the current price list and subject to review. Payment plan and title details sent on request."}, "highlights": [["Top of the tower", "Two floors with roof terraces"], ["Five bedrooms", "Master suite and private lounges"], ["Only four", "Two front, two back"], ["Pool, gym and spa", "Shared by residents"]]}], "project": "11 Bourdillon"};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

@@ -28,9 +28,13 @@ local and preview deploys show the "couldn't save" note on the thank-you page; t
 3. On the map (`public/3d/index.html`): add a `.stop` section and rail button, an entry in `featured`,
    a camera key, and the slug in `PAGES`.
 
+4. **Always** update the RokHaven 3D Skyline preview artifact (claude.ai/artifact/3aesUJLXEkHicas13xuvRy) in the
+   same session: copy `public/` into a folder with relative paths (`/x` → `x`, clean routes → `slug.html`, no
+   `rh-track.js`) and republish it to the same URL. Every new or changed listing must appear there too.
+
 ## Content rules
 
-No building names, developer names or street addresses on listings. Victoria Island is shown as "VI" only.
+Each listing shows its project name (e.g. Bijou, 11 Bourdillon) on the map pin, card, rail and page, and the map search finds listings by project name. No developer names or street addresses. Victoria Island is shown as "VI" only.
 Yaba listing: "2 units of 1 bed", never the building or operator name; title is a Registered Conveyance
 and survey plan.
 
