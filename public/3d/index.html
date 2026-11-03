@@ -280,16 +280,18 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
 
 <nav class="rail" aria-label="Tour stops">
   <button data-go="0"><span>Lagos</span><i></i></button>
-  <button data-go="1"><span>Banana Island</span><i></i></button>
-  <button data-go="2"><span>Old Ikoyi triplex</span><i></i></button>
-  <button data-go="3"><span>Ikoyi maisonette</span><i></i></button>
-  <button data-go="4"><span>Victoria Island</span><i></i></button>
-  <button data-go="5"><span>Banana Island tower</span><i></i></button>
-  <button data-go="6"><span>Ikoyi tower</span><i></i></button>
-  <button data-go="7"><span>VI waterfront</span><i></i></button>
-  <button data-go="8"><span>Lekki Phase 1</span><i></i></button>
-  <button data-go="9"><span>2 units of 1 bed</span><i></i></button>
-  <button data-go="10"><span>Viewing</span><i></i></button>
+  <button data-go="1"><span>MISSI</span><i></i></button>
+  <button data-go="2"><span>Fenry</span><i></i></button>
+  <button data-go="3"><span>S&S Courtyard</span><i></i></button>
+  <button data-go="4"><span>Sol</span><i></i></button>
+  <button data-go="5"><span>Bijou</span><i></i></button>
+  <button data-go="6"><span>The Mandilas Tower</span><i></i></button>
+  <button data-go="7"><span>Metropolitan Towers</span><i></i></button>
+  <button data-go="8"><span>The Gogle</span><i></i></button>
+  <button data-go="9"><span>11 Bourdillon</span><i></i></button>
+  <button data-go="10"><span>Harbour Point Tower</span><i></i></button>
+  <button data-go="11"><span>2 units of 1 bed</span><i></i></button>
+  <button data-go="12"><span>Viewing</span><i></i></button>
 </nav>
 
 <div class="ctrls" role="group" aria-label="3D view controls">
@@ -307,7 +309,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <form id="area-form" autocomplete="off">
     <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4.5 4.5"/></svg>
     <label class="sr" for="area-q">Search an area</label>
-    <input id="area-q" type="search" placeholder="Search an area: Ikoyi, Lekki Phase 1, VI…" enterkeyhint="search">
+    <input id="area-q" type="search" placeholder="Search an area or project: Ikoyi, Bijou, Lekki…" enterkeyhint="search">
     <button type="submit">Search</button>
   </form>
   <ul id="area-sug" class="sug" role="listbox" hidden></ul>
@@ -331,7 +333,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="banana" data-stop="1">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Banana Island</p>
+        <p class="where">MISSI · Banana Island</p>
         <h2>Five-bedroom penthouse duplex</h2>
         <div class="price"><strong>$4.5m</strong><span>2 units<br>available</span></div>
         <p>About 1,300 m² across the top two floors of a building of eight family homes, with a private elevator and panoramic views over Lagos and its waterways.</p>
@@ -356,7 +358,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="triplex" data-stop="2">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Old Ikoyi</p>
+        <p class="where">Fenry · Old Ikoyi</p>
         <h2>Four-bedroom triplex penthouse</h2>
         <div class="price"><strong>$5m</strong><span>2 units<br>available</span></div>
         <p>Three levels: double-height living below, four bedrooms in the middle, and a whole top floor for wellness with views over the canopy and water.</p>
@@ -380,7 +382,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="maisonette" data-stop="3">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Ikoyi</p>
+        <p class="where">S&amp;S Courtyard · Ikoyi</p>
         <h2>Four-bedroom maisonette penthouse</h2>
         <div class="price"><strong>$2.6m</strong><span>1 unit<br>available</span></div>
         <p>The two-floor penthouse at the top of a boutique building of nine residences. Private cinema, double-height living and a master suite with its own terrace.</p>
@@ -400,7 +402,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="vi-apartments" data-stop="4">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Victoria Island</p>
+        <p class="where">Sol · Victoria Island</p>
         <h2>One-, two- and three-bedroom apartments</h2>
         <div class="price"><strong>₦550m</strong><span>2 bedrooms<br>available</span></div>
         <p>Homes in a new smart tower in Victoria Island, with a rooftop gym, pool deck, fine dining, co-working and solar backup.</p>
@@ -423,7 +425,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="bi-tower" data-stop="5">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Banana Island</p>
+        <p class="where">Bijou · Banana Island</p>
         <h2>Three-bedroom apartments in the island’s tallest tower</h2>
         <div class="price"><strong>$676k</strong><span>From · pay over<br>36 months</span></div>
         <p>Twenty storeys in two towers joined by a sky bridge, with a pool deck, gym, spa and 24-hour concierge.</p>
@@ -445,7 +447,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="ikoyi-tower" data-stop="6">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Ikoyi</p>
+        <p class="where">The Mandilas Tower · Ikoyi</p>
         <h2>Two-bedroom apartments in a new 17-floor Ikoyi tower</h2>
         <div class="price"><strong>$558k</strong><span>From · 30% down,<br>60% while it’s built</span></div>
         <p>Two- to five-bedroom homes with private balconies, a 30-metre pool, cinema, spa, gym and club house. Completion Q4 2027.</p>
@@ -470,7 +472,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="vi-waterfront" data-stop="7">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Victoria Island</p>
+        <p class="where">Metropolitan Towers · Victoria Island</p>
         <h2>Four-bedroom apartments in twin towers on the lagoon</h2>
         <div class="price"><strong>$1.94m</strong><span>From · 40% down,<br>50% while it’s built</span></div>
         <p>Twin towers of up to 26 floors on the lagoon front, with two pools, a tennis court, squash, cinema, gym and a private jetty. Delivery December 2027.</p>
@@ -493,7 +495,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <section class="stop" id="lekki-1" data-stop="8">
     <div class="stop-inner">
       <article class="card">
-        <p class="where">Lekki Phase 1</p>
+        <p class="where">The Gogle · Lekki Phase 1</p>
         <h2>Two-bedroom apartments with a rooftop pool and gym</h2>
         <div class="price"><strong>₦270M</strong><span>From · ₦10M to<br>start, 12-month plan</span></div>
         <p>A boutique building with curved terraces, a rooftop pool and gym, a spa, elevator and concierge. Piling is complete; delivery April 2028.</p>
@@ -513,7 +515,53 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     </div>
   </section>
 
-  <section class="stop" id="falcon" data-stop="9">
+  <section class="stop" id="ikoyi-res" data-stop="9">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">11 Bourdillon · Ikoyi</p>
+        <h2>One- to five-bedroom homes in an 11-storey Ikoyi tower</h2>
+        <div class="price"><strong>₦880M</strong><span>From · 1-bed<br>flat</span></div>
+        <p>Fifty-two flats and maisonettes around a pool and gardens, with a gym, spa, residents’ lounge and concierge.</p>
+        <ul class="facts">
+          <li><div class="k">2-bedroom</div><div class="v">₦1.15B–1.28B</div></li>
+          <li><div class="k">4-bed maisonette</div><div class="v">₦1.8B–2.05B</div></li>
+          <li><div class="k">Leisure</div><div class="v">Pool, gym, spa</div></li>
+          <li><div class="k">Building</div><div class="v">11 storeys, 52 homes</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>4-bedroom maisonette</b><span>Two levels</span></div><strong>₦1.8B+</strong></div>
+          <div class="unit"><div><b>5-bedroom penthouse maisonette</b><span>9th and 10th floors</span></div><strong>₦3.6B+</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/ikoyi-residences">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="harbour" data-stop="10">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Harbour Point Tower · Ikoyi</p>
+        <h2>Waterfront homes with a private jetty off Banana Island Road</h2>
+        <div class="price"><strong>₦800M</strong><span>From · 2-bed<br>flat</span></div>
+        <p>Twenty-four homes on the Ikoyi waterfront with a jetty, pool, private elevators and free access to a beach house on Ilashe Island.</p>
+        <ul class="facts">
+          <li><div class="k">2-bedroom</div><div class="v">₦800M</div></li>
+          <li><div class="k">Waterfront</div><div class="v">Private jetty</div></li>
+          <li><div class="k">Leisure</div><div class="v">Pool, gym, spa</div></li>
+          <li><div class="k">Extra</div><div class="v">Ilashe beach house</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>4-bedroom maisonette</b><span>Two levels + BQ</span></div><strong>₦1.2B</strong></div>
+          <div class="unit"><div><b>5-bedroom penthouse</b><span>Private cinema, terrace</span></div><strong>₦1.7B</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/ikoyi-waterfront">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="falcon" data-stop="11">
     <div class="stop-inner">
       <article class="card">
         <p class="where">Fadeyi, Yaba</p>
@@ -535,7 +583,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     </div>
   </section>
 
-  <section class="stop contact" id="viewing" data-stop="10">
+  <section class="stop contact" id="viewing" data-stop="12">
     <div class="stop-inner">
       <article class="card">
         <p class="where">Private viewings</p>
@@ -571,7 +619,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   }));
 
   // Each listing has its own sales page
-  const PAGES = { 1: '/banana-island', 2: '/old-ikoyi-triplex', 3: '/ikoyi-maisonette', 4: '/victoria-island', 5: '/banana-island-tower', 6: '/ikoyi-tower', 7: '/vi-waterfront', 8: '/lekki-phase-1', 9: '/falcon-fadeyi-yaba' };
+  const PAGES = { 1: '/banana-island', 2: '/old-ikoyi-triplex', 3: '/ikoyi-maisonette', 4: '/victoria-island', 5: '/banana-island-tower', 6: '/ikoyi-tower', 7: '/vi-waterfront', 8: '/lekki-phase-1', 9: '/ikoyi-residences', 10: '/ikoyi-waterfront', 11: '/falcon-fadeyi-yaba' };
   const openPage = id => { if (PAGES[id]) window.location.href = PAGES[id]; };
 
   const sections = [...document.querySelectorAll('.stop')];
@@ -646,15 +694,17 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
 
   // Featured listings
   const featured = [
-    { id: 1, tags: ['Banana Island', 'Ikoyi'], title: '5-bed penthouse, maisonettes and apartments', name: 'Banana Island', price: '$1.5m–4.5m', pos: new THREE.Vector3(69.1, LAND_H, -74.6), h: 2.9, w: 2.4, model: 'banana', rotY: -Math.PI / 2, s: 0.55, clear: 3.6, ringScale: 1.15 },
-    { id: 2, tags: ['Old Ikoyi', 'Ikoyi'], title: '4-bed triplex penthouse and 5-bed terraces', name: 'Old Ikoyi', price: '$3m–5m', pos: new THREE.Vector3(-28, LAND_H, -27), h: 3.0, w: 2.6, model: 'fenry', rotY: Math.PI, s: 0.55, clear: 2.6, ringScale: 0.85 },
-    { id: 3, tags: ['Ikoyi', 'South-West Ikoyi'], title: '4-bed maisonette penthouse', name: 'Ikoyi', price: '$2.6m', pos: new THREE.Vector3(11, LAND_H, -33), h: 3.2, w: 2.4, model: 'courtyard', rotY: -Math.PI / 4, s: 0.55, clear: 2.9, ringScale: 0.9 },
-    { id: 4, tags: ['Victoria Island'], title: '1-, 2- and 3-bed apartments', name: 'Victoria Island', price: '₦550m–700m', pos: new THREE.Vector3(-25, LAND_H, 100), h: 5.6, w: 2.4, model: 'vi', rotY: -0.73, s: 0.55, clear: 3.2, ringScale: 1.0 },
-    { id: 5, tags: ['Banana Island', 'Ikoyi'], title: '3-bed apartments and 4-bed maisonettes', name: 'Banana Island tower', price: '$676k–2.19m', pos: new THREE.Vector3(95, LAND_H, -66), h: 8.0, w: 3.0, model: 'bijou', rotY: 0.35, s: 0.55, clear: 4.4, ringScale: 1.6 },
-    { id: 6, tags: ['Ikoyi'], title: '2- to 5-bed apartments', name: 'Ikoyi tower', price: '$558k–2.8m', pos: new THREE.Vector3(30.4, LAND_H, 19.4), h: 6.4, w: 2.8, model: 'ikoyitower', rotY: 0, s: 0.55, clear: 3.6, ringScale: 1.3 },
-    { id: 7, tags: ['Victoria Island'], title: '4-bed apartments, 5-bed duplexes and a 6-bed penthouse', name: 'VI waterfront', price: '$1.94m–6.28m', pos: new THREE.Vector3(-26, LAND_H, 68.8), h: 9.5, w: 3.0, model: 'vitwin', rotY: 0.05, s: 0.55, clear: 5.5, ringScale: 1.5 },
-    { id: 8, tags: ['Lekki Phase 1', 'Lekki'], title: '2-bed apartments, a 2-bed maisonette and a 3-bed penthouse', name: 'Lekki Phase 1', price: '₦270M–549M', pos: new THREE.Vector3(196, LAND_H, 58.6), h: 3.6, w: 2.6, model: 'lekki', rotY: 0.3, s: 0.55, clear: 3.2, ringScale: 1.0 },
-    { id: 9, tags: ['Fadeyi', 'Yaba'], title: 'One-bedroom rental portfolios from ₦232M', name: '2 units of 1 bed', price: '₦232M–278M', pos: new THREE.Vector3(-398, LAND_H, -381.7), h: 2.4, w: 2.4, model: 'falcon', rotY: 0.4, s: 0.55, clear: 3.6, ringScale: 1.2 }
+    { id: 1, tags: ['Banana Island', 'Ikoyi'], project: "MISSI", title: '5-bed penthouse, maisonettes and apartments', name: 'Banana Island', price: '$1.5m–4.5m', pos: new THREE.Vector3(69.1, LAND_H, -74.6), h: 2.9, w: 2.4, model: 'banana', rotY: -Math.PI / 2, s: 0.55, clear: 3.6, ringScale: 1.15 },
+    { id: 2, tags: ['Old Ikoyi', 'Ikoyi'], project: "Fenry", title: '4-bed triplex penthouse and 5-bed terraces', name: 'Old Ikoyi', price: '$3m–5m', pos: new THREE.Vector3(-28, LAND_H, -27), h: 3.0, w: 2.6, model: 'fenry', rotY: Math.PI, s: 0.55, clear: 2.6, ringScale: 0.85 },
+    { id: 3, tags: ['Ikoyi', 'South-West Ikoyi'], project: "S&S Courtyard", title: '4-bed maisonette penthouse', name: 'Ikoyi', price: '$2.6m', pos: new THREE.Vector3(11, LAND_H, -33), h: 3.2, w: 2.4, model: 'courtyard', rotY: -Math.PI / 4, s: 0.55, clear: 2.9, ringScale: 0.9 },
+    { id: 4, tags: ['Victoria Island'], project: "Sol", title: '1-, 2- and 3-bed apartments', name: 'Victoria Island', price: '₦550m–700m', pos: new THREE.Vector3(-25, LAND_H, 100), h: 5.6, w: 2.4, model: 'vi', rotY: -0.73, s: 0.55, clear: 3.2, ringScale: 1.0 },
+    { id: 5, tags: ['Banana Island', 'Ikoyi'], project: "Bijou", title: '3-bed apartments and 4-bed maisonettes', name: 'Banana Island tower', price: '$676k–2.19m', pos: new THREE.Vector3(95, LAND_H, -66), h: 8.0, w: 3.0, model: 'bijou', rotY: 0.35, s: 0.55, clear: 4.4, ringScale: 1.6 },
+    { id: 6, tags: ['Ikoyi'], project: "The Mandilas Tower", title: '2- to 5-bed apartments', name: 'Ikoyi tower', price: '$558k–2.8m', pos: new THREE.Vector3(30.4, LAND_H, 19.4), h: 6.4, w: 2.8, model: 'ikoyitower', rotY: 0, s: 0.55, clear: 3.6, ringScale: 1.3 },
+    { id: 7, tags: ['Victoria Island'], project: "Metropolitan Towers", title: '4-bed apartments, 5-bed duplexes and a 6-bed penthouse', name: 'VI waterfront', price: '$1.94m–6.28m', pos: new THREE.Vector3(-26, LAND_H, 68.8), h: 9.5, w: 3.0, model: 'vitwin', rotY: 0.05, s: 0.55, clear: 5.5, ringScale: 1.5 },
+    { id: 8, tags: ['Lekki Phase 1', 'Lekki'], project: "The Gogle", title: '2-bed apartments, a 2-bed maisonette and a 3-bed penthouse', name: 'Lekki Phase 1', price: '₦270M–549M', pos: new THREE.Vector3(196, LAND_H, 58.6), h: 3.6, w: 2.6, model: 'lekki', rotY: 0.3, s: 0.55, clear: 3.2, ringScale: 1.0 },
+    { id: 9, tags: ['Ikoyi'], project: "11 Bourdillon", title: '1- to 5-bed flats and maisonettes', name: 'Ikoyi residences', price: '₦880M–3.9B', pos: new THREE.Vector3(2, LAND_H, 39), h: 5.2, w: 2.8, model: 'ikoyires', rotY: -0.3, s: 0.55, clear: 3.6, ringScale: 1.3 },
+    { id: 10, tags: ['Ikoyi', 'Banana Island'], project: "Harbour Point Tower", title: '2-bed flats, 4-bed maisonettes and 5-bed penthouses', name: 'Ikoyi waterfront', price: '₦800M–1.7B', pos: new THREE.Vector3(59.5, LAND_H, -58.9), h: 4.4, w: 2.6, model: 'harbour', rotY: 0.6, s: 0.55, clear: 3.4, ringScale: 1.1 },
+    { id: 11, tags: ['Fadeyi', 'Yaba'], title: 'One-bedroom rental portfolios from ₦232M', name: '2 units of 1 bed', price: '₦232M–278M', pos: new THREE.Vector3(-398, LAND_H, -381.7), h: 2.4, w: 2.4, model: 'falcon', rotY: 0.4, s: 0.55, clear: 3.6, ringScale: 1.2 }
   ];
 
   // Banana Island penthouse building, modelled from the developer's corner, front and side elevations:
@@ -1098,6 +1148,89 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     return g;
   }
 
+  // Ikoyi residences, from the developer's elevations: an 11-storey tower of two wings joined by a
+  // recessed glazed stair core, dark grey floor slabs with glass rails, brick and cream panels, a set-back
+  // top floor with roof terraces, pool and parking at ground level.
+  function buildIkoyiRes() {
+    const g = new THREE.Group();
+    const FH = 0.34, PH = 0.42, N = 10;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const slab = M(0x4d525c, .7), cream = M(0xe9e3d6, .6), brick = M(0x8a5a48, .85), white = M(0xf1f1ef, .5), core = M(0x7d9ab0, .2, .3), green = M(0x2f5a3a, .9), water = M(0x45a9d6, .2, .1), asphalt = M(0x3a3d42, .9);
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    box(6.6, 0.04, 6.4, asphalt, 0, 0.02, 0.2);
+    box(1.4, 0.05, 0.7, water, 0, 0.05, -2.6);
+    [[-3, 2.9], [-1.6, 3.0], [1.6, 3.0], [3, 2.9], [-3, -2.6], [3, -2.6]].forEach(([x, z]) => { box(0.05, 0.8, 0.05, M(0x6b5a44, .9), x, 0.4, z); const t = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), green); t.position.set(x, 0.85, z); g.add(t); });
+    box(4.4, PH, 3.6, slab, 0, PH / 2, 0);
+    const WW = 1.9, D = 3.4;
+    [-1, 1].forEach(sx => {
+      const cx = sx * (WW / 2 + 0.25);
+      box(WW, N * FH, D, cream, cx, PH + N * FH / 2, 0);
+      box(0.45, N * FH, D * 0.9, brick, cx + sx * (WW / 2 - 0.2), PH + N * FH / 2, 0);
+      for (let k = 0; k < N; k++) {
+        const y0 = PH + k * FH, yc = y0 + FH * 0.5;
+        box(WW + 0.3, 0.06, D + 0.3, slab, cx, y0 + 0.03, 0);
+        [-1, 1].forEach(sz => {
+          pane(WW * 0.7, FH * 0.62, lit(), cx, yc, sz * (D / 2 + 0.012), sz > 0 ? 0 : Math.PI);
+          box(WW + 0.2, 0.1, 0.02, M(0x9fc3d6, .1, .3), cx, y0 + 0.11, sz * (D / 2 + 0.14));
+          if (rand() < .5) box(0.14, 0.12, 0.12, green, cx + (rand() - .5) * WW, y0 + 0.12, sz * (D / 2 + 0.08));
+        });
+        pane(D * 0.6, FH * 0.55, lit(), cx + sx * (WW / 2 + 0.012), yc, 0, sx * Math.PI / 2);
+      }
+      const top = PH + N * FH;
+      box(WW + 0.3, 0.06, D + 0.3, slab, cx, top + 0.03, 0);
+      box(WW * 0.6, FH, D * 0.5, white, cx, top + FH / 2 + 0.06, 0);
+      for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.1, 7, 6), green); t.position.set(cx - 0.6 + i * 0.4, top + 0.14, D / 2 - 0.1); g.add(t); }
+    });
+    box(0.5, N * FH + 0.4, 1.0, core, 0, PH + (N * FH + 0.4) / 2, 0);
+    const lamp = new THREE.PointLight(0xffdcaa, 12, 9, 2); lamp.position.set(0, 2.4, 4.4); g.add(lamp);
+    return g;
+  }
+
+  // Harbour Point Tower, from the developer's renders: a white seven-level block with timber-clad
+  // corner bays and tall glazed strips, balconies with planters, a pergola roof terrace, and a pool and
+  // jetty on the water side (-z).
+  function buildHarbour() {
+    const g = new THREE.Group();
+    const FH = 0.36, PH = 0.4, N = 6, W = 3.6, D = 3.0;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const white = M(0xf2f2f0, .5), timber = M(0x9a6b44, .75), glassM = M(0x5f87a8, .15, .4), grey = M(0x6f747c, .7), green = M(0x2f5a3a, .9), water = M(0x45a9d6, .2, .1), deck = M(0x7a5a3a, .8);
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    box(5.6, 0.04, 6.0, M(0x1e3326, 1), 0, 0.02, 0.4);
+    box(1.8, 0.05, 0.9, water, -0.8, 0.05, -2.2);
+    box(0.5, 0.06, 2.0, deck, 1.6, 0.03, -3.2); box(1.6, 0.06, 0.4, deck, 1.6, 0.03, -4.1);
+    [[2.6, -2.6], [-2.6, 2.8], [2.6, 2.8], [-2.6, -1.6]].forEach(([x, z]) => { box(0.05, 0.8, 0.05, M(0x6b5a44, .9), x, 0.4, z); const t = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), green); t.position.set(x, 0.85, z); g.add(t); });
+    box(W, PH, D, grey, 0, PH / 2, 0);
+    box(W, N * FH, D, white, 0, PH + N * FH / 2, 0);
+    [-1, 1].forEach(sx => {
+      box(0.7, N * FH, 0.06, timber, sx * (W / 2 - 0.35), PH + N * FH / 2, D / 2 + 0.03);
+      box(0.06, N * FH, 0.7, timber, sx * (W / 2 + 0.03), PH + N * FH / 2, D / 2 - 0.35);
+      box(0.35, N * FH + 0.3, 0.05, glassM, sx * 0.55, PH + (N * FH + 0.3) / 2, -D / 2 - 0.03);
+    });
+    for (let k = 0; k < N; k++) {
+      const y0 = PH + k * FH, yc = y0 + FH * 0.5;
+      [-1, 1].forEach(sz => {
+        box(W * 0.55, 0.05, 0.4, white, 0, y0 + 0.025, sz * (D / 2 + 0.2));
+        box(W * 0.55, 0.1, 0.02, M(0x9fc3d6, .1, .3), 0, y0 + 0.1, sz * (D / 2 + 0.39));
+        if (rand() < .6) box(0.16, 0.12, 0.12, green, (rand() - .5) * W * 0.5, y0 + 0.11, sz * (D / 2 + 0.3));
+        pane(W * 0.45, FH * 0.62, lit(), 0, yc, sz * (D / 2 + 0.012), sz > 0 ? 0 : Math.PI);
+      });
+      [-1, 1].forEach(sx => pane(D * 0.4, FH * 0.55, lit(), sx * (W / 2 + 0.07), yc, -0.3, sx * Math.PI / 2));
+    }
+    const top = PH + N * FH;
+    box(W - 0.6, FH, D - 0.8, white, 0, top + FH / 2, 0.1);
+    pane(W * 0.5, FH * 0.6, warm, 0, top + FH * 0.5, D / 2 - 0.29);
+    box(W - 0.2, 0.04, D - 0.2, M(0x4a4f56, .6), 0, top + FH + 0.25, 0);
+    for (let i = 0; i < 7; i++) box(0.04, 0.05, D - 0.3, grey, -W / 2 + 0.4 + i * 0.47, top + FH + 0.2, 0);
+    const lamp = new THREE.PointLight(0xffdcaa, 10, 8, 2); lamp.position.set(0, 2.0, 3.8); g.add(lamp);
+    return g;
+  }
+
   // Falcon, Fadeyi, modelled from the developer's renders: two dark-brick blocks either side of a
   // stair core with sloping roof planes, a tall glazed slot on the left block, slim windows, a dark
   // slatted gate and planters over the entrance.
@@ -1271,7 +1404,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   const featTex = windows(5, 18, 0.7);
   featured.forEach(f => {
     if (f.model) {
-      const g = f.model === 'banana' ? buildBananaPenthouse() : f.model === 'fenry' ? buildFenry() : f.model === 'vi' ? buildVITower() : f.model === 'bijou' ? buildBijou() : f.model === 'falcon' ? buildFalcon() : f.model === 'ikoyitower' ? buildIkoyiTower() : f.model === 'vitwin' ? buildVITwin() : f.model === 'lekki' ? buildLekki() : buildCourtyard(); g.position.copy(f.pos); g.rotation.y = f.rotY; g.scale.setScalar(f.s || 1); scene.add(g);
+      const g = f.model === 'banana' ? buildBananaPenthouse() : f.model === 'fenry' ? buildFenry() : f.model === 'vi' ? buildVITower() : f.model === 'bijou' ? buildBijou() : f.model === 'falcon' ? buildFalcon() : f.model === 'ikoyitower' ? buildIkoyiTower() : f.model === 'vitwin' ? buildVITwin() : f.model === 'lekki' ? buildLekki() : f.model === 'ikoyires' ? buildIkoyiRes() : f.model === 'harbour' ? buildHarbour() : buildCourtyard(); g.position.copy(f.pos); g.rotation.y = f.rotY; g.scale.setScalar(f.s || 1); scene.add(g);
       const bm = beamMat();
       const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.5, 46, 24, 1, true), bm);
       beam.position.set(f.pos.x, f.pos.y + f.h + 23, f.pos.z); scene.add(beam);
@@ -1333,8 +1466,8 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   const places = labelDefs.map(([t, p, w]) => { const el = document.createElement('div'); el.className = 'place' + (w === true ? ' water' : w === 'state' ? ' state' : ''); el.textContent = t; labelsEl.appendChild(el); return { el, v: new THREE.Vector3(...p), state: w === 'state' }; });
   const pins = featured.map(f => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'pin';
-    b.innerHTML = '<span>' + f.name + '</span><b>' + f.price + '</b>';
-    b.setAttribute('aria-label', f.name + ' listing, ' + f.price);
+    b.innerHTML = '<span>' + (f.project || f.name).replace(/&/g, '&amp;') + '</span><b>' + f.price + '</b>';
+    b.setAttribute('aria-label', (f.project ? f.project + ', ' : '') + f.name + ' listing, ' + f.price);
     b.classList.add('has-page');
     b.addEventListener('click', () => { if (search || f.id === active) openPage(f.id); else sections[f.id].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); });
     labelsEl.appendChild(b); return { el: b, v: f.top, f };
@@ -1351,6 +1484,8 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     { p: [34.2, 5.8, 40.2], t: [30.4, 2.8, 19.4] },
     { p: [-19.0, 10.5, 84.5], t: [-26, 4.8, 68.8] },
     { p: [190.2, 4.6, 66.4], t: [196, 1.8, 58.6] },
+    { p: [-2.0, 6.4, 58.0], t: [2, 3.2, 39] },
+    { p: [53.0, 4.4, -49.6], t: [59.5, 2.2, -58.9] },
     { p: [-393.1, 4.9, -370.4], t: [-398, 1.5, -381.7] },
     { p: [-900, 6200, 3400], t: [-900, 0, -500] }
   ].map(k => ({ p: new THREE.Vector3(...k.p), t: new THREE.Vector3(...k.t) }));
@@ -1385,9 +1520,11 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   const norm = t => t.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const areaList = AREAS.areas.map(([n, x, z]) => ({ n, x, z, k: norm(n) }));
   const listingCount = a => featured.filter(f => matches(f, a)).length;
-  function matches(f, a) { return f.tags.some(t => norm(t) === a.k) || Math.hypot(f.pos.x - a.x, f.pos.z - a.z) < 45; }
+  function matches(f, a) { if (a.only) return f.id === a.only; return f.tags.some(t => norm(t) === a.k) || Math.hypot(f.pos.x - a.x, f.pos.z - a.z) < 45; }
   function findArea(q) {
     const k = norm(q); if (!k) return null;
+    const pj = featured.find(f => f.project && norm(f.project).replace(/^the /, '').startsWith(k.replace(/^the /, '')) && k.length >= 3);
+    if (pj) return { n: pj.project, k: '__project' + pj.id, x: pj.pos.x, z: pj.pos.z, only: pj.id };
     const al = AREAS.alias[k]; const key = al ? norm(al) : k;
     const exact = areaList.find(a => a.k === key); if (exact) return exact;
     const rank = arr => arr.sort((x, y) => (listingCount(y) - listingCount(x)) || (x.k.length - y.k.length))[0];
@@ -1408,8 +1545,8 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     document.body.classList.add('searching'); window.scrollTo(0, 0);
     qEl.value = a.n; sugEl.hidden = true;
     const homes = featured.filter(f => ids.includes(f.id));
-    resultsEl.innerHTML = `<div class="r-head"><p class="where">Area search</p><h2>${esc(a.n)}</h2><p class="r-count">${homes.length ? homes.length + (homes.length === 1 ? ' listing' : ' listings') + ' from RokHaven' : 'No listings here yet'}</p></div>` +
-      (homes.length ? `<ul class="r-list">${homes.map(f => `<li><button type="button" class="r-fly" data-id="${f.id}"><span class="r-name">${esc(f.name)}</span><span class="r-title">${esc(f.title)}</span></button><strong>${esc(f.price)}</strong><a class="btn solid" href="${PAGES[f.id]}">View</a></li>`).join('')}</ul>`
+    resultsEl.innerHTML = `<div class="r-head"><p class="where">${a.only ? 'Project' : 'Area search'}</p><h2>${esc(a.n)}</h2><p class="r-count">${homes.length ? homes.length + (homes.length === 1 ? ' listing' : ' listings') + ' from RokHaven' : 'No listings here yet'}</p></div>` +
+      (homes.length ? `<ul class="r-list">${homes.map(f => `<li><button type="button" class="r-fly" data-id="${f.id}"><span class="r-name">${esc(f.project ? f.project + ' · ' + f.tags[0] : f.name)}</span><span class="r-title">${esc(f.title)}</span></button><strong>${esc(f.price)}</strong><a class="btn solid" href="${PAGES[f.id]}">View</a></li>`).join('')}</ul>`
         : `<p class="r-empty">We don’t have homes listed in ${esc(a.n)} right now, but new listings come in every week. Tell us what you’re looking for and we’ll send matching homes first.</p><a class="btn solid" target="_blank" rel="noopener" href="https://wa.me/2349167619009?text=${encodeURIComponent('Hello RokHaven, I’m looking for a property in ' + a.n + '. Please send me what you have.')}">Ask us on WhatsApp</a>`) +
       `<button type="button" class="r-clear" id="r-clear">× Show all of Lagos</button>`;
     resultsEl.hidden = false;
@@ -1425,9 +1562,15 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     let list;
     if (!k) list = ['Banana Island', 'Ikoyi', 'Old Ikoyi', 'Victoria Island', 'Lekki Phase 1', 'Eko Atlantic'].map(n => areaList.find(a => a.n === n)).filter(Boolean);
     else { const al = AREAS.alias[k]; list = areaList.filter(a => a.k.includes(k) || (al && a.n === al)).sort((x, y) => (y.k.startsWith(k) - x.k.startsWith(k)) || (listingCount(y) - listingCount(x)) || (x.k.length - y.k.length)).slice(0, 7); }
-    sugEl.innerHTML = list.map(a => { const c = listingCount(a); return `<li><button type="button" data-n="${esc(a.n)}"><span>${esc(a.n)}</span><small>${c ? c + (c === 1 ? ' listing' : ' listings') : 'No listings yet'}</small></button></li>`; }).join('') || `<li class="none">No area called “${esc(qEl.value)}” in Lagos</li>`;
+    const kp = k.replace(/^the /, '');
+    const projs = k.length >= 2 ? featured.filter(f => f.project && norm(f.project).replace(/^the /, '').includes(kp)) : [];
+    sugEl.innerHTML = projs.map(f => `<li><button type="button" data-p="${f.id}"><span>${esc(f.project)}</span><small>Project · ${esc(f.tags[0])}</small></button></li>`).join('') +
+      list.map(a => { const c = listingCount(a); return `<li><button type="button" data-n="${esc(a.n)}"><span>${esc(a.n)}</span><small>${c ? c + (c === 1 ? ' listing' : ' listings') : 'No listings yet'}</small></button></li>`; }).join('') || `<li class="none">No area or project called “${esc(qEl.value)}”</li>`;
     sugEl.hidden = false;
-    sugEl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => runSearch(areaList.find(a => a.n === b.dataset.n))));
+    sugEl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.p) { const f = featured.find(x => x.id === +b.dataset.p); runSearch({ n: f.project, k: '__project' + f.id, x: f.pos.x, z: f.pos.z, only: f.id }); }
+      else runSearch(areaList.find(a => a.n === b.dataset.n));
+    }));
   }
   qEl.addEventListener('focus', showSug); qEl.addEventListener('input', showSug);
   document.addEventListener('click', e => { if (!e.target.closest('.search')) sugEl.hidden = true; });
@@ -1529,7 +1672,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     // slow drift on the wide views
     const camDist = curP.distanceTo(curT), sc = camDist * 0.02;
     scene.fog.density = 0.12 / Math.max(camDist, 10);
-    if (!reduceMotion && (active === 0 || active === 10)) { camera.position.x += Math.sin(time * 0.08) * 6 * sc; camera.position.z += Math.cos(time * 0.08) * 3 * sc; }
+    if (!reduceMotion && (active === 0 || active === 12)) { camera.position.x += Math.sin(time * 0.08) * 6 * sc; camera.position.z += Math.cos(time * 0.08) * 3 * sc; }
     camera.position.x += pointer.sx * 6 * sc; camera.position.y -= pointer.sy * 3 * sc;
     // Moving to a new stop re-centres the view on that listing
     if (searchSeq !== lastSearchSeq) { lastSearchSeq = searchSeq; orbit.tYaw = 0; orbit.tPitch = 0; orbit.tZoom = 1; }
@@ -1550,7 +1693,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const shown = !search || search.ids.includes(f.id);
       f.obj.visible = shown; f.beamMesh.visible = shown; f.ring.visible = shown;
       const on = search ? shown : f.id === active;
-      const tgt = on ? 1 : (active === 0 || active === 10 ? 0.45 : 0.15);
+      const tgt = on ? 1 : (active === 0 || active === 12 ? 0.45 : 0.15);
       f.beam.uniforms.uOn.value += (tgt - f.beam.uniforms.uOn.value) * (reduceMotion ? 1 : 0.06);
       f.beam.uniforms.uTime.value = reduceMotion ? 0 : time;
       f.side.emissiveIntensity = 0.9 + f.beam.uniforms.uOn.value * 0.6;
@@ -1565,7 +1708,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const vis = v.z < 1 && v.x > -1.1 && v.x < 1.1 && v.y > -1.1 && v.y < 1.1;
       const sy = (1 - v.y) / 2 * H;
       // On phones keep place names off the hero headline and away from the listing cards
-      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && (active > 0 && active < 10 || active === 0 && sy > H * 0.4) ? 0 : 1)) : 0;
+      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && (active > 0 && active < 12 || active === 0 && sy > H * 0.4) ? 0 : 1)) : 0;
       if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-50%)';
     });
     pins.forEach(p => {
@@ -1573,7 +1716,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const vis = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
       const px = (v.x + 1) / 2 * W, py = (1 - v.y) / 2 * H;
       // Phones: only the current listing's pin on a listing stop; on the hero, no pins over the headline or cut off at the edges
-      const fits = !small || search || (active > 0 && active < 10 ? p.f.id === active : px > 100 && px < W - 100 && py < H * 0.42);
+      const fits = !small || search || (active > 0 && active < 12 ? p.f.id === active : px > 100 && px < W - 100 && py < H * 0.42);
       const ok = vis && fits && (!search || search.ids.includes(p.f.id));
       p.el.style.opacity = ok ? 1 : 0; p.el.style.pointerEvents = ok ? 'auto' : 'none';
       p.el.classList.toggle('active', search ? ok : p.f.id === active);

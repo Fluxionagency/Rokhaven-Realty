@@ -11,7 +11,7 @@
   let unitIdx = 0;
   try { const h = location.hash.slice(1); const i = L.units.findIndex(u => u.key === h); if (i >= 0) unitIdx = i; } catch (e) {}
 
-  $('#area').textContent = L.area;
+  $('#area').textContent = L.project ? L.project + ' · ' + L.area : L.area;
 
   // ---------- The building ----------
   const B = L.building;
@@ -59,7 +59,7 @@
   try { fetch(LB + 'schema/').then(r => r.json()).then(j => { lbTs = j && j.antispam && j.antispam.timestamp; if (j && j.antispam && j.antispam.honeypot_field) lbHoneypot = j.antispam.honeypot_field; }).catch(() => {}); } catch (e) {}
   const WHEN = { site_inspection: 'a private site inspection', video_walkthrough: 'a live video walkthrough', price_list: 'the full price list and payment plan' };
   function waText(u, name, when, msg) {
-    return (`Hello RokHaven, ${name ? 'this is ' + name + '. ' : ''}I'm interested in the ${u.title.toLowerCase()} in ${L.area}${/request/i.test(u.price) ? '. Please send me the price' : ' (' + u.price + ')'}.` + (when ? ` I'd like ${WHEN[when] || when}.` : '') + (msg ? ' ' + msg : '')).trim();
+    return (`Hello RokHaven, ${name ? 'this is ' + name + '. ' : ''}I'm interested in the ${u.title.toLowerCase()} ${L.project ? 'at ' + L.project + ', ' : 'in '}${L.area}${/request/i.test(u.price) ? '. Please send me the price' : ' (' + u.price + ')'}.` + (when ? ` I'd like ${WHEN[when] || when}.` : '') + (msg ? ' ' + msg : '')).trim();
   }
   function updateWA() {}
   const form = $('#enquiry-form'), status = $('#f-status'), btn = $('#f-submit');
@@ -71,7 +71,7 @@
     btn.disabled = true; btn.textContent = 'Sending…'; status.textContent = '';
     const country = $('#f-country').value.trim();
     const body = { full_name: name, whatsapp: wa, email, request_type: when, message: msg, listing_page: document.title + ' · ' + u.label,
-                   property: u.product || '', area: L.area, home: u.title + ' · ' + u.price };
+                   property: u.product || '', area: L.area, project_name: L.project || '', home: (L.project ? L.project + ' · ' : '') + u.title + ' · ' + u.price };
     if (F.country) body.country = country;
     if (F.unitField) body[F.unitField] = u.key;
     document.querySelectorAll('#f-extra select').forEach(sel => { body[sel.dataset.key] = sel.value; });
@@ -85,7 +85,7 @@
       sent = res.ok;
       if (!res.ok) { const d = await res.json().catch(() => ({})); if (d.field_errors) { status.textContent = 'Please check: ' + Object.keys(d.field_errors).join(', ') + '.'; btn.disabled = false; btn.textContent = BTN; return; } }
     } catch (err) { sent = false; }
-    const q = new URLSearchParams({ n: name, h: u.title, p: u.price, a: L.area, back: location.pathname + '#' + u.key, w: (L.thanks && L.thanks.wa) || waText(u, name, when, msg), s: sent ? '1' : '0' });
+    const q = new URLSearchParams({ n: name, h: u.title, p: u.price, a: L.project ? L.project + ' · ' + L.area : L.area, back: location.pathname + '#' + u.key, w: (L.thanks && L.thanks.wa) || waText(u, name, when, msg), s: sent ? '1' : '0' });
     if (L.thanks) { if (L.thanks.title) q.set('tt', L.thanks.title); if (L.thanks.lede) q.set('tl', L.thanks.lede); if (L.thanks.cta) q.set('tc', L.thanks.cta); }
     try { sessionStorage.setItem('rh_thanks', q.toString()); } catch (err) {}
     if (sent) { try { window.rhTrack && window.rhTrack.lead(u.product || u.title, u.price); } catch (err) {} }
