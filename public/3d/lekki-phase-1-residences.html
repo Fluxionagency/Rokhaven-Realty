@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gazelle Heights · Lekki Phase 1 Maisonettes, Apartments and Penthouses</title>
+<link rel="canonical" href="https://rokhaven.com/lekki-phase-1-residences">
+<meta name="description" content="Gazelle Heights: 4-bed maisonettes, 3-bed apartments and 4-bed penthouses in Lekki Phase 1. From ₦500M.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Lekki Phase 1", "project": "Gazelle Heights", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this development.", "meta": [["Homes", "24 residences"], ["Blocks", "A and B"], ["Footage", "On request"]]}, "faq": [["How do I pay?", "Ask us for the payment plan. We’ll send it with the title documents on WhatsApp."], ["Which homes are still available?", "Most 4-bedroom maisonettes, two 3-bedroom apartments (Celeste and Ivory) and both penthouses. Onyx B, Opal and Oak are sold out."], ["What is the difference between front and back?", "Front homes face the street and are priced slightly higher; back homes face the rear of the plot and are quieter."], ["What do the penthouses include?", "Four bedrooms over the 5th and 6th floors, with a master suite and walk-in closet, a family sitting room, a private cinema and a double-height void."], ["Is there parking?", "Yes. Ample parking at ground level for residents."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "A boutique residence in the heart of Lekki Phase 1", "intro": "Twenty-four homes in two blocks: twelve four-bedroom maisonettes, eight three-bedroom apartments and four four-bedroom penthouses. Clean lines, natural stone and timber, generous terraces and large windows, with a pool, a rooftop and ample parking.", "stats": [["24", "Residences"], ["2", "Blocks"], ["6", "Floors"], ["4", "Penthouses"]], "amenities": [["Swimming pool", "A residents’ pool for relaxation and everyday enjoyment."], ["Rooftop", "An elevated rooftop for evenings and gatherings."], ["Ample parking", "Covered parking at ground level."], ["Penthouse cinemas", "Each penthouse has its own private cinema."], ["Generous terraces", "Balconies and terraces on every home."], ["Natural materials", "Stone, timber and full-height glass."], ["Close to everything", "Minutes from Admiralty Way, Lekki–Ikoyi Link Bridge and Victoria Island."], ["Low density", "Only 24 homes across two blocks."]], "gallery": [{"src": "/gallery/gz-front.jpg", "caption": "The building", "cls": "wide tall"}, {"src": "/gallery/gz-facade.jpg", "caption": "Front elevation", "cls": "tall"}, {"src": "/gallery/gz-row.jpg", "caption": "Blocks A and B", "cls": "wide"}, {"src": "/gallery/gz-balcony.jpg", "caption": "Terraces"}, {"src": "/gallery/gz-side.jpg", "caption": "From the side"}, {"src": "/gallery/gz-living.jpg", "caption": "Living room", "cls": "tall"}, {"src": "/gallery/gz-kitchen.jpg", "caption": "Kitchen", "cls": "tall"}, {"src": "/gallery/gz-bedroom.jpg", "caption": "Bedroom", "cls": "tall"}, {"src": "/gallery/gz-bath.jpg", "caption": "Bathroom", "cls": "tall"}, {"src": "/gallery/gz-penthouse.jpg", "caption": "Penthouse", "cls": "tall"}, {"src": "/gallery/gz-rooftop.jpg", "caption": "Rooftop", "cls": "tall"}, {"src": "/gallery/gz-pool.jpg", "caption": "Pool", "cls": "tall"}, {"src": "/gallery/gz-parking.jpg", "caption": "Parking", "cls": "tall"}], "mix": [["4-bed maisonette", "1st–4th", "—", "₦600M–630M", "Available"], ["3-bed apartment", "1st–4th", "—", "₦500M", "Available"], ["4-bed penthouse", "5th–6th", "—", "₦650M–670M", "Available"]], "nearby": {"title": "In Lekki Phase 1", "items": ["Close to Admiralty Way’s restaurants and shops", "Minutes from the Lekki–Ikoyi Link Bridge", "Easy reach of Victoria Island and Ikoyi", "Near Lekki’s schools, hospitals and beaches"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "4bed", "label": "4-bed maisonette", "title": "Four-bedroom maisonette", "price": "From ₦600M", "product": "", "avail": "6 units available", "size": "Two levels, ₦600M–630M", "lede": "A four-bedroom home over two floors, entered on the 1st or 3rd floor: living, dining and kitchen below, bedrooms above, with terraces front or back.", "planNote": "The developer’s whole-floor plans for both levels, raised into a model. Each floor holds blocks A and B.", "schedNote": "From the developer’s floor plans.", "facts": [["Bedrooms", "4"], ["Price", "₦600M–630M"], ["Levels", "2, private stair"], ["Floors", "1st–2nd, 3rd–4th"], ["Views", "Front or back"], ["Leisure", "Pool, rooftop"]], "levels": [{"key": "gz-floor-13", "name": "Lower level", "plan": "/plans/gz-floor-13.jpg", "sub": "1st and 3rd floors", "rooms": ["Living and dining", "Kitchen", "Guest WC", "Terraces"]}, {"key": "gz-floor-24", "name": "Upper level", "plan": "/plans/gz-floor-24.jpg", "sub": "2nd and 4th floors", "rooms": ["Four bedrooms, en-suite", "Family lounge", "Terraces"]}], "pricing": {"title": "Price list by unit", "sub": "4-bedroom maisonettes", "cols": ["Floor", "Side", "Block", "Unit", "Price"], "hi": 4, "rows": [["1st", "Front", "A", "Onyx A", "₦600M"], ["1st", "Front", "B", "Haven A", "₦600M"], ["1st", "Front", "B", "Haven C", "₦600M"], ["1st", "Back", "A", "Onyx B", "Sold out"], ["3rd", "Front", "A", "Aurelia A", "₦630M"], ["3rd", "Front", "A", "Aurelia C", "₦630M"], ["3rd", "Back", "A", "Aurelia B", "₦600M"], ["3rd", "Back", "B", "Apex B", "₦600M"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Two private levels", "Living below, bedrooms above"], ["Front or back", "Choose your view"], ["Lekki Phase 1", "Close to Admiralty Way"], ["Pool and rooftop", "Shared by residents"]]}, {"key": "3bed", "label": "3-bed apartment", "title": "Three-bedroom apartment", "price": "₦500M", "product": "", "avail": "2 units available", "size": "Single level, ₦500M", "lede": "A three-bedroom apartment on one floor, at the back of the building, with an open living and dining room, a fitted kitchen and terraces. Celeste (3rd floor) and Ivory (4th floor) are available.", "planNote": "The developer’s typical floor plan, raised into a model. Each floor holds blocks A and B.", "schedNote": "From the developer’s floor plans.", "facts": [["Bedrooms", "3"], ["Price", "₦500M"], ["Level", "Single floor"], ["Floors", "3rd and 4th"], ["Views", "Back"], ["Leisure", "Pool, rooftop"]], "levels": [{"key": "gz-floor-13", "name": "Typical floor", "plan": "/plans/gz-floor-13.jpg", "sub": "3-bed apartments at the back", "rooms": ["Living and dining", "Kitchen", "Three bedrooms, en-suite", "Terraces"]}], "pricing": {"title": "Price list by unit", "sub": "3-bedroom apartments", "cols": ["Floor", "Side", "Block", "Unit", "Price"], "hi": 4, "rows": [["1st", "Back", "A", "Opal", "Sold out"], ["2nd", "Back", "A", "Oak", "Sold out"], ["3rd", "Back", "A", "Celeste", "₦500M"], ["4th", "Back", "B", "Ivory", "₦500M"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Lowest entry price", "₦500M"], ["Quiet side", "At the back of the building"], ["Lekki Phase 1", "Close to Admiralty Way"], ["Pool and rooftop", "Shared by residents"]]}, {"key": "penthouse", "label": "4-bed penthouse", "title": "Four-bedroom penthouse", "price": "From ₦650M", "product": "", "avail": "2 units available", "size": "5th and 6th floors, ₦650M–670M", "lede": "The top of the building over two floors: living, dining and kitchen on the 5th floor; above, the master suite with a walk-in closet, a family sitting room, a private cinema and a double-height void.", "planNote": "The developer’s 5th and 6th floor plans, raised into a model.", "schedNote": "From the developer’s floor plans.", "facts": [["Bedrooms", "4"], ["Price", "₦650M–670M"], ["Levels", "5th and 6th"], ["Extras", "Private cinema"], ["Views", "Front or back"], ["Leisure", "Pool, rooftop"]], "levels": [{"key": "gz-floor-5", "name": "5th floor", "plan": "/plans/gz-floor-5.jpg", "sub": "Living, dining and kitchen", "rooms": ["Living and dining", "Kitchen", "Bedrooms", "Terraces"]}, {"key": "gz-floor-6", "name": "6th floor", "plan": "/plans/gz-floor-6.jpg", "sub": "Master suite and cinema", "rooms": ["Master bedroom and walk-in closet", "Family sitting room", "Private cinema", "Bedroom, en-suite", "Double-height void"]}], "pricing": {"title": "Price list by unit", "sub": "4-bedroom penthouses", "cols": ["Floor", "Side", "Block", "Unit", "Price"], "hi": 4, "rows": [["5th", "Front", "A", "Belle", "₦670M"], ["5th", "Back", "B", "Valora", "₦650M"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Private cinema", "On the 6th floor"], ["Double-height void", "Over the living room"], ["Top of the building", "Front or back"], ["Only two left", "Belle and Valora"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>

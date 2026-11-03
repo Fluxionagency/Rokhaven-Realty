@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/listings?cat=shortlet`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE}/journal`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    ...['banana-island', 'old-ikoyi-triplex', 'ikoyi-maisonette', 'victoria-island', 'banana-island-tower', 'ikoyi-tower', 'vi-waterfront', 'lekki-phase-1', 'ikoyi-residences', 'ikoyi-waterfront', 'banana-island-waterfront', 'falcon-fadeyi-yaba'].map((slug) => ({
+    ...['banana-island', 'old-ikoyi-triplex', 'ikoyi-maisonette', 'victoria-island', 'banana-island-tower', 'ikoyi-tower', 'vi-waterfront', 'lekki-phase-1', 'ikoyi-residences', 'ikoyi-waterfront', 'banana-island-waterfront', 'lekki-phase-1-residences', 'falcon-fadeyi-yaba'].map((slug) => ({
       url: `${BASE}/${slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8,
     })),
     { url: `${BASE}/list-your-property`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
