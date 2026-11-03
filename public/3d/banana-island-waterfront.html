@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Morningside Harbour Waterfront · Banana Island Waterfront Terraces</title>
+<link rel="canonical" href="https://rokhaven.com/banana-island-waterfront">
+<meta name="description" content="Morningside Harbour: four-bedroom terrace duplexes on the Banana Island foreshore with a private jetty and pool. From ₦1.7B.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Banana Island", "project": "Morningside Harbour Waterfront", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this development.", "meta": [["Homes", "7 terraces + apartments"], ["Setting", "Banana Island foreshore"], ["Footage", "On request"]]}, "faq": [["How do I pay?", "Ask us for the payment plan. We’ll send it with the title documents on WhatsApp."], ["What is the difference between a terrace and a corner piece?", "Both are the same four-bedroom terrace duplex. The corner pieces sit at the ends of the row, with more light, more privacy and an extra open side."], ["Is it really on the water?", "Yes. The development sits on the Banana Island foreshore, with a private boating dock and jetty."], ["Are there other homes in the building?", "Yes: two four-bedroom luxury maisonettes and two two-bedroom waterfront apartments. Ask us for their prices."], ["Can I combine units?", "The developer offers buyers the option to combine apartments and design their own layout. Ask us for details."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "An intimate waterfront development on the Banana Island foreshore", "intro": "A low-density row of seven four-bedroom terrace homes, with two luxury maisonettes and two waterfront apartments above, designed around horizontal lines, full-height glass and timber accents. Private boating dock, a pool and sky terraces with views of the Ikoyi lagoon.", "stats": [["7", "Terrace homes"], ["4", "Floors per terrace"], ["Jetty", "Private boating dock"], ["Sky terraces", "On the roof"]], "amenities": [["Private boating dock", "A jetty on the lagoon for residents’ boats."], ["Swimming pool", "A private pool with a resort feel."], ["Sky terraces", "Roof-level sit-outs for sunset dining and private events."], ["High-speed private elevators", "Lifts serving the homes."], ["24/7 water and power", "Treated water and constant power."], ["Security", "24/7 CCTV, a controlled entrance gatehouse and an electric fence."], ["Ample parking", "Covered garages for each terrace home, plus visitor parking."], ["Full-height glass", "Double-glazed facades for light and lagoon views."]], "gallery": [{"src": "/gallery/ms-hero.jpg", "caption": "On the waterfront, with the jetty", "cls": "wide tall"}, {"src": "/gallery/ms-facade.jpg", "caption": "The terrace row", "cls": "wide"}, {"src": "/gallery/ms-front.jpg", "caption": "From the lagoon", "cls": "wide"}, {"src": "/gallery/ms-waterfront.jpg", "caption": "Waterfront"}, {"src": "/gallery/ms-living.jpg", "caption": "Living room", "cls": "tall"}, {"src": "/gallery/ms-kitchen.jpg", "caption": "Kitchen", "cls": "tall"}, {"src": "/gallery/ms-bedroom.jpg", "caption": "Bedroom", "cls": "tall"}, {"src": "/gallery/ms-bath.jpg", "caption": "Bathroom", "cls": "tall"}, {"src": "/gallery/ms-penthouse.jpg", "caption": "Penthouse", "cls": "tall"}, {"src": "/gallery/ms-rooftop.jpg", "caption": "Sky terrace", "cls": "tall"}, {"src": "/gallery/ms-pool.jpg", "caption": "Pool", "cls": "tall"}, {"src": "/gallery/ms-parking.jpg", "caption": "Garage", "cls": "tall"}], "mix": [["4-bed terrace duplex", "Ground–3rd", "—", "₦1.7B", "Available"], ["4-bed terrace duplex, corner piece", "Ground–3rd", "—", "₦2B", "Available"], ["4-bed luxury maisonette", "Upper floors", "—", "Ask us", "Available"], ["2-bed waterfront apartment", "Upper floors", "—", "Ask us", "Available"]], "nearby": {"title": "On the Banana Island foreshore", "items": ["Off Onikoyi Road, Ikoyi", "Direct lagoon access from the private jetty", "Minutes from Banana Island, Falomo and Victoria Island", "Close to Ikoyi’s restaurants, clubs and schools"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "terrace", "label": "4-bed terrace", "title": "Four-bedroom terrace duplex", "price": "₦1.7B", "product": "", "avail": "Units in the row · available", "size": "4 bedrooms over four floors, ₦1.7B", "lede": "A four-bedroom home over four floors: a covered garage, ante room, BQ and laundry on the ground floor; a 53 m² living and dining hall with a 17 m² kitchen and pantry above; a family lounge and two en-suite bedrooms on the second floor; and the master suite with a walk-in wardrobe and terrace on the third.", "planNote": "The developer’s plans for one terrace home, floor by floor, raised into a model.", "schedNote": "Room sizes from the developer’s brochure. Every size is approximate.", "facts": [["Bedrooms", "4 + BQ"], ["Price", "₦1.7B"], ["Levels", "4, private stair"], ["Living", "53 m²"], ["Garage", "Covered, 2 cars"], ["Extras", "Jetty, pool"]], "levels": [{"key": "ms-unit-ground", "name": "Ground floor", "plan": "/plans/ms-unit-ground.jpg", "sub": "Garage, ante room, BQ", "rooms": [["Ante room", 15], ["BQ", 7], ["BQ bath", 2], ["Laundry", 4], "Covered garage for two cars"]}, {"key": "ms-unit-first", "name": "First floor", "plan": "/plans/ms-unit-first.jpg", "sub": "Living, dining and kitchen", "rooms": [["Living & dining", 53], ["Kitchen", 17], ["Pantry", 3], ["Balconies", 16]]}, {"key": "ms-unit-second", "name": "Second floor", "plan": "/plans/ms-unit-second.jpg", "sub": "Family lounge and two bedrooms", "rooms": [["Family lounge", 18], ["Bedroom 1", 17], ["Bath 1", 4], ["Bedroom 2", 18], ["Bath 2", 3], "Front and rear balconies"]}, {"key": "ms-unit-third", "name": "Third floor", "plan": "/plans/ms-unit-third.jpg", "sub": "Master suite and bedroom 3", "rooms": [["Master bedroom", 29], ["Master bath", 6], ["Bedroom 3", 22], ["Bath 3", 3], "Walk-in wardrobe", "Private terrace"]}], "pricing": {"title": "Price list", "sub": "4-bedroom terrace duplexes", "cols": ["Home", "Units", "Price"], "hi": 2, "rows": [["Terrace", "5", "₦1.7B"], ["Terrace corner piece", "2", "₦2B"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["₦1.7B", "For an inside terrace home"], ["On the waterfront", "Private jetty and boat dock"], ["Four private floors", "Garage and BQ, living, bedrooms, master suite"], ["Private elevator", "High-speed lift in the building"]]}, {"key": "corner", "label": "4-bed corner piece", "title": "Four-bedroom terrace duplex, corner piece", "price": "₦2B", "product": "", "avail": "End of the row · available", "size": "4 bedrooms over four floors, ₦2B", "lede": "The same four-floor, four-bedroom terrace home at the end of the row, with more light, more privacy and an extra open side. Covered garage, BQ, a 53 m² living and dining hall, family lounge and a master suite with a private terrace.", "planNote": "The developer’s plans for one terrace home, floor by floor, raised into a model.", "schedNote": "Room sizes from the developer’s brochure. Every size is approximate.", "facts": [["Bedrooms", "4 + BQ"], ["Price", "₦2B"], ["Levels", "4, private stair"], ["Living", "53 m²"], ["Garage", "Covered, 2 cars"], ["Extras", "Jetty, pool"]], "levels": [{"key": "ms-unit-ground", "name": "Ground floor", "plan": "/plans/ms-unit-ground.jpg", "sub": "Garage, ante room, BQ", "rooms": [["Ante room", 15], ["BQ", 7], ["BQ bath", 2], ["Laundry", 4], "Covered garage for two cars"]}, {"key": "ms-unit-first", "name": "First floor", "plan": "/plans/ms-unit-first.jpg", "sub": "Living, dining and kitchen", "rooms": [["Living & dining", 53], ["Kitchen", 17], ["Pantry", 3], ["Balconies", 16]]}, {"key": "ms-unit-second", "name": "Second floor", "plan": "/plans/ms-unit-second.jpg", "sub": "Family lounge and two bedrooms", "rooms": [["Family lounge", 18], ["Bedroom 1", 17], ["Bath 1", 4], ["Bedroom 2", 18], ["Bath 2", 3], "Front and rear balconies"]}, {"key": "ms-unit-third", "name": "Third floor", "plan": "/plans/ms-unit-third.jpg", "sub": "Master suite and bedroom 3", "rooms": [["Master bedroom", 29], ["Master bath", 6], ["Bedroom 3", 22], ["Bath 3", 3], "Walk-in wardrobe", "Private terrace"]}], "pricing": {"title": "Price list", "sub": "4-bedroom terrace duplexes", "cols": ["Home", "Units", "Price"], "hi": 2, "rows": [["Terrace", "5", "₦1.7B"], ["Terrace corner piece", "2", "₦2B"]], "note": "Prices from the current price list and subject to review. Payment plan and title documents sent on request."}, "highlights": [["Corner position", "More light and privacy"], ["On the waterfront", "Private jetty and boat dock"], ["Four private floors", "Garage and BQ, living, bedrooms, master suite"], ["Private elevator", "High-speed lift in the building"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
