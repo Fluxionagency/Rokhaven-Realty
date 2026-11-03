@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Synchord Tower · Eko Atlantic 1, 2 and 3-Bed Apartments</title>
+<link rel="canonical" href="https://rokhaven.com/eko-atlantic-tower">
+<meta name="description" content="Synchord Tower: 1-, 2- and 3-bedroom apartments in a 23-floor Eko Atlantic tower. From $271,227 with 20% down and 30 months to pay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Eko Atlantic", "project": "Synchord Tower", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this tower.", "meta": [["Building", "23 floors"], ["Payment", "20% + 30 months"], ["Footage", "On request"]]}, "faq": [["How does the payment plan work?", "A 20% commitment deposit, then the balance in 30 monthly instalments."], ["Why do prices change by floor?", "Higher floors have better views, so each level is priced a little higher."], ["How much parking comes with each home?", "Two car parks for each apartment, across seven floors of parking."], ["What are the amenities?", "A swimming pool, gym, restaurant, landscaped grounds, four elevators, one entrance and one exit, and state-of-the-art security."], ["Is furniture included?", "No. Interior images are illustrative; furniture is not included in the sale."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "A 23-floor residential tower in Eko Atlantic", "intro": "One-, two- and three-bedroom apartments with modern finishes in a 23-floor tower in Eko Atlantic City, with seven floors of parking, a pool, gym and restaurant.", "stats": [["23", "Floors"], ["4", "Elevators"], ["2", "Car parks per home"], ["20%", "Deposit"]], "amenities": [["Swimming pool", "A residents’ pool."], ["Gym", "A fitted gym."], ["Restaurant", "A restaurant in the building."], ["Landscaping", "Planted grounds and terraces."], ["Parking", "Seven floors of parking, two spaces per apartment."], ["Four elevators", "Fast lifts serving every floor."], ["Security", "One entrance and one exit, with state-of-the-art security."], ["Eko Atlantic", "A new city with its own power and drainage."]], "gallery": [{"src": "/gallery/sy-tower.jpg", "caption": "The tower", "cls": "wide tall"}, {"src": "/gallery/sy-tower-2.jpg", "caption": "From the street", "cls": "tall"}, {"src": "/gallery/sy-interior.jpg", "caption": "Interior", "cls": "tall"}, {"src": "/gallery/sy-dining.jpg", "caption": "Dining", "cls": "tall"}, {"src": "/gallery/sy-family.jpg", "caption": "Living", "cls": "tall"}, {"src": "/gallery/px-eko.jpg", "caption": "Eko Atlantic City", "cls": "wide"}], "mix": [["1-bed apartment", "Levels 7–15", "63–68 m²", "$271.2k–306.5k", "Available"], ["2-bed apartment", "Levels 14–15", "131–150 m²", "$467.8k–525.7k", "Available"], ["3-bed apartment", "Levels 9–15", "156–181 m²", "$528.7k–635.2k", "Available"]], "nearby": {"title": "In Eko Atlantic", "items": ["In Eko Atlantic City, beside Victoria Island", "Close to the Atlantic waterfront", "Near VI’s offices, hotels and restaurants", "A city with its own power and drainage"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "1bed", "label": "1-bed apartment", "title": "One-bedroom apartment", "price": "From $271.2k", "product": "", "avail": "Available", "size": "63–68 m², from $271.2k", "lede": "A one-bedroom apartment with a living room opening onto a terrace, a kitchen, a bedroom with its own bathroom and a guest WC. Two layouts, on levels 7 to 15.", "layouts": true, "planNote": "Layouts from the developer’s plans. Switch between them above. Plan sizes are the brochure’s; price-sheet sizes may differ slightly.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "63–68 m²"], ["Bedrooms", "1"], ["Price", "$271.2k–306.5k"], ["Payment", "20% + 30 months"], ["Parking", "2 car parks"], ["Levels", "7 to 15"]], "levels": [{"key": "sy-1bed-d2", "name": "63 m² layout", "plan": "/plans/sy-1bed-d2.jpg", "sub": "Living, kitchen, bedroom", "rooms": [["Living room", 19], ["Bedroom", 19], ["Kitchen", 5], ["Terrace", 4], ["Bathroom", 4], ["Guest WC", 3]]}, {"key": "sy-1bed-d1", "name": "68 m² layout", "plan": "/plans/sy-1bed-d1.jpg", "sub": "Larger living and terrace", "rooms": [["Living room", 24], ["Bedroom", 15], ["Terrace", 14], ["Kitchen", 5], "Bathroom", "Guest WC"]}], "pricing": {"title": "Price list by level", "sub": "1-bed apartment · March 2026 price sheet", "cols": ["Level", "Size", "Price", "20% deposit", "Monthly × 30"], "rows": [["Level 7th", "63 m²", "$271,227.50", "$54,245.50", "$7,232.73"], ["Level 7th", "68 m²", "$286,465.00", "$57,293.00", "$7,639.07"], ["Level 9th", "63 m²", "$276,227.50", "$55,245.50", "$7,366.07"], ["Level 9th", "68 m²", "$291,465.00", "$58,293.00", "$7,772.40"], ["Level 11th", "63 m²", "$281,227.50", "$56,245.50", "$7,499.40"], ["Level 11th", "68 m²", "$296,465.00", "$59,293.00", "$7,905.73"], ["Level 13th", "63 m²", "$286,227.50", "$57,245.50", "$7,632.73"], ["Level 13th", "68 m²", "$301,465.00", "$60,293.00", "$8,039.07"], ["Level 15th", "63 m²", "$291,227.50", "$58,245.50", "$7,766.07"], ["Level 15th", "68 m²", "$306,465.00", "$61,293.00", "$8,172.40"]], "note": "20% commitment deposit, then 30 monthly instalments. March 2026 price sheet; all prices are subject to review."}, "highlights": [["Entry price", "From $271.2k"], ["Payment plan", "20% deposit, 30 months"], ["Two car parks", "With every apartment"], ["Eko Atlantic", "A new city by the ocean"]]}, {"key": "2bed", "label": "2-bed apartment", "title": "Two-bedroom apartment", "price": "From $467.8k", "product": "", "avail": "Available", "size": "131–150 m², from $467.8k", "lede": "A two-bedroom apartment with a large living and dining room, a kitchen, a maid’s room, two en-suite bedrooms and terraces. Two layouts, on levels 14 and 15.", "layouts": true, "planNote": "Layouts from the developer’s plans. Switch between them above. Plan sizes are the brochure’s; price-sheet sizes may differ slightly.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "131–150 m²"], ["Bedrooms", "2 + maid’s room"], ["Price", "$467.8k–525.7k"], ["Payment", "20% + 30 months"], ["Parking", "2 car parks"], ["Levels", "14 and 15"]], "levels": [{"key": "sy-2bed-d", "name": "131 m² layout", "plan": "/plans/sy-2bed-d.jpg", "sub": "Level 14", "rooms": [["Living / dining", 32], ["Master bedroom", 20], ["Bedroom 2", 15], ["Kitchen", 11], ["Terrace", 14], "Maid’s room"]}, {"key": "sy-2bed-e", "name": "150 m² layout", "plan": "/plans/sy-2bed-e.jpg", "sub": "Level 15", "rooms": [["Living / dining", 43], ["Master bedroom", 26], ["Bedroom 2", 17], ["Kitchen", 14], ["Terraces", 15], "Maid’s room"]}], "pricing": {"title": "Price list by level", "sub": "2-bed apartment · March 2026 price sheet", "cols": ["Level", "Size", "Price", "20% deposit", "Monthly × 30"], "rows": [["Level 14th", "131 m²", "$467,791.25", "$93,558.25", "$12,474.43"], ["Level 15th", "150 m²", "$525,693.75", "$105,138.75", "$14,018.50"]], "note": "20% commitment deposit, then 30 monthly instalments. March 2026 price sheet; all prices are subject to review."}, "highlights": [["High floors", "Levels 14 and 15"], ["Maid’s room", "Plus two en-suite bedrooms"], ["Payment plan", "20% deposit, 30 months"], ["Two car parks", "With every apartment"]]}, {"key": "3bed", "label": "3-bed apartment", "title": "Three-bedroom apartment", "price": "From $528.7k", "product": "", "avail": "Available", "size": "156–181 m², from $528.7k", "lede": "A three-bedroom apartment with a 40 m²+ living and dining room, a separate kitchen, a maid’s room, a box room, three bedrooms including a master suite, and terraces. Several layouts, on levels 9 to 15.", "layouts": true, "planNote": "Layouts from the developer’s plans. Switch between them above. Plan sizes are the brochure’s; price-sheet sizes may differ slightly.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "156–181 m²"], ["Bedrooms", "3 + maid’s room"], ["Price", "$528.7k–635.2k"], ["Payment", "20% + 30 months"], ["Parking", "2 car parks"], ["Levels", "9 to 15"]], "levels": [{"key": "sy-3bed-a", "name": "179–181 m² layout A", "plan": "/plans/sy-3bed-a.jpg", "sub": "Corner layout", "rooms": [["Living / dining", 40], ["Master bedroom", 25], ["Bedroom 1", 17], ["Bedroom 2", 17], ["Kitchen", 11], ["Terraces", 16], "Maid’s room", "Box room"]}, {"key": "sy-3bed-c", "name": "179–181 m² layout C", "plan": "/plans/sy-3bed-c.jpg", "sub": "Corner layout", "rooms": [["Living / dining", 40], ["Master bedroom", 25], ["Bedroom 1", 17], ["Bedroom 2", 17], ["Kitchen", 11], ["Terraces", 16], "Maid’s room", "Box room"]}, {"key": "sy-3bed-b", "name": "156–158 m² layout", "plan": "/plans/sy-3bed-b.jpg", "sub": "Compact layout", "rooms": [["Living / dining", 37], ["Master bedroom", 22], ["Bedroom 1", 16], ["Bedroom 2", 17], ["Kitchen", 11], ["Terraces", 7], "Maid’s room", "Box room"]}], "pricing": {"title": "Price list by level", "sub": "3-bed apartment · March 2026 price sheet", "cols": ["Level", "Size", "Price", "20% deposit", "Monthly × 30"], "rows": [["Level 9th", "179 m²", "$614,071.25", "$122,814.25", "$16,375.23"], ["Level 9th", "181 m²", "$620,166.25", "$124,033.25", "$16,537.77"], ["Level 10th", "179 m²", "$619,071.25", "$123,814.25", "$16,508.57"], ["Level 10th", "181 m²", "$625,166.25", "$125,033.25", "$16,671.10"], ["Level 14th", "158 m²", "$550,073.75", "$110,014.75", "$14,668.63"], ["Level 14th", "179 m²", "$624,071.25", "$124,814.25", "$16,641.90"], ["Level 14th", "181 m²", "$630,166.25", "$126,033.25", "$16,804.43"], ["Level 15th", "156 m²", "$528,741.25", "$105,748.25", "$14,099.77"], ["Level 15th", "179 m²", "$629,071.00", "$125,814.20", "$16,775.23"], ["Level 15th", "181 m²", "$635,166.25", "$127,033.25", "$16,937.77"]], "note": "20% commitment deposit, then 30 monthly instalments. March 2026 price sheet; all prices are subject to review."}, "highlights": [["Three bedrooms", "Plus maid’s room and box room"], ["Payment plan", "20% deposit, 30 months"], ["Two car parks", "With every apartment"], ["Eko Atlantic", "A new city by the ocean"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
