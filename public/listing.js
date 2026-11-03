@@ -35,7 +35,8 @@
   $('#live-title').textContent = L.live.title;
   $('#live-text').textContent = L.live.text;
   $('#live-meta').innerHTML = L.live.meta.map(([k, v]) => `<div><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('');
-  $('#live-media').innerHTML = L.video
+  $('#live-media').innerHTML = L.videos ? `<div class="live-videos">${L.videos.map(v => `<figure><video controls playsinline preload="metadata" poster="${esc(v.poster)}" src="${esc(v.src)}" aria-label="${esc(v.title)}"></video><figcaption>${esc(v.title)}</figcaption></figure>`).join('')}</div>`
+    : L.video
     ? `<video controls playsinline preload="metadata" poster="${esc(L.video.poster)}" src="${esc(L.video.src)}" aria-label="Live site walkthrough video"></video>`
     : L.livePhotos ? `<div class="live-photos">${L.livePhotos.map(ph => `<figure><img src="${esc(ph.src)}" alt="${esc(ph.caption)}" loading="lazy"><figcaption>${esc(ph.caption)}</figcaption></figure>`).join('')}</div>`
     : `<div class="live-empty">The latest walkthrough of this building is being edited.<br><br>Ask us on WhatsApp and we’ll send the newest site footage.</div>`;

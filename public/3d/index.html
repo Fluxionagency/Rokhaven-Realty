@@ -287,8 +287,9 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   <button data-go="5"><span>Banana Island tower</span><i></i></button>
   <button data-go="6"><span>Ikoyi tower</span><i></i></button>
   <button data-go="7"><span>VI waterfront</span><i></i></button>
-  <button data-go="8"><span>2 units of 1 bed</span><i></i></button>
-  <button data-go="9"><span>Viewing</span><i></i></button>
+  <button data-go="8"><span>Lekki Phase 1</span><i></i></button>
+  <button data-go="9"><span>2 units of 1 bed</span><i></i></button>
+  <button data-go="10"><span>Viewing</span><i></i></button>
 </nav>
 
 <div class="ctrls" role="group" aria-label="3D view controls">
@@ -489,7 +490,30 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     </div>
   </section>
 
-  <section class="stop" id="falcon" data-stop="8">
+  <section class="stop" id="lekki-1" data-stop="8">
+    <div class="stop-inner">
+      <article class="card">
+        <p class="where">Lekki Phase 1</p>
+        <h2>Two-bedroom apartments with a rooftop pool and gym</h2>
+        <div class="price"><strong>₦270M</strong><span>From · ₦10M to<br>start, 12-month plan</span></div>
+        <p>A boutique building with curved terraces, a rooftop pool and gym, a spa, elevator and concierge. Piling is complete; delivery April 2028.</p>
+        <ul class="facts">
+          <li><div class="k">2-bedroom</div><div class="v">129–134 m²</div></li>
+          <li><div class="k">Deposit</div><div class="v">₦10M to start</div></li>
+          <li><div class="k">Leisure</div><div class="v">Rooftop pool, gym, spa</div></li>
+          <li><div class="k">Delivery</div><div class="v">April 2028</div></li>
+        </ul>
+        <div class="also">
+          <p class="also-k">Also available in this building</p>
+          <div class="unit"><div><b>2-bedroom maisonette with BQ</b><span>Two levels</span></div><strong>₦320M+</strong></div>
+          <div class="unit"><div><b>3-bedroom penthouse</b><span>Private cinema and jacuzzi</span></div><strong>₦549M+</strong></div>
+        </div>
+        <div class="actions"><a class="btn solid" href="/lekki-phase-1">Explore these homes</a><a class="btn ghost" href="#viewing">Book a viewing</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="stop" id="falcon" data-stop="9">
     <div class="stop-inner">
       <article class="card">
         <p class="where">Fadeyi, Yaba</p>
@@ -511,7 +535,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     </div>
   </section>
 
-  <section class="stop contact" id="viewing" data-stop="9">
+  <section class="stop contact" id="viewing" data-stop="10">
     <div class="stop-inner">
       <article class="card">
         <p class="where">Private viewings</p>
@@ -547,7 +571,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   }));
 
   // Each listing has its own sales page
-  const PAGES = { 1: '/banana-island', 2: '/old-ikoyi-triplex', 3: '/ikoyi-maisonette', 4: '/victoria-island', 5: '/banana-island-tower', 6: '/ikoyi-tower', 7: '/vi-waterfront', 8: '/falcon-fadeyi-yaba' };
+  const PAGES = { 1: '/banana-island', 2: '/old-ikoyi-triplex', 3: '/ikoyi-maisonette', 4: '/victoria-island', 5: '/banana-island-tower', 6: '/ikoyi-tower', 7: '/vi-waterfront', 8: '/lekki-phase-1', 9: '/falcon-fadeyi-yaba' };
   const openPage = id => { if (PAGES[id]) window.location.href = PAGES[id]; };
 
   const sections = [...document.querySelectorAll('.stop')];
@@ -629,7 +653,8 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     { id: 5, tags: ['Banana Island', 'Ikoyi'], title: '3-bed apartments and 4-bed maisonettes', name: 'Banana Island tower', price: '$676k–2.19m', pos: new THREE.Vector3(95, LAND_H, -66), h: 8.0, w: 3.0, model: 'bijou', rotY: 0.35, s: 0.55, clear: 4.4, ringScale: 1.6 },
     { id: 6, tags: ['Ikoyi'], title: '2- to 5-bed apartments', name: 'Ikoyi tower', price: '$558k–2.8m', pos: new THREE.Vector3(30.4, LAND_H, 19.4), h: 6.4, w: 2.8, model: 'ikoyitower', rotY: 0, s: 0.55, clear: 3.6, ringScale: 1.3 },
     { id: 7, tags: ['Victoria Island'], title: '4-bed apartments, 5-bed duplexes and a 6-bed penthouse', name: 'VI waterfront', price: '$1.94m–6.28m', pos: new THREE.Vector3(-26, LAND_H, 68.8), h: 9.5, w: 3.0, model: 'vitwin', rotY: 0.05, s: 0.55, clear: 5.5, ringScale: 1.5 },
-    { id: 8, tags: ['Fadeyi', 'Yaba'], title: 'One-bedroom rental portfolios from ₦232M', name: '2 units of 1 bed', price: '₦232M–278M', pos: new THREE.Vector3(-398, LAND_H, -381.7), h: 2.4, w: 2.4, model: 'falcon', rotY: 0.4, s: 0.55, clear: 3.6, ringScale: 1.2 }
+    { id: 8, tags: ['Lekki Phase 1', 'Lekki'], title: '2-bed apartments, a 2-bed maisonette and a 3-bed penthouse', name: 'Lekki Phase 1', price: '₦270M–549M', pos: new THREE.Vector3(196, LAND_H, 58.6), h: 3.6, w: 2.6, model: 'lekki', rotY: 0.3, s: 0.55, clear: 3.2, ringScale: 1.0 },
+    { id: 9, tags: ['Fadeyi', 'Yaba'], title: 'One-bedroom rental portfolios from ₦232M', name: '2 units of 1 bed', price: '₦232M–278M', pos: new THREE.Vector3(-398, LAND_H, -381.7), h: 2.4, w: 2.4, model: 'falcon', rotY: 0.4, s: 0.55, clear: 3.6, ringScale: 1.2 }
   ];
 
   // Banana Island penthouse building, modelled from the developer's corner, front and side elevations:
@@ -1017,6 +1042,62 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     return g;
   }
 
+  // Lekki Phase 1 building, from the developer's renders: a white six-storey block raised on pillars
+  // over parking, wrapped in curved balcony slabs with glass rails, a tall glazed stair slot on the
+  // front, a stepped curved crown, and a rooftop pool deck at the back.
+  function buildLekki() {
+    const g = new THREE.Group();
+    const FH = 0.36, PH = 0.42, N = 5, W = 3.4, D = 2.8;
+    const M = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m || 0 });
+    const white = M(0xf3f3f1, .45), grey = M(0x9aa0a6, .7), green = M(0x2f5a3a, .9), water = M(0x45a9d6, .2, .1), deck = M(0x8a6a4a, .8);
+    const rail = new THREE.MeshStandardMaterial({ color: 0xbfd8e6, transparent: true, opacity: .45, roughness: .1, metalness: .3, depthWrite: false });
+    const slot = M(0x5f87a8, .15, .4), led = new THREE.MeshBasicMaterial({ color: 0xffe6bf });
+    const warm = new THREE.MeshBasicMaterial({ color: 0xF2D49B }), soft = new THREE.MeshBasicMaterial({ color: 0xb8975e }), dark = M(0x1b2638, .2, .5);
+    const lit = () => { const r = rand(); return r < .6 ? warm : r < .8 ? soft : dark; };
+    const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+    const pane = (w, h, m, x, y, z, ry) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); q.position.set(x, y, z); q.rotation.y = ry || 0; g.add(q); };
+    const arc = (r, h, m, x, y, z, a0, a1) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 20, 1, false, a0, a1), m); c.position.set(x, y, z); g.add(c); return c; };
+    // plot, fence wall, palms
+    box(5.2, 0.04, 4.4, M(0x1e3326, 1), 0, 0.02, 0.2);
+    box(5.0, 0.32, 0.06, white, 0, 0.16, 2.3);
+    [[-2.3, 2.0], [2.2, 2.0], [-2.3, -1.6]].forEach(([x, z]) => { box(0.05, 0.7, 0.05, M(0x6b5a44, .9), x, 0.35, z); const t = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 6), green); t.position.set(x, 0.75, z); g.add(t); });
+    // pillars and parking under the building
+    [[-1.4, 1.2], [0, 1.2], [1.4, 1.2], [-1.4, -1.2], [1.4, -1.2]].forEach(([x, z]) => box(0.12, PH, 0.12, white, x, PH / 2, z));
+    box(W, 0.02, D, grey, 0, 0.03, 0);
+    // main block
+    box(W, N * FH, D, white, 0, PH + N * FH / 2, 0);
+    for (let k = 0; k < N; k++) {
+      const y0 = PH + k * FH, yc = y0 + FH * 0.5;
+      // curved front balconies on both front corners, straight on the side
+      [-1, 1].forEach(sx => {
+        const cx = sx * W * 0.28;
+        arc(0.85, 0.05, white, cx, y0 + 0.025, D / 2 - 0.15, Math.PI / 2 - 1.3, 2.6);
+        arc(0.85, 0.14, rail, cx, y0 + 0.12, D / 2 - 0.15, Math.PI / 2 - 1.3, 2.6);
+        const l = arc(0.86, 0.012, led, cx, y0 + 0.003, D / 2 - 0.15, Math.PI / 2 - 1.3, 2.6);
+        pane(0.9, FH * 0.66, lit(), cx, yc, D / 2 + 0.012);
+      });
+      box(0.4, 0.05, D * 0.7, white, -W / 2 - 0.2, y0 + 0.025, 0);
+      pane(D * 0.5, FH * 0.6, lit(), W / 2 + 0.012, yc, 0, Math.PI / 2);
+      pane(D * 0.5, FH * 0.6, lit(), -W / 2 - 0.012, yc, 0, -Math.PI / 2);
+      pane(W * 0.6, FH * 0.6, lit(), 0, yc, -D / 2 - 0.012, Math.PI);
+    }
+    // tall glazed stair slot on the front
+    box(0.28, N * FH + 0.3, 0.06, slot, W * 0.5 - 0.35, PH + (N * FH + 0.3) / 2, D / 2 + 0.02);
+    // penthouse level set back with a curved crown
+    const top = PH + N * FH;
+    box(W - 0.3, FH * 1.1, D - 0.6, white, 0, top + FH * 0.55, 0.2);
+    [-1, 1].forEach(sx => arc(0.7, FH * 1.1, white, sx * W * 0.28, top + FH * 0.55, D / 2 - 0.45, Math.PI / 2 - 1.2, 2.4));
+    pane(W * 0.7, FH * 0.7, warm, 0, top + FH * 0.5, D / 2 - 0.08);
+    // rooftop pool deck at the back
+    const ry = top + FH * 1.1;
+    box(W - 0.3, 0.06, D - 0.6, white, 0, ry + 0.03, 0.2);
+    box(1.6, 0.05, 0.9, deck, -0.6, ry + 0.07, -0.55);
+    box(1.2, 0.05, 0.6, water, -0.6, ry + 0.09, -0.55);
+    for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.1, 7, 6), green); t.position.set(0.5 + i * 0.25, ry + 0.14, -0.7); g.add(t); }
+    const lamp = new THREE.PointLight(0xffdcaa, 10, 8, 2); lamp.position.set(0, 2.0, 3.6); g.add(lamp);
+    return g;
+  }
+
   // Falcon, Fadeyi, modelled from the developer's renders: two dark-brick blocks either side of a
   // stair core with sloping roof planes, a tall glazed slot on the left block, slim windows, a dark
   // slatted gate and planters over the entrance.
@@ -1190,7 +1271,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
   const featTex = windows(5, 18, 0.7);
   featured.forEach(f => {
     if (f.model) {
-      const g = f.model === 'banana' ? buildBananaPenthouse() : f.model === 'fenry' ? buildFenry() : f.model === 'vi' ? buildVITower() : f.model === 'bijou' ? buildBijou() : f.model === 'falcon' ? buildFalcon() : f.model === 'ikoyitower' ? buildIkoyiTower() : f.model === 'vitwin' ? buildVITwin() : buildCourtyard(); g.position.copy(f.pos); g.rotation.y = f.rotY; g.scale.setScalar(f.s || 1); scene.add(g);
+      const g = f.model === 'banana' ? buildBananaPenthouse() : f.model === 'fenry' ? buildFenry() : f.model === 'vi' ? buildVITower() : f.model === 'bijou' ? buildBijou() : f.model === 'falcon' ? buildFalcon() : f.model === 'ikoyitower' ? buildIkoyiTower() : f.model === 'vitwin' ? buildVITwin() : f.model === 'lekki' ? buildLekki() : buildCourtyard(); g.position.copy(f.pos); g.rotation.y = f.rotY; g.scale.setScalar(f.s || 1); scene.add(g);
       const bm = beamMat();
       const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.5, 46, 24, 1, true), bm);
       beam.position.set(f.pos.x, f.pos.y + f.h + 23, f.pos.z); scene.add(beam);
@@ -1269,6 +1350,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     { p: [99.2, 7.4, -44.5], t: [95, 4.6, -66] },
     { p: [34.2, 5.8, 40.2], t: [30.4, 2.8, 19.4] },
     { p: [-19.0, 10.5, 84.5], t: [-26, 4.8, 68.8] },
+    { p: [190.2, 4.6, 66.4], t: [196, 1.8, 58.6] },
     { p: [-393.1, 4.9, -370.4], t: [-398, 1.5, -381.7] },
     { p: [-900, 6200, 3400], t: [-900, 0, -500] }
   ].map(k => ({ p: new THREE.Vector3(...k.p), t: new THREE.Vector3(...k.t) }));
@@ -1447,7 +1529,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
     // slow drift on the wide views
     const camDist = curP.distanceTo(curT), sc = camDist * 0.02;
     scene.fog.density = 0.12 / Math.max(camDist, 10);
-    if (!reduceMotion && (active === 0 || active === 9)) { camera.position.x += Math.sin(time * 0.08) * 6 * sc; camera.position.z += Math.cos(time * 0.08) * 3 * sc; }
+    if (!reduceMotion && (active === 0 || active === 10)) { camera.position.x += Math.sin(time * 0.08) * 6 * sc; camera.position.z += Math.cos(time * 0.08) * 3 * sc; }
     camera.position.x += pointer.sx * 6 * sc; camera.position.y -= pointer.sy * 3 * sc;
     // Moving to a new stop re-centres the view on that listing
     if (searchSeq !== lastSearchSeq) { lastSearchSeq = searchSeq; orbit.tYaw = 0; orbit.tPitch = 0; orbit.tZoom = 1; }
@@ -1468,7 +1550,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const shown = !search || search.ids.includes(f.id);
       f.obj.visible = shown; f.beamMesh.visible = shown; f.ring.visible = shown;
       const on = search ? shown : f.id === active;
-      const tgt = on ? 1 : (active === 0 || active === 9 ? 0.45 : 0.15);
+      const tgt = on ? 1 : (active === 0 || active === 10 ? 0.45 : 0.15);
       f.beam.uniforms.uOn.value += (tgt - f.beam.uniforms.uOn.value) * (reduceMotion ? 1 : 0.06);
       f.beam.uniforms.uTime.value = reduceMotion ? 0 : time;
       f.side.emissiveIntensity = 0.9 + f.beam.uniforms.uOn.value * 0.6;
@@ -1483,7 +1565,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const vis = v.z < 1 && v.x > -1.1 && v.x < 1.1 && v.y > -1.1 && v.y < 1.1;
       const sy = (1 - v.y) / 2 * H;
       // On phones keep place names off the hero headline and away from the listing cards
-      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && (active > 0 && active < 9 || active === 0 && sy > H * 0.4) ? 0 : 1)) : 0;
+      p.el.style.opacity = vis ? (p.state ? (camDist > 2500 ? 1 : 0) : search ? 0.35 : (small && (active > 0 && active < 10 || active === 0 && sy > H * 0.4) ? 0 : 1)) : 0;
       if (vis) p.el.style.transform = 'translate(' + ((v.x + 1) / 2 * W) + 'px,' + ((1 - v.y) / 2 * H) + 'px) translate(-50%,-50%)';
     });
     pins.forEach(p => {
@@ -1491,7 +1573,7 @@ body.dragging, body.dragging .stop { cursor: grabbing; user-select: none; -webki
       const vis = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
       const px = (v.x + 1) / 2 * W, py = (1 - v.y) / 2 * H;
       // Phones: only the current listing's pin on a listing stop; on the hero, no pins over the headline or cut off at the edges
-      const fits = !small || search || (active > 0 && active < 9 ? p.f.id === active : px > 100 && px < W - 100 && py < H * 0.42);
+      const fits = !small || search || (active > 0 && active < 10 ? p.f.id === active : px > 100 && px < W - 100 && py < H * 0.42);
       const ok = vis && fits && (!search || search.ids.includes(p.f.id));
       p.el.style.opacity = ok ? 1 : 0; p.el.style.pointerEvents = ok ? 'auto' : 'none';
       p.el.classList.toggle('active', search ? ok : p.f.id === active);
