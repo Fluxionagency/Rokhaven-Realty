@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phoenix Rising · Eko Atlantic Apartments and Penthouses</title>
+<link rel="canonical" href="https://rokhaven.com/eko-atlantic">
+<meta name="description" content="Phoenix Rising: 1- and 3-bedroom apartments and penthouse villas in a 33-level tower in Eko Atlantic. 3-beds from $483,600 with 35% down and 36 months to pay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Eko Atlantic", "project": "Phoenix Rising", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and footage for this tower.", "meta": [["Building", "33 levels"], ["Payment", "35% + 36 months"], ["Footage", "On request"]]}, "faq": [["How does the payment plan work?", "A 35% commitment deposit, then the balance in 36 monthly instalments."], ["Why do prices change by floor?", "Higher floors have better views, so each level is priced a little higher. Prices for floors above level 26 are on request."], ["What is Eko Atlantic?", "A new coastal city built on land reclaimed from the Atlantic beside Victoria Island, with its own power, drainage and road network."], ["What are the amenities?", "A swimming pool and pool lounge, a fully fitted gym, a spa, a kids’ play area, a games room and cigar lounge, a rooftop restaurant and a 24-hour concierge."], ["Can I rent it out?", "Yes. Three-bedroom apartments in Eko Atlantic are let for about $33,000–$40,000 a year, according to the developer."], ["Can I see the brochure?", "Yes. Fill the form and we’ll send the brochure, floor plans and price list on WhatsApp."]], "building": {"title": "A 33-level tower in downtown Eko Atlantic", "intro": "One- and three-bedroom apartments, penthouse villas and a rooftop restaurant in a 33-level tower in Eko Atlantic’s downtown district, a few steps from the Atlantic Ocean.", "stats": [["33", "Levels"], ["35%", "Deposit"], ["36", "Months to pay"], ["24 h", "Concierge"]], "amenities": [["Swimming pool and lounge", "A pool deck with loungers and a pool lounge area."], ["Fully fitted gym", "Cardio and strength equipment."], ["Spa", "A spa for residents."], ["Kids’ play area", "An indoor play area for children."], ["Games room and cigar lounge", "A residents’ games room and cigar lounge."], ["Rooftop restaurant", "Dining at the top of the tower."], ["24-hour concierge", "Reception and help day and night."], ["Building services", "24/7 power, central water and sewage, fibre internet, fast lifts, CCTV and fire fighting."]], "gallery": [{"src": "/gallery/px-tower.jpg", "caption": "The tower", "cls": "tall"}, {"src": "/gallery/px-pool.jpg", "caption": "Pool deck", "cls": "wide tall"}, {"src": "/gallery/px-rooftop.jpg", "caption": "Rooftop restaurant"}, {"src": "/gallery/px-render.jpg", "caption": "Podium", "cls": "tall"}, {"src": "/gallery/px-gym.jpg", "caption": "Gym", "cls": "wide"}, {"src": "/gallery/px-kids.jpg", "caption": "Kids’ play area"}, {"src": "/gallery/px-eko.jpg", "caption": "Eko Atlantic City", "cls": "wide"}], "mix": [["1-bed apartment", "—", "70 m²", "Request price", "Available"], ["3-bed apartment", "Levels 8–26", "195 m²", "$483.6k–624k", "Available"], ["3-bed apartment", "Levels 8–26", "215 m²", "$533.2k–688k", "Available"], ["Penthouse villa", "Top floors", "324–943 m²", "Request price", "Available"]], "nearby": {"title": "In Eko Atlantic", "items": ["A few steps from the Atlantic Ocean", "In the downtown district of Eko Atlantic City", "Beside Victoria Island’s offices, hotels and restaurants", "A city with its own power and drainage"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "3bed-195", "label": "3-bed · 195 m²", "title": "Three-bedroom apartment · 195 m²", "price": "From $483.6k", "product": "", "avail": "Levels 8–26 · available", "size": "195 m², from $483.6k", "lede": "A 195 m² three-bedroom home: a 39 m² living and dining room opening onto a 13 m² terrace, a 24 m² kitchen, a 27 m² master bedroom, two more bedrooms, a study and a maid’s room. Pay 35% now and the rest over 36 months.", "planNote": "The developer’s plan, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "195 m²"], ["Bedrooms", "3 + study"], ["Price", "$483.6k–624k"], ["Payment", "35% + 36 months"], ["Staff", "Maid’s room"], ["Levels", "8 to 26"]], "levels": [{"key": "px-3bed-195", "name": "Floor plan", "plan": "/plans/px-3bed-195.jpg", "sub": "195 m²", "rooms": [["Living / dining", 39], ["Living terrace", 13], ["Kitchen", 24], ["Entrance", 12], ["Master bedroom", 27], ["Bedroom 1", 25], ["Bedroom 2", 23], ["Bedroom lobby", 10], ["Study", 5], ["Maid’s room", 14], ["Guest WC", 3]]}], "pricing": {"title": "Price list by level", "sub": "3-bedroom · 195 m² · July 2025 price sheet", "cols": ["Level", "Size", "Price", "35% deposit", "Monthly × 36"], "rows": [["Level 8", "195 m²", "$483,600", "$169,260", "$8,732"], ["Level 24", "195 m²", "$608,400", "$212,940", "$10,985"], ["Level 25", "195 m²", "$616,200", "$215,670", "$11,125.84"], ["Level 26", "195 m²", "$624,000", "$218,400", "$11,266.67"]], "note": "35% commitment deposit, then 36 monthly instalments. All prices are subject to review. Prices for higher floors on request."}, "highlights": [["Payment plan", "35% deposit, balance over 36 months"], ["Study and maid’s room", "Plus three bedrooms"], ["Eko Atlantic", "Steps from the ocean"], ["Rental demand", "$33k–40k a year for 3-beds, per the developer"]]}, {"key": "3bed-215", "label": "3-bed · 215 m²", "title": "Three-bedroom apartment · 215 m²", "price": "From $533.2k", "product": "", "avail": "Levels 8–26 · available", "size": "215 m², from $533.2k", "lede": "The larger three-bedroom layout: a 43 m² living and dining room with a 13 m² terrace, a 27 m² kitchen, a 37 m² master bedroom, two 30 m² bedrooms, a study and a maid’s room.", "planNote": "The developer’s plan, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "215 m²"], ["Bedrooms", "3 + study"], ["Price", "$533.2k–688k"], ["Payment", "35% + 36 months"], ["Master", "37 m²"], ["Levels", "8 to 26"]], "levels": [{"key": "px-3bed-215", "name": "Floor plan", "plan": "/plans/px-3bed-215.jpg", "sub": "215 m²", "rooms": [["Living / dining", 43], ["Living terrace", 13], ["Kitchen", 27], ["Master bedroom", 37], ["Bedroom 1", 30], ["Bedroom 2", 30], ["Bedroom lobby", 12], ["Study", 6], ["Maid’s room", 13], ["Guest WC", 4]]}], "pricing": {"title": "Price list by level", "sub": "3-bedroom · 215 m² · July 2025 price sheet", "cols": ["Level", "Size", "Price", "35% deposit", "Monthly × 36"], "rows": [["Level 8", "215 m²", "$533,200", "$186,620", "$9,628"], ["Level 25", "215 m²", "$679,400", "$237,790", "$12,266.95"], ["Level 26", "215 m²", "$688,000", "$240,800", "$12,422.23"]], "note": "35% commitment deposit, then 36 monthly instalments. All prices are subject to review. Prices for higher floors on request."}, "highlights": [["Bigger rooms", "37 m² master, two 30 m² bedrooms"], ["Payment plan", "35% deposit, balance over 36 months"], ["Eko Atlantic", "Steps from the ocean"], ["Study and maid’s room", "Plus three bedrooms"]]}, {"key": "1bed", "label": "1-bed apartment", "title": "One-bedroom apartment", "price": "Request price", "product": "", "avail": "Available", "size": "70 m²", "lede": "A 70 m² one-bedroom apartment with a 24 m² living room and terrace, a kitchenette, and a 21 m² bedroom with its own bathroom.", "planNote": "The developer’s plan, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "70 m²"], ["Bedrooms", "1"], ["Price", "Request price"], ["Payment", "Ask us"], ["Terrace", "5 m²"], ["Building", "33 levels"]], "levels": [{"key": "px-1bed", "name": "Floor plan", "plan": "/plans/px-1bed.jpg", "sub": "70 m²", "rooms": [["Living room", 24], ["Living terrace", 5], ["Kitchenette", 12], ["Bedroom", 21], ["Bathroom", 5], ["Guest WC", 3]]}], "highlights": [["Entry point", "Into Eko Atlantic"], ["Easy to let", "A compact city home"], ["Full amenities", "Pool, gym, spa, rooftop restaurant"], ["Price on request", "Ask us on WhatsApp"]]}, {"key": "ph324", "label": "Penthouse · 324 m²", "title": "Penthouse villa · 324 m²", "price": "Request price", "product": "", "avail": "Top floors · available", "size": "324 m² over two levels", "lede": "A 324 m² penthouse villa over two floors: an 81 m² living and dining room, a 30 m² terrace and a kitchen below; a family lounge, a 35 m² master suite with walk-in closet and three more bedrooms above.", "planNote": "The developer’s plans for both levels, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "324 m²"], ["Bedrooms", "4"], ["Price", "Request price"], ["Levels", "2, private stair"], ["Terrace", "30 m²"], ["Building", "33 levels"]], "levels": [{"key": "px-ph324-lower", "name": "Lower floor", "plan": "/plans/px-ph324-lower.jpg", "sub": "Living, kitchen, terrace", "rooms": [["Living / dining", 81], ["Terrace", 30], ["Kitchen", 25], ["Maid’s room", 12], ["Guest WC", 4]]}, {"key": "px-ph324-upper", "name": "Upper floor", "plan": "/plans/px-ph324-upper.jpg", "sub": "Bedrooms and family lounge", "rooms": [["Family lounge", 28], ["Master bedroom", 35], ["Walk-in closet", 8], ["Bedroom 1", 29], ["Bedroom 2", 28], ["Bedroom 3", 23], ["Bedroom lobby", 16], ["Box room", 5]]}], "highlights": [["Two private levels", "Living below, bedrooms above"], ["Top of the tower", "Ocean and city views"], ["Eko Atlantic", "A few steps from the Atlantic"], ["Price on request", "Ask us on WhatsApp"]]}, {"key": "ph359", "label": "Penthouse · 359 m²", "title": "Penthouse villa · 359 m²", "price": "Request price", "product": "", "avail": "Top floors · available", "size": "359 m² over two levels", "lede": "A 359 m² penthouse villa with a 92 m² terrace: a 90 m² living and dining room and kitchen below; a family lounge, master bedroom and three more bedrooms above.", "planNote": "The developer’s plans for both levels, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "359 m²"], ["Bedrooms", "4"], ["Price", "Request price"], ["Levels", "2, private stair"], ["Terrace", "92 m²"], ["Building", "33 levels"]], "levels": [{"key": "px-ph359-lower", "name": "Lower floor", "plan": "/plans/px-ph359-lower.jpg", "sub": "Living, kitchen, terrace", "rooms": [["Living / dining", 90], ["Terrace", 92], ["Kitchen", 20], ["Maid’s room", 12], ["Guest WC", 3]]}, {"key": "px-ph359-upper", "name": "Upper floor", "plan": "/plans/px-ph359-upper.jpg", "sub": "Bedrooms and family lounge", "rooms": [["Family lounge", 16], ["Master bedroom", 27], ["Bedroom 1", 24], ["Bedroom 2", 22], ["Bedroom 3", 22], ["Bedroom lobby", 28], ["Terrace", 3]]}], "highlights": [["Two private levels", "Living below, bedrooms above"], ["Top of the tower", "Ocean and city views"], ["Eko Atlantic", "A few steps from the Atlantic"], ["Price on request", "Ask us on WhatsApp"]]}, {"key": "ph943", "label": "Penthouse · 943 m²", "title": "Penthouse villa · 943 m²", "price": "Request price", "product": "", "avail": "Top floors · available", "size": "943 m² over two levels", "lede": "The grandest home in the tower: 943 m² over two floors with a 307 m² terrace and private pool, a 141 m² living area, a dining room and a 42 m² kitchen below; a 72 m² master bedroom, four more bedrooms and a family lounge above, around a double-height void.", "planNote": "The developer’s plans for both levels, raised into a model.", "schedNote": "Room sizes from the developer’s brochure.", "facts": [["Size", "943 m²"], ["Bedrooms", "5"], ["Price", "Request price"], ["Levels", "2, private stair"], ["Terrace", "307 m² + pool"], ["Building", "33 levels"]], "levels": [{"key": "px-ph943-lower", "name": "Lower floor", "plan": "/plans/px-ph943-lower.jpg", "sub": "Living, kitchen, terrace", "rooms": [["Living area", 141], ["Second living area", 31], ["Dining", 32], ["Kitchen", 42], ["Terrace", 307], ["Maid’s room", 15]]}, {"key": "px-ph943-upper", "name": "Upper floor", "plan": "/plans/px-ph943-upper.jpg", "sub": "Bedrooms and family lounge", "rooms": [["Master bedroom", 72], ["Bedroom 1", 28], ["Bedroom 2", 28], ["Bedroom 4", 33], ["Bedroom", 21], ["Family lounge", 22], ["Bedroom lobby", 48], ["Double-height void", 99]]}], "highlights": [["Two private levels", "Living below, bedrooms above"], ["Top of the tower", "Ocean and city views"], ["Eko Atlantic", "A few steps from the Atlantic"], ["Price on request", "Ask us on WhatsApp"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
