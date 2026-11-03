@@ -34,7 +34,7 @@ local and preview deploys show the "couldn't save" note on the thank-you page; t
 
 ## Content rules
 
-No building names, developer names or street addresses on listings. Victoria Island is shown as "VI" only.
+Each listing shows its project name (e.g. Bijou, 11 Bourdillon) on the map pin, card, rail and page, and the map search finds listings by project name. No developer names or street addresses. Victoria Island is shown as "VI" only.
 Yaba listing: "2 units of 1 bed", never the building or operator name; title is a Registered Conveyance
 and survey plan.
 
