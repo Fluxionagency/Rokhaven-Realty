@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zurii Residences · Ikoyi Apartments and Penthouse</title>
+<link rel="canonical" href="https://rokhaven.com/ikoyi-apartments">
+<meta name="description" content="Zurii Residences, Ikoyi: three-bedroom apartments from ₦1.25B and a five-bedroom penthouse maisonette, with a rooftop infinity pool, gym, kids’ lounge and 24/7 concierge.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/listing.css">
+<script src="/rh-track.js"></script>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to the 3D map</a>
+      <a class="brand" href="/" aria-label="RokHaven Realty home"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M 5,60 L 5,35 A 25,25 0 0,1 55,35 L 55,60 L 44,60 L 44,35 A 14,14 0 0,0 16,35 L 16,60 Z"/></svg><span>ROKHAVEN</span></a>
+    </div>
+    <div class="bar-right">
+      <nav class="bar-nav" aria-label="On this page"><a href="#layout">Layout</a><a href="#building">The building</a><a href="#live">Live from site</a></nav>
+      <a class="btn solid" href="#enquire">Book a viewing</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="info">
+      <p class="eyebrow" id="area"></p>
+      <h1 id="u-title"></h1>
+      <div class="price-row"><strong id="u-price"></strong><span id="u-avail"></span></div>
+      <p class="lede" id="u-lede"></p>
+      <div class="tabs" id="tabs" hidden></div>
+      <ul class="facts" id="u-facts"></ul>
+      <div class="actions">
+        <a class="btn solid" href="#enquire">Book a private viewing</a>
+        <a class="btn ghost" href="#live">See it live from site</a>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plan" aria-label="Animated 3D floor plan. Drag to rotate."></canvas>
+      <div class="stage-top">
+        <div class="stage-title" id="stage-title"></div>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+      </div>
+      <div class="stage-foot">
+        <span class="hint"><span class="desk">Drag to rotate · pinch or ⌃ scroll to zoom</span><span class="mob">Swipe sideways to rotate · pinch to zoom</span></span>
+        <button class="replay" id="replay" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.4h2.4"/></svg>Replay build</button>
+      </div>
+      <div class="fallback" id="fallback"></div>
+      <div class="noplan-card"><img id="noplan-img" alt=""><p id="noplan-text"></p></div>
+    </div>
+  </section>
+
+  <section class="block" id="layout">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The layout</p><h2 id="sched-title">Room by room</h2></div>
+        <p id="sched-note"></p>
+      </div>
+      <div class="schedule" id="schedule"></div>
+      <div class="pricing" id="pricing" hidden></div>
+      <div class="highlights" id="highlights"></div>
+    </div>
+  </section>
+
+  <section class="block" id="building">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">The building</p><h2 id="b-title"></h2></div>
+        <p id="b-intro"></p>
+      </div>
+      <div class="stats" id="b-stats"></div>
+      <div class="amen" id="b-amen"></div>
+      <div class="gallery" id="b-gallery"></div>
+      <div class="mix-wrap">
+        <div><h3>Homes in this building</h3><div class="table-scroll"><table class="mix" id="b-mix"></table></div></div>
+        <div class="nearby" id="b-nearby"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="live">
+    <div class="wrap live">
+      <div class="live-copy">
+        <span class="live-badge"><i></i>Live from site</span>
+        <h2 id="live-title"></h2>
+        <p id="live-text"></p>
+        <div class="live-meta" id="live-meta"></div>
+      </div>
+      <div id="live-media"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq" hidden>
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">FAQ</p><h2>Questions buyers ask</h2></div></div>
+      <div class="faq-list" id="faq-list"></div>
+    </div>
+  </section>
+
+  <section class="block" id="enquire">
+    <div class="wrap">
+      <div class="block-head">
+        <div><p class="eyebrow">Private viewings</p><h2 id="enq-h">See it in person, or on a live video call</h2></div>
+        <p id="enq-p">Tell us which home you’re interested in. We’ll reply on WhatsApp with full pricing, payment plans and title details.</p>
+      </div>
+      <div class="enquire">
+        <form id="enquiry-form" autocomplete="on" novalidate>
+          <div class="field"><label for="f-home">Home</label><select id="f-home"></select></div>
+          <div class="two">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" required placeholder="e.g. Tunde Bakare" autocomplete="name"></div>
+            <div class="field"><label for="f-wa">WhatsApp number</label><input id="f-wa" type="tel" required placeholder="+234 801 234 5678" autocomplete="tel"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+            <div class="field" id="f-when-wrap"><label for="f-when">What would you like?</label>
+              <select id="f-when">
+                <option value="site_inspection">Private site inspection</option>
+                <option value="video_walkthrough">Live video walkthrough</option>
+                <option value="price_list">Price list and payment plan</option>
+              </select></div>
+          </div>
+          <div class="field" id="f-country-wrap" hidden><label for="f-country">Country of residence</label><input id="f-country" type="text" placeholder="e.g. Nigeria, United Kingdom" autocomplete="country-name"></div>
+          <div class="two" id="f-extra"></div>
+          <div class="field"><label for="f-msg">Anything else (optional)</label><textarea id="f-msg" placeholder="Preferred days, questions about title or payment plans…"></textarea></div>
+          <label class="consent" id="f-consent-wrap" hidden><input id="f-consent" type="checkbox"> <span>I agree to be contacted by RokHaven Realty about this property and accept the <a href="https://rokhaven.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <div class="actions"><button class="btn solid" id="f-submit" type="submit">Submit enquiry</button></div>
+          <p class="form-note" id="f-status" role="status"></p>
+          <p class="form-note">We’ll save your details and reply on WhatsApp. You can also message us directly on the next page.</p>
+        </form>
+        <div class="lines">
+          <div class="line"><div><div class="k">Call / WhatsApp</div><div class="v" id="phone">+234 916 761 9009</div></div><button class="copy" type="button" data-copy="+2349167619009" data-target="phone">Copy</button></div>
+          <div class="line"><div><div class="k">Email</div><div class="v" id="email">info@rokhaven.com</div></div><button class="copy" type="button" data-copy="info@rokhaven.com" data-target="email">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>RokHaven Realty · Lagos</span><span>Floor plans and sizes are the developer’s and are approximate.</span></div></footer>
+
+<script>
+window.LISTING = {"area": "Ikoyi", "project": "Zurii Residences", "whatsapp": "2349167619009", "video": null, "live": {"title": "Construction footage on request", "text": "We film and photograph every building we sell as it goes up. Ask us on WhatsApp and we’ll send the latest site photos and the current handover date for Zurii Residences.", "meta": [["Homes", "3-bed, 4-bed, 5-bed"], ["Rooftop", "Pool and leisure suite"], ["Footage", "On request"]]}, "faq": [["What does the price include?", "The prices shown are the developer’s starting prices for each home. Ask us on WhatsApp and we’ll send the full price list and payment plan."], ["Is the four-bedroom maisonette available?", "No, the four-bedroom maisonettes have sold out. The three-bedroom apartments and the five-bedroom penthouse maisonette are still available."], ["What’s on the roof?", "A 660 m² recreation suite: an 82 m² infinity pool with a 150 m² deck and a 219 m² garden, a 66 m² gym, a kids’ play area, a games lounge, locker rooms and a residents’ lobby."], ["Are there staff quarters?", "Yes. The three-bedroom apartments have two staff rooms, and the penthouse has three, each with its own bath, off a separate exit lobby."], ["Is the building secure?", "Yes. There’s a 24/7 concierge, controlled access and round-the-clock surveillance, plus smart home automation and fibre internet in every home."], ["Can I see the floor plans and title documents?", "Yes. Fill the form and we’ll send the full brochure, the floor plans and the title documents on WhatsApp."]], "building": {"title": "A boutique building with a rooftop leisure suite", "intro": "A small collection of large homes in the heart of Ikoyi: three-bedroom apartments on the lower floors, four-bedroom maisonettes above, and a five-bedroom penthouse over the 6th and 7th floors, crowned by a rooftop pool, gym and residents’ lounge. Every home has a terrace, staff rooms and smart home technology.", "stats": [["244–733 m²", "Home sizes"], ["660 m²", "Rooftop suite"], ["82 m²", "Infinity pool"], ["24/7", "Concierge"]], "amenities": [["Rooftop infinity pool", "An 82 m² pool with a 150 m² sun deck, a cabana and a 219 m² garden looking out over Ikoyi."], ["Gym", "A 66 m² fitness centre on the roof, with male and female locker rooms and showers."], ["Kids’ play lounge", "A play area with a climbing wall, slide, ball pit and reading nook."], ["Games room and roof lounge", "Billiards, foosball and board games in a wood-panelled lounge."], ["Sauna", "For residents, alongside the gym."], ["24/7 concierge and security", "A staffed lobby, controlled access and round-the-clock surveillance."], ["Smart homes", "Home automation and high-speed fibre in every apartment."], ["Car park", "Covered parking under the building."]], "gallery": [{"src": "/gallery/zr-tower.jpg", "caption": "Zurii Residences", "cls": "tall"}, {"src": "/gallery/zr-roof.jpg", "caption": "The rooftop pool and garden at night", "cls": "wide"}, {"src": "/gallery/zr-pool.jpg", "caption": "Infinity pool at sunset", "cls": "wide"}, {"src": "/gallery/zr-living-ph.jpg", "caption": "Penthouse living room", "cls": "wide"}, {"src": "/gallery/zr-bed-ph.jpg", "caption": "Penthouse bedroom", "cls": "tall"}, {"src": "/gallery/zr-dining-ph.jpg", "caption": "Penthouse dining", "cls": "wide"}, {"src": "/gallery/zr-kitchen-ph.jpg", "caption": "Penthouse kitchen", "cls": "wide"}, {"src": "/gallery/zr-living-3b.jpg", "caption": "3-bed living room"}, {"src": "/gallery/zr-bed-3b.jpg", "caption": "3-bed bedroom", "cls": "tall"}, {"src": "/gallery/zr-kitchen-3b.jpg", "caption": "3-bed kitchen", "cls": "wide"}, {"src": "/gallery/zr-living-4b.jpg", "caption": "Maisonette living room", "cls": "wide"}, {"src": "/gallery/zr-dining-4b.jpg", "caption": "Maisonette dining", "cls": "wide"}, {"src": "/gallery/zr-games.jpg", "caption": "Games room", "cls": "tall"}, {"src": "/gallery/zr-gym.jpg", "caption": "Gym"}, {"src": "/gallery/zr-kids.jpg", "caption": "Kids’ play lounge", "cls": "wide"}, {"src": "/gallery/zr-concierge.jpg", "caption": "Concierge"}, {"src": "/gallery/zr-street.jpg", "caption": "From the street", "cls": "wide"}], "mix": [["3-bed apartment", "1st floor", "244 m²", "₦1.25B", "Available"], ["3-bed apartment", "2nd floor", "244 m²", "₦1.3B", "Available"], ["3-bed apartment", "3rd floor", "244 m²", "₦1.35B", "Available"], ["4-bed maisonette", "—", "366 m²", "—", "Sold out"], ["5-bed penthouse maisonette", "6th–7th", "733 m²", "₦3.5B", "Available"]], "nearby": {"title": "In Ikoyi", "items": ["In the heart of Ikoyi, Lagos Island", "Quick to Victoria Island, Lekki and the business districts", "Close to international schools, shopping malls and hospitals", "Among Ikoyi’s restaurants, clubs and social spots"], "note": "Exact address shared on enquiry."}}, "units": [{"key": "3bed", "label": "3-bed apartment", "title": "Three-bedroom apartment", "price": "From ₦1.25B", "product": "", "avail": "Floors 1–3 · available", "size": "244 m² plus a 37 m² terrace", "lede": "A 54 m² living and dining room, three bedrooms led by a 29 m² master suite with a walk-in closet, a separate 26 m² family lounge, a 20 m² kitchen, and two staff rooms off a private exit lobby. A 37 m² terrace runs along the front.", "planNote": "The developer’s 3-bedroom plan, raised into a model", "schedNote": "Room sizes from the developer’s plan. Every size is approximate.", "facts": [["Size", "244 m²"], ["Bedrooms", "3, plus a box room"], ["Price", "₦1.25B–1.35B"], ["Terrace", "37 m²"], ["Staff rooms", "2, with baths"], ["Floors", "1st to 3rd"]], "levels": [{"key": "zr-3bed", "name": "Floor plan", "plan": "/plans/zr-3bed.jpg", "sub": "The same plan on the 1st, 2nd and 3rd floors", "rooms": [["Living and dining", 54], ["Family lounge", 26], ["Kitchen", 20], ["Master bedroom", 29], ["Closet", 9], ["Bedroom 2", 22], ["Bedroom 3", 22], ["Terrace", 37], "Plus two staff rooms, a laundry, store and box room"]}], "pricing": {"title": "Price by floor", "sub": "Three-bedroom apartments · 244 m²", "cols": ["Floor", "Size", "Starting price"], "hi": 2, "rows": [["1st floor", "244 m²", "₦1,250,000,000"], ["2nd floor", "244 m²", "₦1,300,000,000"], ["3rd floor", "244 m²", "₦1,350,000,000"]], "note": "Starting prices from the developer’s price list, subject to change. Ask us on WhatsApp for the payment plan."}, "highlights": [["Family lounge", "A second living room, apart from the main one"], ["Master suite", "29 m² with a walk-in closet"], ["Two staff rooms", "Each with a bath, off a separate exit lobby"], ["Rooftop pool and gym", "Shared with only a few homes"]]}, {"key": "4bed", "label": "4-bed maisonette", "title": "Four-bedroom maisonette", "price": "Sold out", "product": "", "avail": "Sold out", "size": "366 m² over two levels", "lede": "A two-level home: a 75 m² living and dining room, kitchen, a fourth bedroom and staff quarters below; the master suite, two more bedrooms and a family lounge above, with terraces on both floors. The four-bedroom maisonettes have sold out.", "planNote": "The developer’s plans for both levels, raised into a model", "schedNote": "Room sizes from the developer’s plans. Every size is approximate.", "facts": [["Status", "Sold out"], ["Size", "366 m²"], ["Bedrooms", "4"], ["Levels", "2"], ["Terraces", "51 m²"], ["Similar homes", "Ask us"]], "levels": [{"key": "zr-4m-lower", "name": "Lower level", "plan": "/plans/zr-4m-lower.jpg", "sub": "Living, kitchen, bedroom 4 and staff rooms", "rooms": [["Living and dining", 75], ["Kitchen", 20], ["Bedroom 4", 19], ["Ante room", 8], ["Terrace", 16], "Plus two staff rooms, a laundry and store"]}, {"key": "zr-4m-upper", "name": "Upper level", "plan": "/plans/zr-4m-upper.jpg", "sub": "Master suite, two bedrooms and family lounge", "rooms": [["Master bedroom", 29], ["Closet", 8], ["Bedroom 2", 24], ["Bedroom 3", 25], ["Family lounge", 22], ["Stairs lobby", 22], ["Terrace", 35]]}], "highlights": [["Sold out", "Ask us about the 3-bed apartments or the penthouse"], ["Two levels", "Living below, bedrooms above"], ["Terraces on both floors", "51 m² in all"], ["Family lounge", "Upstairs, by the bedrooms"]]}, {"key": "penthouse", "label": "5-bed penthouse", "title": "Five-bedroom penthouse maisonette", "price": "From ₦3.5B", "product": "", "avail": "6th–7th floors · available", "size": "733 m² over two levels", "lede": "The top two floors: a 152 m² living and dining room, a home cinema and a 37 m² kitchen below; a 65 m² family lounge, a 46 m² master suite with a 20 m² closet, and four more bedrooms above. Terraces of 73 m² and 75 m² wrap both levels, joined by a sweeping spiral stair.", "planNote": "The developer’s plans for both levels, raised into a model", "schedNote": "Room sizes from the developer’s plans. Every size is approximate.", "facts": [["Size", "733 m²"], ["Bedrooms", "5, plus guest room"], ["Price", "From ₦3.5B"], ["Terraces", "148 m²"], ["Home cinema", "36 m²"], ["Floors", "6th and 7th"]], "levels": [{"key": "zr-ph-lower", "name": "6th floor", "plan": "/plans/zr-ph-lower.jpg", "sub": "Living, cinema, kitchen and staff quarters", "rooms": [["Living and dining", 152], ["Home cinema", 36], ["Kitchen", 37], ["Ante room", 10], ["Powder room", 3], ["Terrace", 73], "Plus three staff rooms, a laundry, wine cellar, store and IT room"]}, {"key": "zr-ph-upper", "name": "7th floor", "plan": "/plans/zr-ph-upper.jpg", "sub": "Master suite, four bedrooms and family lounge", "rooms": [["Family lounge", 65], ["Master bedroom", 46], ["Closet", 20], ["Master bath", 18], ["Bedroom 2", 28], ["Bedroom 3", 26], ["Bedroom 4", 26], ["Guest bedroom", 18], ["Terrace", 75]]}], "pricing": {"title": "Price", "sub": "Five-bedroom penthouse maisonette · 733 m²", "cols": ["Home", "Floors", "Starting price"], "hi": 2, "rows": [["5-bed penthouse maisonette", "6th–7th", "₦3,500,000,000"]], "note": "Starting prices from the developer’s price list, subject to change. Ask us on WhatsApp for the payment plan."}, "highlights": [["The top two floors", "With 148 m² of terraces"], ["Home cinema", "36 m², off the living room"], ["46 m² master suite", "With a 20 m² closet and 18 m² bath"], ["Three staff rooms", "Each with a bath"]]}]};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="/listing.js"></script>
+</body>
+</html>
